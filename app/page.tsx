@@ -1,5 +1,7 @@
 import { app } from "@/lib/firebase";
 import { kite } from "@/lib/kite";
+import MarketSnapshot from "@/components/MarketSnapshot";
+import UniverseViewer from "@/components/UniverseViewer";
 export default function Home() {
 
   console.log(app);
@@ -241,34 +243,8 @@ export default function Home() {
 
           </div>
 
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5">
-
-            <h2 className="text-yellow-400 text-xl font-bold">
-              STOCK : KARURVYSYA
-            </h2>
-
-            <div className="space-y-3 mt-5">
-
-              <div className="flex justify-between">
-                <span>Week High</span>
-                <span>295.00</span>
-              </div>
-
-              <div className="flex justify-between">
-                <span>Week Low</span>
-                <span>285.00</span>
-              </div>
-
-              <div className="flex justify-between">
-                <span>CMP PRICE</span>
-                <span className="text-green-400">
-                  292.95
-                </span>
-              </div>
-
-            </div>
-
-          </div>
+          <MarketSnapshot />
+          <UniverseViewer />
 
           <div className="bg-green-950 border border-green-700 rounded-2xl p-5">
 
