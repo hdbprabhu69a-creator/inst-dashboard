@@ -11,19 +11,18 @@ import { db } from "@/lib/firebase";
 export async function GET(
   request: Request
 ) {
-
   try {
 
     const { searchParams } =
       new URL(request.url);
 
-    const symbol =
-      searchParams.get("symbol");
+    const instrumentToken =
+      searchParams.get("token");
 
-    if (!symbol) {
+    if (!instrumentToken) {
 
       return NextResponse.json({
-        error: "No symbol provided",
+        error: "No token provided",
       });
 
     }
@@ -54,13 +53,26 @@ export async function GET(
       accessToken
     );
 
-    const quote =
-      await kite.getQuote([
-        `NSE:${symbol}`,
-      ]);
+    const to =
+      new Date();
+
+    const from =
+      new Date();
+
+    from.setDate(
+      from.getDate() - 30
+    );
+
+    const candles =
+      await kite.getHistoricalData(
+        Number(instrumentToken),
+        "day",
+        from,
+        to
+      );
 
     return NextResponse.json(
-      quote
+      candles
     );
 
   } catch (error: any) {
@@ -70,5 +82,4 @@ export async function GET(
     });
 
   }
-
 }

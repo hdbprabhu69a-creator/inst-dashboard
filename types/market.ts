@@ -14,9 +14,7 @@ export interface QuoteData {
 }
 
 export interface MarketData {
-  ["NSE:KARURVYSYA"]?: QuoteData;
-  ["NSE:RELIANCE"]?: QuoteData;
-  ["NSE:SBIN"]?: QuoteData;
+  [key: string]: QuoteData;
 }
 
 export interface MarketState {
