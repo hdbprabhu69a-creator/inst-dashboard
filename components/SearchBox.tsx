@@ -62,14 +62,15 @@ export default function SearchBox() {
 
     }
 
-    const filtered = stocks.filter(
-      (stock) =>
-        stock.symbol
-          ?.toLowerCase()
-          .includes(
-            query.toLowerCase()
-          )
-    );
+    const filtered =
+      stocks.filter(
+        (stock) =>
+          stock.symbol
+            ?.toLowerCase()
+            .includes(
+              query.toLowerCase()
+            )
+      );
 
     setResults(filtered);
 
@@ -86,20 +87,49 @@ export default function SearchBox() {
             e.target.value
           )
         }
-        placeholder="Search stocks..."
-        className="bg-zinc-900 border border-zinc-700 rounded-xl px-5 py-3 w-[450px] outline-none"
+        placeholder="Stock"
+        className="
+          bg-zinc-900
+          border
+          border-zinc-700
+          rounded-lg
+          px-3
+          py-1
+          h-8
+          w-[220px]
+          text-sm
+          outline-none
+        "
       />
 
       {results.length > 0 &&
         query !== selectedStock && (
 
-        <div className="absolute top-14 left-0 w-full bg-zinc-900 border border-zinc-700 rounded-xl z-50 max-h-96 overflow-y-auto">
+        <div
+          className="
+            absolute
+            top-9
+            left-0
+            w-full
+            bg-zinc-900
+            border
+            border-zinc-700
+            rounded-lg
+            z-50
+            max-h-80
+            overflow-y-auto
+          "
+        >
 
           {results.map((stock) => (
 
             <div
               key={stock.id}
-              className="p-3 cursor-pointer hover:bg-zinc-800"
+              className="
+                p-2
+                cursor-pointer
+                hover:bg-zinc-800
+              "
               onClick={() => {
 
                 setSelectedStock(
@@ -118,12 +148,16 @@ export default function SearchBox() {
 
               <div className="flex justify-between">
 
-                <span>
+                <span className="text-sm">
+
                   {stock.symbol}
+
                 </span>
 
-                <span className="text-zinc-500 text-sm">
+                <span className="text-zinc-500 text-xs">
+
                   {stock.sector}
+
                 </span>
 
               </div>

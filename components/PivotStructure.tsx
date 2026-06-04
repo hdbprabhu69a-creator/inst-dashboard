@@ -1,5 +1,7 @@
 "use client";
-
+console.log(
+  "PIVOT STRUCTURE LOADED"
+);
 import {
   useSelectedStock,
 } from "@/src/context/SelectedStockContext";
@@ -9,10 +11,10 @@ import {
 } from "@/hooks/useInstrumentToken";
 
 import {
-  useMarketStructure,
-} from "@/hooks/useMarketStructure";
+  usePivotStructure,
+} from "@/hooks/usePivotStructure";
 
-export default function MarketHistoryTable() {
+export default function PivotStructure() {
 
   const { selectedStock } =
     useSelectedStock();
@@ -23,10 +25,9 @@ export default function MarketHistoryTable() {
     );
 
   const {
-    structure,
+    data,
     loading,
-    error,
-  } = useMarketStructure(
+  } = usePivotStructure(
     instrumentToken
   );
 
@@ -34,27 +35,9 @@ export default function MarketHistoryTable() {
 
     return (
 
-      <div className="col-span-4 bg-zinc-900 border border-zinc-800 rounded-xl p-2">
+      <div className="col-span-4 bg-zinc-900 border border-zinc-800 rounded-xl p-2 text-xs text-zinc-500">
 
-        <div className="text-center text-zinc-500 text-xs">
-
-          Loading...
-
-        </div>
-
-      </div>
-
-    );
-
-  }
-
-  if (error) {
-
-    return (
-
-      <div className="col-span-4 bg-zinc-900 border border-red-500 rounded-xl p-2 text-red-400">
-
-        {error}
+        Loading Pivot Structure...
 
       </div>
 
@@ -70,38 +53,30 @@ export default function MarketHistoryTable() {
 
         <thead>
 
-          <tr className="border-b border-zinc-800 text-zinc-400">
+          <tr className="border-b border-zinc-800 text-zinc-500">
 
             <th className="text-left py-1">
               TF
             </th>
 
             <th className="text-right py-1">
-              HIGH
+              PVT
             </th>
 
             <th className="text-right py-1">
-              LOW
+              R1
             </th>
 
             <th className="text-right py-1">
-              F23
+              S1
             </th>
 
             <th className="text-right py-1">
-              F38
+              R2
             </th>
 
             <th className="text-right py-1">
-              F50
-            </th>
-
-            <th className="text-right py-1">
-              F61
-            </th>
-
-            <th className="text-right py-1">
-              F76
+              S2
             </th>
 
           </tr>
@@ -110,11 +85,13 @@ export default function MarketHistoryTable() {
 
         <tbody>
 
-          {structure.map(
+          {data.map(
             (row: any) => (
 
               <tr
-                key={row.timeframe}
+                key={
+                  row.timeframe
+                }
                 className="
                   border-b
                   border-zinc-800/20
@@ -127,45 +104,33 @@ export default function MarketHistoryTable() {
 
                 </td>
 
-                <td className="text-right text-green-400">
+                <td className="text-right text-blue-400">
 
-                  {row.high?.toFixed(2)}
-
-                </td>
-
-                <td className="text-right text-red-400">
-
-                  {row.low?.toFixed(2)}
-
-                </td>
-
-                <td className="text-right text-white">
-
-                  {row.fib236?.toFixed(2)}
+                  {row.pivot?.toFixed(2)}
 
                 </td>
 
                 <td className="text-right text-green-400">
 
-                  {row.fib382?.toFixed(2)}
-
-                </td>
-
-                <td className="text-right text-yellow-400">
-
-                  {row.fib50?.toFixed(2)}
-
-                </td>
-
-                <td className="text-right text-orange-400">
-
-                  {row.fib618?.toFixed(2)}
+                  {row.r1?.toFixed(2)}
 
                 </td>
 
                 <td className="text-right text-red-400">
 
-                  {row.fib786?.toFixed(2)}
+                  {row.s1?.toFixed(2)}
+
+                </td>
+
+                <td className="text-right text-green-400">
+
+                  {row.r2?.toFixed(2)}
+
+                </td>
+
+                <td className="text-right text-red-400">
+
+                  {row.s2?.toFixed(2)}
 
                 </td>
 

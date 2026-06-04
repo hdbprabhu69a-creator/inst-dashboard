@@ -12,19 +12,27 @@ import {
 import { db } from "@/lib/firebase";
 
 export async function GET() {
+
   try {
 
-    const tokenDoc = await getDoc(
-      doc(db, "settings", "kite")
-    );
+    const tokenDoc =
+      await getDoc(
+        doc(
+          db,
+          "settings",
+          "kite"
+        )
+      );
 
     const accessToken =
       tokenDoc.data()?.accessToken;
 
     if (!accessToken) {
+
       throw new Error(
         "No Access Token Found"
       );
+
     }
 
     const kite =
@@ -45,53 +53,59 @@ export async function GET() {
         )
       );
 
-    let updated = 0;
+    let updatedStocks = 0;
 
-    for (const stockDoc of universeSnapshot.docs) {
+    for (
+      const stockDoc
+      of universeSnapshot.docs
+    ) {
 
       const stock =
         stockDoc.data();
 
-      const instrumentToken =
-        stock.instrumentToken;
-
-      if (!instrumentToken) {
+      if (
+        !stock.instrumentToken
+      ) {
         continue;
       }
 
-      const today =
-        new Date();
+      console.log(
+        "================================="
+      );
 
-      const fromDate =
-        new Date();
-
-      fromDate.setDate(
-        today.getDate() - 365
+      console.log(
+        "SYNCING:",
+        stock.symbol
       );
 
       const history =
         await kite.getHistoricalData(
-          instrumentToken,
+          stock.instrumentToken,
           "day",
-          fromDate,
-          today,
+          new Date("2025-06-01"),
+          new Date(),
           false
         );
 
-      for (const candle of history) {
+      console.log(
+        "TOTAL CANDLES:",
+        history.length
+      );
 
-        const d =
-          new Date(
+      for (
+        const candle
+        of history
+      ) {
+
+        const rawDate =
+          String(
             candle.date
           );
 
-        const date =
-          d.toLocaleDateString(
-            "en-CA",
-            {
-              timeZone:
-                "Asia/Kolkata",
-            }
+        const saveDate =
+          rawDate.substring(
+            0,
+            10
           );
 
         await setDoc(
@@ -101,11 +115,12 @@ export async function GET() {
             "universe",
             stockDoc.id,
             "history",
-            date
+            saveDate
           ),
 
           {
-            date,
+            date:
+              saveDate,
 
             open:
               candle.open,
@@ -131,31 +146,42 @@ export async function GET() {
 
       }
 
-      updated++;
+      console.log(
+        "DONE:",
+        stock.symbol
+      );
+
+      updatedStocks++;
 
     }
 
     return NextResponse.json({
+
       success: true,
-      updated,
+
+      updatedStocks,
+
     });
 
   } catch (error: any) {
 
+    console.error(
+      "SYNC HISTORY ERROR:"
+    );
+
+    console.error(
+      error
+    );
+
     return NextResponse.json({
+
       success: false,
+
       error:
         error.message,
+
     });
 
   }
-}
-console.log(
-  "RAW DATE:",
-  candle.date
-);
 
-console.log(
-  "ISO DATE:",
-  candle.date.toISOString()
-);
+}

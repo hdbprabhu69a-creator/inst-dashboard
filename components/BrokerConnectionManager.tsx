@@ -1,28 +1,93 @@
 "use client";
-console.log(
-  "TOP ENV =",
-  process.env.NEXT_PUBLIC_KITE_API_KEY
-);
 
-export default function BrokerConnectionManager() {
+import { useEffect, useState } from "react";
+
+type ConnectionStatus =
+  | "connected"
+  | "disconnected"
+  | "expired";
+
+export default function BrokerConnectionManager({
+  status = "connected",
+}: {
+  status?: ConnectionStatus;
+}) {
 
   const apiKey =
     process.env.NEXT_PUBLIC_KITE_API_KEY;
 
-  const reconnect = () => {
+  const [statusTime, setStatusTime] =
+    useState("");
 
-    console.log(
-      "API KEY =",
-      apiKey
-    );
+  useEffect(() => {
+
+    const updateTime = () => {
+
+      const now = new Date();
+
+      const weekday =
+        now.toLocaleDateString(
+          "en-IN",
+          {
+            weekday: "short",
+          }
+        );
+
+      const day =
+        now.toLocaleDateString(
+          "en-IN",
+          {
+            day: "2-digit",
+          }
+        );
+
+      const month =
+        now.toLocaleDateString(
+          "en-IN",
+          {
+            month: "short",
+          }
+        );
+
+      const time =
+        now.toLocaleTimeString(
+          "en-IN",
+          {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+          }
+        );
+
+      setStatusTime(
+        `${weekday} ${day}-${month} • ${time}`
+      );
+
+    };
+
+    updateTime();
+
+    const interval =
+      setInterval(
+        updateTime,
+        60000
+      );
+
+    return () =>
+      clearInterval(interval);
+
+  }, []);
+
+  const reconnect = () => {
 
     if (!apiKey) {
 
       alert(
-        "NEXT_PUBLIC_KITE_API_KEY not loaded"
+        "Kite API Key not found"
       );
 
       return;
+
     }
 
     window.location.href =
@@ -30,29 +95,62 @@ export default function BrokerConnectionManager() {
 
   };
 
+  const statusConfig = {
+
+    connected: {
+      icon: "🟢",
+      text: "LIVE",
+      color: "text-green-400",
+    },
+
+    disconnected: {
+      icon: "🔴",
+      text: "OFFLINE",
+      color: "text-red-400",
+    },
+
+    expired: {
+      icon: "🟡",
+      text: "EXPIRED",
+      color: "text-yellow-400",
+    },
+
+  };
+
+  const current =
+    statusConfig[status];
+
   return (
 
     <div className="flex items-center gap-4">
 
-      <div>
-
-        <p className="text-green-400 font-semibold">
-          🟢 Zerodha Connected
-        </p>
-
-        <p className="text-xs text-zinc-500">
-          Live Feed Active
-        </p>
-
-        <p className="text-yellow-400 text-xs">
-          API KEY = {apiKey || "UNDEFINED"}
-        </p>
-
-      </div>
+      <p
+        className={`
+          text-sm
+          font-semibold
+          whitespace-nowrap
+          ${current.color}
+        `}
+      >
+        {current.icon}
+        {" "}
+        {current.text}
+        {" • "}
+        {statusTime}
+      </p>
 
       <button
         onClick={reconnect}
-        className="bg-green-600 hover:bg-green-700 px-3 py-1 rounded-lg text-sm"
+        className="
+          bg-green-600
+          hover:bg-green-700
+          px-4
+          py-2
+          rounded-xl
+          text-sm
+          font-medium
+          transition
+        "
       >
         Reconnect
       </button>

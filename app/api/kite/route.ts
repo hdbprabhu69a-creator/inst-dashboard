@@ -22,15 +22,25 @@ export async function GET(
 
     if (!symbol) {
 
-      return NextResponse.json({
-        error: "No symbol provided",
-      });
+      return NextResponse.json(
+        {
+          success: false,
+          error: "No symbol provided",
+        },
+        {
+          status: 400,
+        }
+      );
 
     }
 
     const tokenDoc =
       await getDoc(
-        doc(db, "settings", "kite")
+        doc(
+          db,
+          "settings",
+          "kite"
+        )
       );
 
     const accessToken =
@@ -38,9 +48,16 @@ export async function GET(
 
     if (!accessToken) {
 
-      return NextResponse.json({
-        error: "No Access Token Found",
-      });
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            "No Access Token Found",
+        },
+        {
+          status: 400,
+        }
+      );
 
     }
 
@@ -54,20 +71,55 @@ export async function GET(
       accessToken
     );
 
+    const exchangeSymbol =
+      `NSE:${symbol}`;
+
+    console.log(
+      "FETCHING:",
+      exchangeSymbol
+    );
+
     const quote =
       await kite.getQuote([
-        `NSE:${symbol}`,
+        exchangeSymbol,
       ]);
 
-    return NextResponse.json(
-      quote
+    console.log(
+      "QUOTE:",
+      JSON.stringify(
+        quote,
+        null,
+        2
+      )
     );
+
+    return NextResponse.json({
+      success: true,
+      symbol,
+      quote,
+    });
 
   } catch (error: any) {
 
-    return NextResponse.json({
-      error: error.message,
-    });
+    console.error(
+      "KITE API ERROR:"
+    );
+
+    console.error(
+      error
+    );
+
+    return NextResponse.json(
+      {
+        success: false,
+        error:
+          error.message ||
+          "Unknown Error",
+      },
+      {
+        status: 500,
+      }
+    );
 
   }
 
