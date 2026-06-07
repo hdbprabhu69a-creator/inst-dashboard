@@ -1,179 +1,146 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {
+  useSelectedStock,
+} from "@/src/context/SelectedStockContext";
 
 import {
-  calculateSwing,
   calculateFib,
 } from "@/src/lib/marketStructure";
 
-export function useMarketStructure(
-  instrumentToken: number
-) {
+export function useMarketStructure() {
 
-  const [data, setData] =
-    useState<any[]>([]);
+  const {
+    marketStructure,
+    loading,
+  } = useSelectedStock();
 
-  const [loading, setLoading] =
-    useState(true);
+  const structure: any[] = [];
 
-  const [error, setError] =
-    useState("");
+  if (
+    marketStructure?.weeklySwing
+  ) {
 
-  useEffect(() => {
+    const fib =
+      calculateFib(
+        marketStructure.weeklySwing.high,
+        marketStructure.weeklySwing.low
+      );
 
-    async function loadData() {
+    structure.push({
 
-      try {
+      timeframe: "W",
 
-        setLoading(true);
+      high:
+        marketStructure.weeklySwing.high,
 
-        const periods = [
-          "1W",
-          "2W",
-          "1M",
-          "3M",
-          "6M",
-          "1Y",
-        ];
+      low:
+        marketStructure.weeklySwing.low,
 
-        const results =
-          await Promise.all(
+      fib236:
+        fib.fib236,
 
-            periods.map(
-              async (period) => {
+      fib382:
+        fib.fib382,
 
-                const response =
-                  await fetch(
-                    `/api/kite/history?token=${instrumentToken}&period=${period}`
-                  );
+      fib50:
+        fib.fib50,
 
-                const result =
-                  await response.json();
+      fib618:
+        fib.fib618,
 
-                return {
+      fib786:
+        fib.fib786,
 
-                  period,
+    });
 
-                  candles:
-                    result.candles || [],
+  }
 
-                };
+  if (
+    marketStructure?.monthlySwing
+  ) {
 
-              }
-            )
+    const fib =
+      calculateFib(
+        marketStructure.monthlySwing.high,
+        marketStructure.monthlySwing.low
+      );
 
-          );
+    structure.push({
 
-        setData(results);
+      timeframe: "M",
 
-        setError("");
+      high:
+        marketStructure.monthlySwing.high,
 
-      } catch (err) {
+      low:
+        marketStructure.monthlySwing.low,
 
-        console.error(err);
+      fib236:
+        fib.fib236,
 
-        setError(
-          "Failed to load market structure"
-        );
+      fib382:
+        fib.fib382,
 
-      } finally {
+      fib50:
+        fib.fib50,
 
-        setLoading(false);
+      fib618:
+        fib.fib618,
 
-      }
+      fib786:
+        fib.fib786,
 
-    }
+    });
 
-    if (instrumentToken) {
+  }
 
-      loadData();
+  if (
+    marketStructure?.dailySwing
+  ) {
 
-    }
+    const fib =
+      calculateFib(
+        marketStructure.dailySwing.high,
+        marketStructure.dailySwing.low
+      );
 
-  }, [instrumentToken]);
+    structure.push({
 
-  const structure =
+      timeframe: "D",
 
-    data
-      .map(
-        (item) => {
+      high:
+        marketStructure.dailySwing.high,
 
-          const swing =
-            calculateSwing(
-              item.candles
-            );
+      low:
+        marketStructure.dailySwing.low,
 
-          if (!swing) {
+      fib236:
+        fib.fib236,
 
-            return null;
+      fib382:
+        fib.fib382,
 
-          }
+      fib50:
+        fib.fib50,
 
-          const fib =
-            calculateFib(
-              swing.high,
-              swing.low
-            );
+      fib618:
+        fib.fib618,
 
-          const lastCandle =
-            item.candles[
-              item.candles.length - 1
-            ];
+      fib786:
+        fib.fib786,
 
-          const pivot =
-            (
-              swing.high +
-              swing.low +
-              (
-                lastCandle?.close || 0
-              )
-            ) / 3;
+    });
 
-          return {
-
-            timeframe:
-              item.period,
-
-            high:
-              swing.high,
-
-            low:
-              swing.low,
-
-            pivot,
-
-            fib236:
-              fib.fib236,
-
-            fib382:
-              fib.fib382,
-
-            fib50:
-              fib.fib50,
-
-            fib618:
-              fib.fib618,
-
-            fib786:
-              fib.fib786,
-
-          };
-
-        }
-      )
-
-      .filter(Boolean);
+  }
 
   return {
-
-    data,
 
     structure,
 
     loading,
 
-    error,
+    error: "",
 
   };
 

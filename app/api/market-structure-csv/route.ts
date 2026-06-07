@@ -1,132 +1,188 @@
 import { NextResponse } from "next/server";
 
+import {
+  collection,
+  getDocs,
+} from "firebase/firestore";
+
+import { db } from "@/lib/firebase";
+
 export async function GET() {
 
-  const response =
-    await fetch(
-      "http://localhost:3000/api/market-structure"
+  const snapshot =
+    await getDocs(
+      collection(
+        db,
+        "marketStructure"
+      )
     );
 
-  const data =
-    await response.json();
+  const rows =
+    snapshot.docs.map(
+      (doc) => {
 
-  const row = {
+        const data =
+          doc.data();
 
-    symbol:
-      data.symbol,
+        return {
 
-    cmp:
-      data.cmp,
+          symbol:
+            data.symbol,
 
-    dailyPivot:
-      data.dailyPivot?.pivot,
+          cmp:
+            data.cmp,
 
-    dailyR1:
-      data.dailyPivot?.r1,
+          dailyVWAP:
+            data.dailyVWAP,
 
-    dailyS1:
-      data.dailyPivot?.s1,
+          weeklyVWAP:
+            data.weeklyVWAP,
 
-    weeklyPivot:
-      data.weeklyPivot?.pivot,
+          monthlyVWAP:
+            data.monthlyVWAP,
 
-    weeklyR1:
-      data.weeklyPivot?.r1,
+          avgVolumeDaily:
+            data.avgVolumeDaily,
 
-    weeklyS1:
-      data.weeklyPivot?.s1,
+          avgVolumeWeekly:
+            data.avgVolumeWeekly,
 
-    monthlyPivot:
-      data.monthlyPivot?.pivot,
+          avgVolumeMonthly:
+            data.avgVolumeMonthly,
 
-    monthlyR1:
-      data.monthlyPivot?.r1,
+          dailyPVT:
+            data.dailyPivot?.pivot,
 
-    monthlyS1:
-      data.monthlyPivot?.s1,
+          dailyCPR_TC:
+            data.dailyCPR?.tc,
 
-    dailyCPR_TC:
-      data.dailyCPR?.tc,
+          dailyCPR_BC:
+            data.dailyCPR?.bc,
 
-    dailyCPR_BC:
-      data.dailyCPR?.bc,
+          dailyR1:
+            data.dailyPivot?.r1,
 
-    weeklyCPR_TC:
-      data.weeklyCPR?.tc,
+          dailyS1:
+            data.dailyPivot?.s1,
 
-    weeklyCPR_BC:
-      data.weeklyCPR?.bc,
+          weeklyPVT:
+            data.weeklyPivot?.pivot,
 
-    monthlyCPR_TC:
-      data.monthlyCPR?.tc,
+          weeklyCPR_TC:
+            data.weeklyCPR?.tc,
 
-    monthlyCPR_BC:
-      data.monthlyCPR?.bc,
+          weeklyCPR_BC:
+            data.weeklyCPR?.bc,
 
-    weeklyFib236:
-      data.weeklyFib?.fib236,
+          weeklyR1:
+            data.weeklyPivot?.r1,
 
-    weeklyFib382:
-      data.weeklyFib?.fib382,
+          weeklyS1:
+            data.weeklyPivot?.s1,
 
-    weeklyFib50:
-      data.weeklyFib?.fib50,
+          monthlyPVT:
+            data.monthlyPivot?.pivot,
 
-    weeklyFib618:
-      data.weeklyFib?.fib618,
+          monthlyCPR_TC:
+            data.monthlyCPR?.tc,
 
-    weeklyFib786:
-      data.weeklyFib?.fib786,
+          monthlyCPR_BC:
+            data.monthlyCPR?.bc,
 
-    monthlyFib236:
-      data.monthlyFib?.fib236,
+          monthlyR1:
+            data.monthlyPivot?.r1,
 
-    monthlyFib382:
-      data.monthlyFib?.fib382,
+          monthlyS1:
+            data.monthlyPivot?.s1,
 
-    monthlyFib50:
-      data.monthlyFib?.fib50,
+          weeklyFib236:
+            data.weeklyFib?.fib236,
 
-    monthlyFib618:
-      data.monthlyFib?.fib618,
+          weeklyFib382:
+            data.weeklyFib?.fib382,
 
-    monthlyFib786:
-      data.monthlyFib?.fib786,
+          weeklyFib50:
+            data.weeklyFib?.fib50,
 
-    dailySwingHigh:
-      data.dailySwing?.high,
+          weeklyFib618:
+            data.weeklyFib?.fib618,
 
-    dailySwingLow:
-      data.dailySwing?.low,
+          weeklyFib786:
+            data.weeklyFib?.fib786,
 
-    dailySwingRange:
-      data.dailySwing?.range,
+          monthlyFib236:
+            data.monthlyFib?.fib236,
 
-    weeklySwingHigh:
-      data.weeklySwing?.high,
+          monthlyFib382:
+            data.monthlyFib?.fib382,
 
-    weeklySwingLow:
-      data.weeklySwing?.low,
+          monthlyFib50:
+            data.monthlyFib?.fib50,
 
-    weeklySwingRange:
-      data.weeklySwing?.range,
+          monthlyFib618:
+            data.monthlyFib?.fib618,
 
-    monthlySwingHigh:
-      data.monthlySwing?.high,
+          monthlyFib786:
+            data.monthlyFib?.fib786,
 
-    monthlySwingLow:
-      data.monthlySwing?.low,
+          dailySwingHigh:
+            data.dailySwing?.high,
 
-    monthlySwingRange:
-      data.monthlySwing?.range,
+          dailySwingLow:
+            data.dailySwing?.low,
 
-  };
+          dailySwingRange:
+            data.dailySwing?.range,
+
+          weeklySwingHigh:
+            data.weeklySwing?.high,
+
+          weeklySwingLow:
+            data.weeklySwing?.low,
+
+          weeklySwingRange:
+            data.weeklySwing?.range,
+
+          monthlySwingHigh:
+            data.monthlySwing?.high,
+
+          monthlySwingLow:
+            data.monthlySwing?.low,
+
+          monthlySwingRange:
+            data.monthlySwing?.range,
+
+          heatScore:
+            data.heatScore,
+
+          rsScore:
+            data.rsScore,
+
+          volumeScore:
+            data.volumeScore,
+
+          deliveryScore:
+            data.deliveryScore,
+
+          sectorScore:
+            data.sectorScore,
+
+          trendScore:
+            data.trendScore,
+
+        };
+
+      }
+    );
 
   return NextResponse.json({
 
     success: true,
 
-    row,
+    rows,
+
+    total:
+      rows.length,
 
   });
 

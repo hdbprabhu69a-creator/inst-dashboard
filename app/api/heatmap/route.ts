@@ -15,21 +15,71 @@ export async function GET() {
       await getDocs(
         collection(
           db,
-          "universe"
+          "heatmap_cache"
         )
       );
 
     const stocks =
       snapshot.docs.map(
-        (doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })
+        (doc) => {
+
+          const data =
+            doc.data();
+
+          return {
+
+            symbol:
+              data.symbol,
+
+            sector:
+              data.sector ||
+              "UNKNOWN",
+
+            heatScore:
+              data.heatScore || 0,
+
+            rsScore:
+              data.rsScore || 0,
+
+            volumeScore:
+              data.volumeScore || 0,
+
+            deliveryScore:
+              data.deliveryScore || 0,
+
+            sectorScore:
+              data.sectorScore || 0,
+
+            trendScore:
+              data.trendScore || 0,
+
+            rank:
+              data.rank || 0,
+
+            color:
+              data.color ||
+              "YELLOW",
+
+            updatedAt:
+              data.updatedAt,
+
+          };
+
+        }
+      )
+
+      .sort(
+        (a, b) =>
+          b.heatScore -
+          a.heatScore
       );
 
     return NextResponse.json({
 
       success: true,
+
+      totalStocks:
+        stocks.length,
 
       stocks,
 

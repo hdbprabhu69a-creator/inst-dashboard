@@ -68,7 +68,7 @@ export default function MarketSnapshot() {
 
     return (
 
-      <div className="col-span-4 bg-zinc-900 border border-zinc-800 rounded-xl p-2">
+      <div className="bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-1">
 
         Loading...
 
@@ -82,7 +82,7 @@ export default function MarketSnapshot() {
 
     return (
 
-      <div className="col-span-4 bg-zinc-900 border border-red-500 rounded-xl p-2 text-red-400">
+      <div className="bg-zinc-900 border border-red-500 rounded-xl px-3 py-1 text-red-400">
 
         {error}
 
@@ -94,9 +94,9 @@ export default function MarketSnapshot() {
 
   return (
 
-    <div className="col-span-4 bg-zinc-900 border border-zinc-800 rounded-xl p-2">
+    <div className="bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-1">
 
-      <div className="grid grid-cols-6 gap-3">
+      <div className="grid grid-cols-6 gap-2">
 
         <div>
 
@@ -104,7 +104,7 @@ export default function MarketSnapshot() {
             CMP
           </p>
 
-          <p className="text-green-400 text-lg font-bold">
+          <p className="text-green-400 text-base font-bold">
 
             {quote?.last_price
               ? formatPrice(
@@ -122,7 +122,7 @@ export default function MarketSnapshot() {
             VOL
           </p>
 
-          <p className="text-cyan-400 text-sm font-semibold">
+          <p className="text-cyan-400 text-xs font-semibold">
 
             {formatVolume(
               quote?.volume || 0
@@ -138,7 +138,7 @@ export default function MarketSnapshot() {
             OPEN
           </p>
 
-          <p className="text-white text-sm">
+          <p className="text-white text-xs">
 
             {formatPrice(
               quote?.ohlc?.open || 0
@@ -154,7 +154,7 @@ export default function MarketSnapshot() {
             HIGH
           </p>
 
-          <p className="text-green-400 text-sm">
+          <p className="text-green-400 text-xs">
 
             {formatPrice(
               quote?.ohlc?.high || 0
@@ -170,7 +170,7 @@ export default function MarketSnapshot() {
             LOW
           </p>
 
-          <p className="text-red-400 text-sm">
+          <p className="text-red-400 text-xs">
 
             {formatPrice(
               quote?.ohlc?.low || 0
@@ -186,7 +186,7 @@ export default function MarketSnapshot() {
             PCLOSE
           </p>
 
-          <p className="text-white text-sm">
+          <p className="text-white text-xs">
 
             {formatPrice(
               quote?.ohlc?.close || 0

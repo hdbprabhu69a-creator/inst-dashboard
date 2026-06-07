@@ -1,34 +1,16 @@
 "use client";
 
 import {
-  useSelectedStock,
-} from "@/src/context/SelectedStockContext";
-
-import {
-  useInstrumentToken,
-} from "@/hooks/useInstrumentToken";
-
-import {
   useMarketStructure,
 } from "@/hooks/useMarketStructure";
 
 export default function MarketHistoryTable() {
 
-  const { selectedStock } =
-    useSelectedStock();
-
-  const instrumentToken =
-    useInstrumentToken(
-      selectedStock
-    );
-
   const {
     structure,
     loading,
     error,
-  } = useMarketStructure(
-    instrumentToken
-  );
+  } = useMarketStructure();
 
   if (loading) {
 

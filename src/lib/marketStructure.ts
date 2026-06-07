@@ -152,3 +152,56 @@ export function calculateCPR(
   };
 
 }
+export function calculateVWAP(
+  candles: any[]
+) {
+
+  if (!candles.length) {
+    return 0;
+  }
+
+  let totalPV = 0;
+  let totalVolume = 0;
+
+  candles.forEach((c) => {
+
+    const typicalPrice =
+      (c.high + c.low + c.close) / 3;
+
+    totalPV +=
+      typicalPrice * c.volume;
+
+    totalVolume +=
+      c.volume;
+
+  });
+
+  if (totalVolume === 0) {
+    return 0;
+  }
+
+  return totalPV / totalVolume;
+
+}
+
+export function calculateAverageVolume(
+  candles: any[]
+) {
+
+  if (!candles.length) {
+    return 0;
+  }
+
+  const totalVolume =
+    candles.reduce(
+      (sum, c) =>
+        sum + (c.volume || 0),
+      0
+    );
+
+  return (
+    totalVolume /
+    candles.length
+  );
+
+}

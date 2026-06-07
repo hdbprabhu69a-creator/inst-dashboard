@@ -27,23 +27,46 @@ export async function GET() {
         })
       );
 
-    const rows = [];
+    const rows: string[] = [];
 
     rows.push([
+
       "Symbol",
+
       "CMP",
+
       "DailyPivot",
+
       "WeeklyPivot",
+
       "MonthlyPivot",
-      "DailyCPR",
-      "WeeklyCPR",
-      "MonthlyCPR",
-      "WeeklyFib",
-      "MonthlyFib",
-      "DailySwing",
-      "WeeklySwing",
-      "MonthlySwing",
+
+      "WeeklyFib50",
+
+      "MonthlyFib50",
+
+      "DailySwingRange",
+
+      "WeeklySwingRange",
+
+      "MonthlySwingRange",
+
+      "HeatScore",
+
+      "RSScore",
+
+      "VolumeScore",
+
+      "DeliveryScore",
+
+      "SectorScore",
+
+      "TrendScore",
+
+      "UpdatedAt",
+
       "Status",
+
     ].join(","));
 
     for (const stock of documents) {
@@ -75,8 +98,11 @@ export async function GET() {
         issues.push("NO_MONTHLY_SWING");
 
       const status =
+
         issues.length === 0
+
           ? "OK"
+
           : issues.join("|");
 
       rows.push([
@@ -91,12 +117,6 @@ export async function GET() {
 
         stock.monthlyPivot?.pivot || "",
 
-        stock.dailyCPR?.pivot || "",
-
-        stock.weeklyCPR?.pivot || "",
-
-        stock.monthlyCPR?.pivot || "",
-
         stock.weeklyFib?.fib50 || "",
 
         stock.monthlyFib?.fib50 || "",
@@ -106,6 +126,20 @@ export async function GET() {
         stock.weeklySwing?.range || "",
 
         stock.monthlySwing?.range || "",
+
+        stock.heatScore || 0,
+
+        stock.rsScore || 0,
+
+        stock.volumeScore || 0,
+
+        stock.deliveryScore || 0,
+
+        stock.sectorScore || 0,
+
+        stock.trendScore || 0,
+
+        stock.updatedAt || "",
 
         status,
 
@@ -120,11 +154,13 @@ export async function GET() {
       csv,
       {
         headers: {
+
           "Content-Type":
             "text/csv",
 
           "Content-Disposition":
-            'attachment; filename="firebase-audit.csv"',
+            'attachment; filename="market-structure-audit.csv"',
+
         },
       }
     );

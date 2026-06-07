@@ -5,13 +5,37 @@ import {
 
 import { db } from "@/lib/firebase";
 
-export async function getUniverseStocks() {
-  const snapshot = await getDocs(
-    collection(db, "universe")
-  );
+let universeCache: any[] = [];
 
-  return snapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  }));
+export async function getUniverseStocks() {
+
+  if (
+    universeCache.length > 0
+  ) {
+
+    return universeCache;
+
+  }
+
+  const snapshot =
+    await getDocs(
+      collection(
+        db,
+        "universe"
+      )
+    );
+
+  universeCache =
+    snapshot.docs.map(
+      (doc) => ({
+
+        id: doc.id,
+
+        ...doc.data(),
+
+      })
+    );
+
+  return universeCache;
+
 }

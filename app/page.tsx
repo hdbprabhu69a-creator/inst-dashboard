@@ -5,11 +5,22 @@ import { useEffect } from "react";
 import { app } from "@/lib/firebase";
 import { kite } from "@/lib/kite";
 
+import Link from "next/link";
+
 import SearchBox from "@/components/SearchBox";
 import BrokerConnectionManager from "@/components/BrokerConnectionManager";
 import MarketSnapshot from "@/components/MarketSnapshot";
-import PivotStructure from "@/components/PivotStructure";
-import MarketHistoryTable from "@/components/MarketHistoryTable";
+
+import PivotTable from "@/components/PivotTable";
+import CPRTable from "@/components/CPRTable";
+import VWAPTable from "@/components/VWAPTable";
+import VolumeTable from "@/components/VolumeTable";
+import SwingTable from "@/components/SwingTable";
+import FibTable from "@/components/FibTable";
+
+import {
+  SelectedStockProvider,
+} from "@/src/context/SelectedStockContext";
 
 export default function Home() {
 
@@ -46,41 +57,80 @@ export default function Home() {
 
   }, []);
 
-  console.log(
-    "SERVER ENV =",
-    process.env.NEXT_PUBLIC_KITE_API_KEY
-  );
-
   console.log(app);
   console.log(kite);
 
   return (
 
-    <main className="min-h-screen bg-black text-white">
+    <SelectedStockProvider>
 
-      <section className="p-2">
+      <main className="min-h-screen bg-black text-white">
 
-        <div className="space-y-1">
+        <section className="p-2">
 
-          <div className="flex justify-between items-center mb-1">
+          <div className="space-y-2">
 
-            <SearchBox />
+            <div className="flex justify-between items-center">
 
-            <BrokerConnectionManager />
+              <div className="flex items-center gap-2">
+
+                <SearchBox />
+
+                <Link
+                  href="/heatmap"
+                  className="
+                    px-4
+                    py-2
+                    rounded-lg
+                    bg-cyan-600
+                    hover:bg-cyan-500
+                    text-white
+                    text-sm
+                    font-semibold
+                  "
+                >
+                  HeatMap
+                </Link>
+
+              </div>
+
+              <BrokerConnectionManager />
+
+            </div>
+
+            <MarketSnapshot />
+
+            <div className="grid grid-cols-12 gap-2">
+
+  <div className="col-span-4">
+    <PivotTable />
+  </div>
+
+  <div className="col-span-2">
+    <CPRTable />
+  </div>
+
+  <div className="col-span-2">
+    <VWAPTable />
+  </div>
+
+  <div className="col-span-4">
+    <VolumeTable />
+  </div>
+
+</div>
+
+            <SwingTable />
+
+            <FibTable />
 
           </div>
 
-          <MarketSnapshot />
+        </section>
 
-          <PivotStructure />
+      </main>
 
-          <MarketHistoryTable />
-
-        </div>
-
-      </section>
-
-    </main>
+    </SelectedStockProvider>
 
   );
 

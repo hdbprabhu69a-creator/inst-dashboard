@@ -1,42 +1,18 @@
 import { NextResponse } from "next/server";
 
-import {
-  collection,
-  getDocs,
-} from "firebase/firestore";
-
-import { db } from "@/lib/firebase";
-
 export async function GET() {
 
   try {
 
-    const snapshot =
-      await getDocs(
-        collection(
-          db,
-          "universe"
-        )
+    const response =
+      await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/heatmap`
       );
 
-    const stocks =
-      snapshot.docs.map(
-        (doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })
-      );
+    const result =
+      await response.json();
 
-    return NextResponse.json({
-
-      success: true,
-
-      totalStocks:
-        stocks.length,
-
-      stocks,
-
-    });
+    return NextResponse.json(result);
 
   } catch (error: any) {
 

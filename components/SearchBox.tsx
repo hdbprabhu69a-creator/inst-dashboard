@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 
-import { getUniverseStocks }
-from "@/services/firebaseUniverse";
+import {
+  getUniverseStocks,
+} from "@/services/firebaseUniverse";
 
 import {
   useSelectedStock,
@@ -27,16 +28,28 @@ export default function SearchBox() {
 
   useEffect(() => {
 
+    let mounted = true;
+
     async function load() {
 
       const data =
         await getUniverseStocks();
 
-      setStocks(data);
+      if (mounted) {
+
+        setStocks(data);
+
+      }
 
     }
 
     load();
+
+    return () => {
+
+      mounted = false;
+
+    };
 
   }, []);
 

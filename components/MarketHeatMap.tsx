@@ -18,7 +18,7 @@ export default function MarketHeatMap() {
 
         const response =
           await fetch(
-            "/api/scan-universe"
+            "/api/heatmap"
           );
 
         const result =
@@ -50,7 +50,7 @@ export default function MarketHeatMap() {
 
       <div className="p-6 text-cyan-400 text-xl">
 
-        Scanning Universe...
+        Loading HeatMap...
 
       </div>
 
@@ -58,79 +58,161 @@ export default function MarketHeatMap() {
 
   }
 
+  const groupedStocks =
+    stocks.reduce(
+      (
+        groups: any,
+        stock: any
+      ) => {
+
+        const sector =
+          stock.sector ||
+          "UNKNOWN";
+
+        if (
+          !groups[sector]
+        ) {
+
+          groups[sector] = [];
+
+        }
+
+        groups[sector].push(
+          stock
+        );
+
+        return groups;
+
+      },
+      {}
+    );
+
+  const sectors =
+    Object.keys(
+      groupedStocks
+    ).sort();
+
   return (
 
-    <div className="p-4">
+    <div className="p-2 space-y-4">
 
-      <h1
-        className="
-          text-4xl
-          font-bold
-          text-cyan-400
-          mb-4
-        "
-      >
-        HEAT MAP
-      </h1>
+      {sectors.map(
+        (sector) => (
 
-      <div
-        className="
-          grid
-          grid-cols-8
-          gap-2
-        "
-      >
-
-        {stocks.map(
-          (stock: any) => (
+          <div
+            key={sector}
+            className="
+              border-b
+              border-zinc-800
+              pb-4
+            "
+          >
 
             <div
-              key={stock.symbol}
-              className={`
-                rounded-xl
-                h-20
-                flex
-                flex-col
-                justify-center
-                items-center
-                text-center
-                ${
-                  stock.color === "DARKGREEN"
-                    ? "bg-green-800"
-                    : stock.color === "GREEN"
-                    ? "bg-green-600"
-                    : stock.color === "YELLOW"
-                    ? "bg-yellow-500"
-                    : "bg-red-600"
-                }
-              `}
+              className="
+                grid
+                grid-cols-8
+                gap-2
+              "
             >
 
-              <div
-                className="
-                  text-white
-                  font-bold
-                  text-sm
-                "
-              >
-                {stock.symbol}
-              </div>
+              {groupedStocks[
+                sector
+              ]
 
-              <div
-                className="
-                  text-white
-                  text-xs
-                "
-              >
-                {stock.score}
-              </div>
+                .sort(
+                  (
+                    a: any,
+                    b: any
+                  ) =>
+                    b.heatScore -
+                    a.heatScore
+                )
+
+                .map(
+                  (
+                    stock: any
+                  ) => (
+
+                    <div
+                      key={
+                        stock.symbol
+                      }
+                      className={`
+
+                        rounded-xl
+                        h-20
+
+                        flex
+                        flex-col
+
+                        justify-center
+                        items-center
+
+                        text-center
+
+                        ${
+                          stock.color ===
+                          "DARKGREEN"
+
+                            ? "bg-green-800"
+
+                            : stock.color ===
+                              "GREEN"
+
+                            ? "bg-green-600"
+
+                            : stock.color ===
+                              "RED"
+
+                            ? "bg-red-600"
+
+                            : "bg-yellow-600"
+
+                        }
+
+                      `}
+                    >
+
+                      <div
+                        className="
+                          text-white
+                          font-bold
+                          text-sm
+                        "
+                      >
+
+                        {stock.symbol}
+
+                      </div>
+
+                      <div
+                        className="
+                          text-white
+                          text-xs
+                        "
+                      >
+
+                        Heat{" "}
+                        {
+                          stock.heatScore?.toFixed(
+                            0
+                          )
+                        }
+
+                      </div>
+
+                    </div>
+
+                  )
+                )}
 
             </div>
 
-          )
-        )}
+          </div>
 
-      </div>
+        )
+      )}
 
     </div>
 
