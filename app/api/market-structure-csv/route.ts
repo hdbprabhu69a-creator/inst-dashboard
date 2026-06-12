@@ -7,6 +7,29 @@ import {
 
 import { db } from "@/lib/firebase";
 
+function formatDate(
+  value: any
+) {
+
+  if (!value) {
+    return "";
+  }
+
+  try {
+
+    return value
+      .toDate()
+      .toLocaleDateString(
+        "en-IN"
+      );
+
+  } catch {
+
+    return "";
+  }
+
+}
+
 export async function GET() {
 
   const snapshot =
@@ -31,6 +54,178 @@ export async function GET() {
 
           cmp:
             data.cmp,
+
+          // DAILY AUDIT
+
+          dailyOpen:
+            data.dailyOHLC?.open,
+
+          dailyHigh:
+            data.dailyOHLC?.high,
+
+          dailyLow:
+            data.dailyOHLC?.low,
+
+          dailyClose:
+            data.dailyOHLC?.close,
+
+          dailyVolume:
+            data.dailyOHLC?.volume,
+
+          dailyVWAP_Audit:
+            data.dailyOHLC?.vwap,
+
+          // WEEKLY AUDIT
+
+          weeklyHigh:
+            data.weeklyOHLC?.high,
+
+          weeklyLow:
+            data.weeklyOHLC?.low,
+
+          weeklyClose:
+            data.weeklyOHLC?.close,
+
+          weeklyVolume:
+            data.weeklyOHLC?.volume,
+
+          weeklyVWAP_Audit:
+            data.weeklyOHLC?.vwap,
+
+          // MONTHLY AUDIT
+
+          monthlyHigh:
+            data.monthlyOHLC?.high,
+
+          monthlyLow:
+            data.monthlyOHLC?.low,
+
+          monthlyClose:
+            data.monthlyOHLC?.close,
+
+          monthlyVolume:
+            data.monthlyOHLC?.volume,
+
+          monthlyVWAP_Audit:
+            data.monthlyOHLC?.vwap,
+
+          // SWING AUDIT
+
+          oneWeekHigh:
+            data.oneWeekSwing?.high,
+
+          oneWeekLow:
+            data.oneWeekSwing?.low,
+
+          oneWeekRange:
+            data.oneWeekSwing?.range,
+
+          oneWeekHighDate:
+            formatDate(
+              data.oneWeekSwing?.highDate
+            ),
+
+          oneWeekLowDate:
+            formatDate(
+              data.oneWeekSwing?.lowDate
+            ),
+
+          twoWeekHigh:
+            data.twoWeekSwing?.high,
+
+          twoWeekLow:
+            data.twoWeekSwing?.low,
+
+          twoWeekRange:
+            data.twoWeekSwing?.range,
+
+          twoWeekHighDate:
+            formatDate(
+              data.twoWeekSwing?.highDate
+            ),
+
+          twoWeekLowDate:
+            formatDate(
+              data.twoWeekSwing?.lowDate
+            ),
+
+          oneMonthHigh:
+            data.oneMonthSwing?.high,
+
+          oneMonthLow:
+            data.oneMonthSwing?.low,
+
+          oneMonthRange:
+            data.oneMonthSwing?.range,
+
+          oneMonthHighDate:
+            formatDate(
+              data.oneMonthSwing?.highDate
+            ),
+
+          oneMonthLowDate:
+            formatDate(
+              data.oneMonthSwing?.lowDate
+            ),
+
+          threeMonthHigh:
+            data.threeMonthSwing?.high,
+
+          threeMonthLow:
+            data.threeMonthSwing?.low,
+
+          threeMonthRange:
+            data.threeMonthSwing?.range,
+
+          threeMonthHighDate:
+            formatDate(
+              data.threeMonthSwing?.highDate
+            ),
+
+          threeMonthLowDate:
+            formatDate(
+              data.threeMonthSwing?.lowDate
+            ),
+
+          sixMonthHigh:
+            data.sixMonthSwing?.high,
+
+          sixMonthLow:
+            data.sixMonthSwing?.low,
+
+          sixMonthRange:
+            data.sixMonthSwing?.range,
+
+          sixMonthHighDate:
+            formatDate(
+              data.sixMonthSwing?.highDate
+            ),
+
+          sixMonthLowDate:
+            formatDate(
+              data.sixMonthSwing?.lowDate
+            ),
+
+          oneYearHigh:
+            data.oneYearSwing?.high,
+
+          oneYearLow:
+            data.oneYearSwing?.low,
+
+          oneYearRange:
+            data.oneYearSwing?.range,
+
+          oneYearHighDate:
+            formatDate(
+              data.oneYearSwing?.highDate
+            ),
+
+          oneYearLowDate:
+            formatDate(
+              data.oneYearSwing?.lowDate
+            ),
+
+          // EXISTING DATA
 
           dailyVWAP:
             data.dailyVWAP,
@@ -94,63 +289,6 @@ export async function GET() {
 
           monthlyS1:
             data.monthlyPivot?.s1,
-
-          weeklyFib236:
-            data.weeklyFib?.fib236,
-
-          weeklyFib382:
-            data.weeklyFib?.fib382,
-
-          weeklyFib50:
-            data.weeklyFib?.fib50,
-
-          weeklyFib618:
-            data.weeklyFib?.fib618,
-
-          weeklyFib786:
-            data.weeklyFib?.fib786,
-
-          monthlyFib236:
-            data.monthlyFib?.fib236,
-
-          monthlyFib382:
-            data.monthlyFib?.fib382,
-
-          monthlyFib50:
-            data.monthlyFib?.fib50,
-
-          monthlyFib618:
-            data.monthlyFib?.fib618,
-
-          monthlyFib786:
-            data.monthlyFib?.fib786,
-
-          dailySwingHigh:
-            data.dailySwing?.high,
-
-          dailySwingLow:
-            data.dailySwing?.low,
-
-          dailySwingRange:
-            data.dailySwing?.range,
-
-          weeklySwingHigh:
-            data.weeklySwing?.high,
-
-          weeklySwingLow:
-            data.weeklySwing?.low,
-
-          weeklySwingRange:
-            data.weeklySwing?.range,
-
-          monthlySwingHigh:
-            data.monthlySwing?.high,
-
-          monthlySwingLow:
-            data.monthlySwing?.low,
-
-          monthlySwingRange:
-            data.monthlySwing?.range,
 
           heatScore:
             data.heatScore,

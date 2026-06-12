@@ -19,7 +19,7 @@ export async function GET() {
         )
       );
 
-    const documents =
+    const documents: any[] =
       snapshot.docs.map(
         (doc) => ({
           id: doc.id,
@@ -30,43 +30,21 @@ export async function GET() {
     const rows: string[] = [];
 
     rows.push([
-
       "Symbol",
-
       "CMP",
-
       "DailyPivot",
-
       "WeeklyPivot",
-
       "MonthlyPivot",
-
-      "WeeklyFib50",
-
-      "MonthlyFib50",
-
-      "DailySwingRange",
-
-      "WeeklySwingRange",
-
-      "MonthlySwingRange",
-
-      "HeatScore",
-
-      "RSScore",
-
-      "VolumeScore",
-
-      "DeliveryScore",
-
-      "SectorScore",
-
-      "TrendScore",
-
-      "UpdatedAt",
-
+      "DailyCPR",
+      "WeeklyCPR",
+      "MonthlyCPR",
+      "DailyVWAP",
+      "WeeklyVWAP",
+      "MonthlyVWAP",
+      "DailyVolume",
+      "WeeklyVolume",
+      "MonthlyVolume",
       "Status",
-
     ].join(","));
 
     for (const stock of documents) {
@@ -82,27 +60,27 @@ export async function GET() {
       if (!stock.monthlyPivot)
         issues.push("NO_MONTHLY_PIVOT");
 
-      if (!stock.weeklyFib)
-        issues.push("NO_WEEKLY_FIB");
+      if (!stock.dailyCPR)
+        issues.push("NO_DAILY_CPR");
 
-      if (!stock.monthlyFib)
-        issues.push("NO_MONTHLY_FIB");
+      if (!stock.weeklyCPR)
+        issues.push("NO_WEEKLY_CPR");
 
-      if (!stock.dailySwing)
-        issues.push("NO_DAILY_SWING");
+      if (!stock.monthlyCPR)
+        issues.push("NO_MONTHLY_CPR");
 
-      if (!stock.weeklySwing)
-        issues.push("NO_WEEKLY_SWING");
+      if (!stock.dailyVWAP)
+        issues.push("NO_DAILY_VWAP");
 
-      if (!stock.monthlySwing)
-        issues.push("NO_MONTHLY_SWING");
+      if (!stock.weeklyVWAP)
+        issues.push("NO_WEEKLY_VWAP");
+
+      if (!stock.monthlyVWAP)
+        issues.push("NO_MONTHLY_VWAP");
 
       const status =
-
         issues.length === 0
-
           ? "OK"
-
           : issues.join("|");
 
       rows.push([
@@ -112,34 +90,20 @@ export async function GET() {
         stock.cmp || "",
 
         stock.dailyPivot?.pivot || "",
-
         stock.weeklyPivot?.pivot || "",
-
         stock.monthlyPivot?.pivot || "",
 
-        stock.weeklyFib?.fib50 || "",
+        stock.dailyCPR?.pivot || "",
+        stock.weeklyCPR?.pivot || "",
+        stock.monthlyCPR?.pivot || "",
 
-        stock.monthlyFib?.fib50 || "",
+        stock.dailyVWAP || "",
+        stock.weeklyVWAP || "",
+        stock.monthlyVWAP || "",
 
-        stock.dailySwing?.range || "",
-
-        stock.weeklySwing?.range || "",
-
-        stock.monthlySwing?.range || "",
-
-        stock.heatScore || 0,
-
-        stock.rsScore || 0,
-
-        stock.volumeScore || 0,
-
-        stock.deliveryScore || 0,
-
-        stock.sectorScore || 0,
-
-        stock.trendScore || 0,
-
-        stock.updatedAt || "",
+        stock.totalVolumeDaily || "",
+        stock.totalVolumeWeekly || "",
+        stock.totalVolumeMonthly || "",
 
         status,
 
@@ -154,13 +118,10 @@ export async function GET() {
       csv,
       {
         headers: {
-
           "Content-Type":
             "text/csv",
-
           "Content-Disposition":
-            'attachment; filename="market-structure-audit.csv"',
-
+            'attachment; filename="firebase-audit.csv"',
         },
       }
     );
@@ -168,12 +129,9 @@ export async function GET() {
   } catch (error: any) {
 
     return NextResponse.json({
-
       success: false,
-
       error:
         error.message,
-
     });
 
   }

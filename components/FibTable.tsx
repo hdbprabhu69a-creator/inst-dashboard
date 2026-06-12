@@ -1,28 +1,25 @@
 "use client";
 
 import {
-  useMarketStructure,
-} from "@/hooks/useMarketStructure";
+  useSelectedStock,
+} from "@/src/context/SelectedStockContext";
 
-export default function MarketHistoryTable() {
+export default function FibTable() {
 
   const {
-    structure,
-    loading,
-    error,
-  } = useMarketStructure();
+    marketStructure,
+    marketStructureLoading,
+  } = useSelectedStock();
 
-  if (loading) {
+  if (
+    marketStructureLoading
+  ) {
 
     return (
 
-      <div className="col-span-4 bg-zinc-900 border border-zinc-800 rounded-xl p-2">
+      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-1 text-xs text-zinc-500">
 
-        <div className="text-center text-zinc-500 text-xs">
-
-          Loading...
-
-        </div>
+        Loading Fib Structure...
 
       </div>
 
@@ -30,60 +27,88 @@ export default function MarketHistoryTable() {
 
   }
 
-  if (error) {
+  if (
+    !marketStructure
+  ) {
 
     return (
 
-      <div className="col-span-4 bg-zinc-900 border border-red-500 rounded-xl p-2 text-red-400">
+      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-1 text-xs text-red-400">
 
-        {error}
+        No Fib Structure Found
 
       </div>
 
     );
 
   }
+
+  const rows = [
+
+    {
+      tf: "1W",
+      fib: marketStructure.weeklyFib,
+    },
+
+    {
+      tf: "2W",
+      fib: marketStructure.weeklyFib,
+    },
+
+    {
+      tf: "1M",
+      fib: marketStructure.monthlyFib,
+    },
+
+    {
+      tf: "3M",
+      fib: marketStructure.monthlyFib,
+    },
+
+    {
+      tf: "6M",
+      fib: marketStructure.monthlyFib,
+    },
+
+    {
+      tf: "1Y",
+      fib: marketStructure.monthlyFib,
+    },
+
+  ];
 
   return (
 
-    <div className="col-span-4 bg-zinc-900 border border-zinc-800 rounded-xl p-2">
+    <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-1">
 
-      <table className="w-full text-xs">
+      <table className="w-full text-xs table-fixed">
 
         <thead>
 
-          <tr className="border-b border-zinc-800 text-zinc-400">
+          <tr className="border-b border-zinc-800 text-zinc-500">
 
             <th className="text-left py-1">
               TF
             </th>
 
             <th className="text-right py-1">
-              HIGH
+              23.6
             </th>
 
             <th className="text-right py-1">
-              LOW
+              38.2
             </th>
 
             <th className="text-right py-1">
-              F23
+              50
             </th>
 
             <th className="text-right py-1">
-              F38
+              61.8
             </th>
 
             <th className="text-right py-1">
-              F50
-            </th>
-
-            <th className="text-right py-1">
-              F61
-            </th>
-
-            <th className="text-right py-1">
-              F76
+              78.6
             </th>
 
           </tr>
@@ -92,11 +117,11 @@ export default function MarketHistoryTable() {
 
         <tbody>
 
-          {structure.map(
-            (row: any) => (
+          {rows.map(
+            (row) => (
 
               <tr
-                key={row.timeframe}
+                key={row.tf}
                 className="
                   border-b
                   border-zinc-800/20
@@ -105,49 +130,37 @@ export default function MarketHistoryTable() {
 
                 <td className="py-1 font-bold text-cyan-400">
 
-                  {row.timeframe}
+                  {row.tf}
+
+                </td>
+
+                <td className="text-right text-orange-200">
+
+                  {row.fib?.fib236?.toFixed(2)}
+
+                </td>
+
+                <td className="text-right text-orange-200">
+
+                  {row.fib?.fib382?.toFixed(2)}
+
+                </td>
+
+                <td className="text-right text-blue-400">
+
+                  {row.fib?.fib50?.toFixed(2)}
 
                 </td>
 
                 <td className="text-right text-green-400">
 
-                  {row.high?.toFixed(2)}
-
-                </td>
-
-                <td className="text-right text-red-400">
-
-                  {row.low?.toFixed(2)}
-
-                </td>
-
-                <td className="text-right text-white">
-
-                  {row.fib236?.toFixed(2)}
+                  {row.fib?.fib618?.toFixed(2)}
 
                 </td>
 
                 <td className="text-right text-green-400">
 
-                  {row.fib382?.toFixed(2)}
-
-                </td>
-
-                <td className="text-right text-yellow-400">
-
-                  {row.fib50?.toFixed(2)}
-
-                </td>
-
-                <td className="text-right text-orange-400">
-
-                  {row.fib618?.toFixed(2)}
-
-                </td>
-
-                <td className="text-right text-red-400">
-
-                  {row.fib786?.toFixed(2)}
+                  {row.fib?.fib786?.toFixed(2)}
 
                 </td>
 

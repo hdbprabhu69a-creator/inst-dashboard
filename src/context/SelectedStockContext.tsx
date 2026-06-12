@@ -14,8 +14,23 @@ import {
 
 import { db } from "@/lib/firebase";
 
+import {
+  SelectedStockContextType,
+} from "@/src/types/context";
+
+import {
+  MarketStructure,
+} from "@/types/market";
+
+import {
+  DEFAULT_STOCK,
+  MARKET_STRUCTURE_COLLECTION,
+} from "@/src/lib/constants";
+
 const SelectedStockContext =
-  createContext<any>(null);
+  createContext<
+    SelectedStockContextType | null
+  >(null);
 
 export function SelectedStockProvider({
   children,
@@ -23,18 +38,26 @@ export function SelectedStockProvider({
   children: React.ReactNode;
 }) {
 
-  const [selectedStock, setSelectedStock] =
-    useState("KARURVYSYA");
+  const [
+    selectedStock,
+    setSelectedStock,
+  ] = useState(
+    DEFAULT_STOCK
+  );
 
   const [
     marketStructure,
     setMarketStructure,
-  ] = useState<any>(null);
+  ] = useState<
+    MarketStructure | null
+  >(null);
 
   const [
     loading,
     setLoading,
-  ] = useState(true);
+  ] = useState(
+    true
+  );
 
   useEffect(() => {
 
@@ -44,13 +67,16 @@ export function SelectedStockProvider({
 
         setLoading(true);
 
+        const docRef =
+          doc(
+            db,
+            MARKET_STRUCTURE_COLLECTION,
+            selectedStock
+          );
+
         const snapshot =
           await getDoc(
-            doc(
-              db,
-              "marketStructure",
-              selectedStock
-            )
+            docRef
           );
 
         if (
@@ -58,7 +84,7 @@ export function SelectedStockProvider({
         ) {
 
           setMarketStructure(
-            snapshot.data()
+            snapshot.data() as MarketStructure
           );
 
         } else {
@@ -69,15 +95,24 @@ export function SelectedStockProvider({
 
         }
 
-      } catch (error) {
+      } catch (
+        error
+      ) {
 
         console.error(
+          "MARKET STRUCTURE ERROR:",
           error
+        );
+
+        setMarketStructure(
+          null
         );
 
       } finally {
 
-        setLoading(false);
+        setLoading(
+          false
+        );
 
       }
 
@@ -91,11 +126,14 @@ export function SelectedStockProvider({
 
     }
 
-  }, [selectedStock]);
+  }, [
+    selectedStock,
+  ]);
 
   return (
 
     <SelectedStockContext.Provider
+
       value={{
 
         selectedStock,
@@ -108,6 +146,7 @@ export function SelectedStockProvider({
           loading,
 
       }}
+
     >
 
       {children}
@@ -120,8 +159,19 @@ export function SelectedStockProvider({
 
 export function useSelectedStock() {
 
-  return useContext(
-    SelectedStockContext
-  );
+  const context =
+    useContext(
+      SelectedStockContext
+    );
+
+  if (!context) {
+
+    throw new Error(
+      "useSelectedStock must be used inside SelectedStockProvider"
+    );
+
+  }
+
+  return context;
 
 }

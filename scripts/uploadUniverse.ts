@@ -1,8 +1,12 @@
+import "dotenv/config";
+
 import fs from "fs";
 import csv from "csv-parser";
 
 import {
   collection,
+  getDocs,
+  deleteDoc,
   addDoc,
 } from "firebase/firestore";
 
@@ -11,7 +15,7 @@ import { db } from "../lib/firebase";
 const results: any[] = [];
 
 fs.createReadStream(
-   "PIVOT_STOCK_LIST_UPGRADED.csv"
+  "PIVOT_STOCK_LIST_UPGRADED.csv"
 )
   .pipe(csv())
 
@@ -20,38 +24,77 @@ fs.createReadStream(
   })
 
   .on("end", async () => {
+    try {
 
-    console.log(
-      `Uploading ${results.length} stocks...`
-    );
+      console.log(
+        `Loaded ${results.length} stocks from CSV`
+      );
 
-    for (const stock of results) {
+      const snapshot =
+        await getDocs(
+          collection(
+            db,
+            "universe"
+          )
+        );
 
-      await addDoc(
-        collection(
-          db,
-          "universe"
-        ),
-        {
-          symbol:
-            stock.symbol?.trim(),
+      console.log(
+        `Deleting ${snapshot.docs.length} existing universe docs...`
+      );
 
-          kiteSymbol:
-            stock.kiteSymbol?.trim(),
+      for (const docItem of snapshot.docs) {
 
-          sector:
-            stock.sector?.trim(),
+        await deleteDoc(
+          docItem.ref
+        );
 
-          active: true,
-        }
+      }
+
+      console.log(
+        "Old universe deleted"
       );
 
       console.log(
-        `Uploaded: ${stock.symbol}`
+        `Uploading ${results.length} stocks...`
       );
-    }
 
-    console.log(
-      "Upload Complete"
-    );
+      for (const stock of results) {
+
+        await addDoc(
+          collection(
+            db,
+            "universe"
+          ),
+          {
+            symbol:
+              stock.symbol?.trim(),
+
+            kiteSymbol:
+              stock.kiteSymbol?.trim(),
+
+            sector:
+              stock.sector?.trim(),
+
+            active: true,
+          }
+        );
+
+        console.log(
+          `Uploaded: ${stock.symbol}`
+        );
+
+      }
+
+      console.log(
+        "Upload Complete"
+      );
+
+    } catch (error) {
+
+      console.error(
+        "UPLOAD ERROR:",
+        error
+      );
+
+    }
   });

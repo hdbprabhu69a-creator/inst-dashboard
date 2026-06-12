@@ -14,7 +14,7 @@ import { db } from "@/lib/firebase";
 import {
   calculatePivot,
   calculateCPR,
-  calculateSwing,
+
 } from "@/src/lib/marketStructure";
 
 export async function GET() {
@@ -60,14 +60,13 @@ export async function GET() {
         )
       );
 
-    const stocks =
-      universeSnapshot.docs.map(
-        (doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })
-      );
-
+   const stocks: any[] =
+  universeSnapshot.docs.map(
+    (doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })
+  );
     let saved = 0;
     let skipped = 0;
     let failed = 0;
@@ -188,21 +187,7 @@ export async function GET() {
             prevDay.close
           );
 
-        const dailySwing =
-          calculateSwing(
-            candles.slice(-20)
-          );
-
-        const weeklySwing =
-          calculateSwing(
-            candles.slice(-60)
-          );
-
-        const monthlySwing =
-          calculateSwing(
-            candles
-          );
-
+       
         await setDoc(
 
           doc(
@@ -224,12 +209,7 @@ export async function GET() {
 
             dailyCPR,
 
-            dailySwing,
-
-            weeklySwing,
-
-            monthlySwing,
-
+           
             updatedAt:
               new Date()
                 .toISOString(),

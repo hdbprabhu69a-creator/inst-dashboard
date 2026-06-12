@@ -12,10 +12,8 @@ import {
 import { db } from "@/lib/firebase";
 
 import {
-  calculateFib,
   calculatePivot,
   calculateCPR,
-  calculateSwing,
 } from "@/src/lib/marketStructure";
 
 export async function GET() {
@@ -48,12 +46,8 @@ export async function GET() {
     if (!voltas) {
 
       return NextResponse.json({
-
         success: false,
-
-        error:
-          "VOLTAS not found",
-
+        error: "VOLTAS not found",
       });
 
     }
@@ -73,12 +67,8 @@ export async function GET() {
     if (!accessToken) {
 
       return NextResponse.json({
-
         success: false,
-
-        error:
-          "No Access Token",
-
+        error: "No Access Token",
       });
 
     }
@@ -119,12 +109,9 @@ export async function GET() {
     ) {
 
       return NextResponse.json({
-
         success: false,
-
         error:
           "Insufficient candles",
-
       });
 
     }
@@ -133,8 +120,6 @@ export async function GET() {
       candles[
         candles.length - 1
       ];
-
-    // DAILY
 
     const prevDay =
       candles[
@@ -155,26 +140,25 @@ export async function GET() {
         prevDay.close
       );
 
-    // PREVIOUS COMPLETED WEEK
-
     const today =
       new Date();
 
-   const day =
-  today.getDay();
+    const day =
+      today.getDay();
 
-const daysFromMonday =
-  day === 0
-    ? 6
-    : day - 1;
+    const daysFromMonday =
+      day === 0
+        ? 6
+        : day - 1;
 
-const startOfCurrentWeek =
-  new Date(today);
+    const startOfCurrentWeek =
+      new Date(today);
 
-startOfCurrentWeek.setDate(
-  today.getDate() -
-  daysFromMonday
-);
+    startOfCurrentWeek.setDate(
+      today.getDate() -
+      daysFromMonday
+    );
+
     startOfCurrentWeek.setHours(
       0,
       0,
@@ -205,48 +189,44 @@ startOfCurrentWeek.setDate(
         (c: any) => {
 
           const d =
-            new Date(
-              c.date
-            );
+            new Date(c.date);
 
           return (
-            d >=
-              startOfPreviousWeek &&
-            d <=
-              endOfPreviousWeek
+            d >= startOfPreviousWeek &&
+            d <= endOfPreviousWeek
           );
 
         }
       );
-if (
-  previousWeekCandles.length === 0
-) {
 
-  throw new Error(
-    "No previous week candles"
-  );
+    if (
+      previousWeekCandles.length === 0
+    ) {
 
-}
+      throw new Error(
+        "No previous week candles"
+      );
+
+    }
+
     const weeklyHigh =
       Math.max(
         ...previousWeekCandles.map(
-          (c: any) =>
-            c.high
+          (c: any) => c.high
         )
       );
 
     const weeklyLow =
       Math.min(
         ...previousWeekCandles.map(
-          (c: any) =>
-            c.low
+          (c: any) => c.low
         )
       );
 
     const weeklyClose =
       previousWeekCandles[
         previousWeekCandles.length - 1
-      ]?.close;
+      ].close;
 
     const weeklyPivot =
       calculatePivot(
@@ -262,14 +242,6 @@ if (
         weeklyClose
       );
 
-    const weeklyFib =
-      calculateFib(
-        weeklyHigh,
-        weeklyLow
-      );
-
-    // PREVIOUS COMPLETED MONTH
-
     let targetMonth =
       today.getMonth() - 1;
 
@@ -281,98 +253,66 @@ if (
     ) {
 
       targetMonth = 11;
-
       targetYear--;
 
     }
 
     const previousMonthCandles =
-  candles.filter(
-    (c: any) => {
+      candles.filter(
+        (c: any) => {
 
-      const d =
-        new Date(
-          c.date
-        );
+          const d =
+            new Date(c.date);
 
-      return (
+          return (
+            d.getMonth() === targetMonth &&
+            d.getFullYear() === targetYear
+          );
 
-        d.getMonth() ===
-          targetMonth &&
+        }
+      );
 
-        d.getFullYear() ===
-          targetYear
+    if (
+      previousMonthCandles.length === 0
+    ) {
 
+      throw new Error(
+        "No previous month candles"
       );
 
     }
-  );
 
-if (
-  previousMonthCandles.length === 0
-) {
-
-  throw new Error(
-    "No previous month candles"
-  );
-
-}
-
-const monthlyHigh =
-  Math.max(
-    ...previousMonthCandles.map(
-      (c: any) =>
-        c.high
-    )
-  );
-
-const monthlyLow =
-  Math.min(
-    ...previousMonthCandles.map(
-      (c: any) =>
-        c.low
-    )
-  );
-
-const monthlyClose =
-  previousMonthCandles[
-    previousMonthCandles.length - 1
-  ]?.close;
-
-const monthlyPivot =
-  calculatePivot(
-    monthlyHigh,
-    monthlyLow,
-    monthlyClose
-  );
-
-const monthlyCPR =
-  calculateCPR(
-    monthlyHigh,
-    monthlyLow,
-    monthlyClose
-  );
-
-const monthlyFib =
-  calculateFib(
-    monthlyHigh,
-    monthlyLow
-  );
-
-// SWINGS
-    const dailySwing =
-      calculateSwing(
-        candles.slice(-20)
+    const monthlyHigh =
+      Math.max(
+        ...previousMonthCandles.map(
+          (c: any) => c.high
+        )
       );
 
-    const weeklySwing =
-      calculateSwing(
-        candles.slice(-60)
+    const monthlyLow =
+      Math.min(
+        ...previousMonthCandles.map(
+          (c: any) => c.low
+        )
       );
 
-    const monthlySwing =
-      calculateSwing(
-        candles
+    const monthlyClose =
+      previousMonthCandles[
+        previousMonthCandles.length - 1
+      ].close;
+
+    const monthlyPivot =
+      calculatePivot(
+        monthlyHigh,
+        monthlyLow,
+        monthlyClose
+      );
+
+    const monthlyCPR =
+      calculateCPR(
+        monthlyHigh,
+        monthlyLow,
+        monthlyClose
       );
 
     await setDoc(
@@ -402,29 +342,16 @@ const monthlyFib =
         weeklyCPR,
         monthlyCPR,
 
-        weeklyFib,
-        monthlyFib,
-
-        dailySwing,
-        weeklySwing,
-        monthlySwing,
-
         weeklyOHLC: {
-          high:
-            weeklyHigh,
-          low:
-            weeklyLow,
-          close:
-            weeklyClose,
+          high: weeklyHigh,
+          low: weeklyLow,
+          close: weeklyClose,
         },
 
         monthlyOHLC: {
-          high:
-            monthlyHigh,
-          low:
-            monthlyLow,
-          close:
-            monthlyClose,
+          high: monthlyHigh,
+          low: monthlyLow,
+          close: monthlyClose,
         },
 
         updatedAt:
@@ -443,24 +370,6 @@ const monthlyFib =
 
       symbol:
         voltas.symbol,
-
-      weeklyOHLC: {
-        high:
-          weeklyHigh,
-        low:
-          weeklyLow,
-        close:
-          weeklyClose,
-      },
-
-      monthlyOHLC: {
-        high:
-          monthlyHigh,
-        low:
-          monthlyLow,
-        close:
-          monthlyClose,
-      },
 
       weeklyPivot:
         weeklyPivot.pivot,

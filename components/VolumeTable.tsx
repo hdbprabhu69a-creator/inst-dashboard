@@ -58,7 +58,7 @@ export default function VolumeTable() {
             </th>
 
             <th className="text-right py-0.5">
-              AVG VOL
+             VOLUME
             </th>
 
           </tr>
@@ -75,7 +75,7 @@ export default function VolumeTable() {
 
             <td className="text-right text-yellow-400">
               {Math.round(
-                marketStructure.avgVolumeDaily || 0
+                marketStructure.totalVolumeDaily || 0
               ).toLocaleString()}
             </td>
 
@@ -89,7 +89,8 @@ export default function VolumeTable() {
 
             <td className="text-right text-yellow-400">
               {Math.round(
-                marketStructure.avgVolumeWeekly || 0
+                  marketStructure.totalVolumeWeekly || 0
+ 
               ).toLocaleString()}
             </td>
 
@@ -103,7 +104,7 @@ export default function VolumeTable() {
 
             <td className="text-right text-yellow-400">
               {Math.round(
-                marketStructure.avgVolumeMonthly || 0
+                marketStructure.totalVolumeMonthly || 0
               ).toLocaleString()}
             </td>
 

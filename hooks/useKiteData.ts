@@ -2,70 +2,87 @@
 
 import { useEffect, useState } from "react";
 import { fetchMarketData } from "@/services/marketService";
-import { MarketData } from "@/types/market";
+import { KiteApiResponse } from "@/types/market";
 
 export function useKiteData(
   symbol: string
 ) {
-
   const [data, setData] =
-    useState<MarketData | null>(null);
+    useState<KiteApiResponse | null>(
+      null
+    );
 
   const [loading, setLoading] =
-    useState(true);
+    useState(false);
 
   const [error, setError] =
     useState("");
 
-  const loadData = async () => {
+  useEffect(() => {
+    const cleanSymbol =
+      symbol?.trim();
 
-    try {
-
-      const result =
-        await fetchMarketData(symbol);
-
-      setData(result);
-
-      setError("");
-
-    } catch (err) {
-
-      setError(
-        "Market data unavailable"
-      );
-
-    } finally {
-
+    if (
+      !cleanSymbol ||
+      cleanSymbol === "undefined" ||
+      cleanSymbol === "null"
+    ) {
       setLoading(false);
+      setError("");
+      setData(null);
 
+      return;
     }
 
-  };
+    let isMounted = true;
 
-  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
 
-    if (!symbol) return;
+        const result =
+          await fetchMarketData(
+            cleanSymbol
+          );
+
+        if (!isMounted) {
+          return;
+        }
+
+        setData(result);
+
+        setError("");
+      } catch (err: any) {
+        if (!isMounted) {
+          return;
+        }
+
+        console.error(
+          "KITE HOOK ERROR:",
+          err
+        );
+
+        setError(
+          err?.message ||
+            "Market data unavailable"
+        );
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
 
     loadData();
 
-    const interval =
-      setInterval(() => {
-
-        loadData();
-
-      }, 5000);
-
-    return () =>
-      clearInterval(interval);
-
+    return () => {
+  isMounted = false;
+};
   }, [symbol]);
 
   return {
-
     data,
     loading,
     error,
-
   };
-
 }

@@ -2,7 +2,6 @@
 
 import { useEffect } from "react";
 
-import { app } from "@/lib/firebase";
 import { kite } from "@/lib/kite";
 
 import Link from "next/link";
@@ -10,6 +9,7 @@ import Link from "next/link";
 import SearchBox from "@/components/SearchBox";
 import BrokerConnectionManager from "@/components/BrokerConnectionManager";
 import MarketSnapshot from "@/components/MarketSnapshot";
+import EodButton from "@/components/EodButton";
 
 import PivotTable from "@/components/PivotTable";
 import CPRTable from "@/components/CPRTable";
@@ -44,11 +44,6 @@ export default function Home() {
 
     if (requestToken) {
 
-      console.log(
-        "REQUEST TOKEN:",
-        requestToken
-      );
-
       window.location.replace(
         `/api/token?request_token=${requestToken}`
       );
@@ -57,7 +52,6 @@ export default function Home() {
 
   }, []);
 
-  console.log(app);
   console.log(kite);
 
   return (
@@ -66,31 +60,57 @@ export default function Home() {
 
       <main className="min-h-screen bg-black text-white">
 
-        <section className="p-2">
+        <section className="p-1">
 
-          <div className="space-y-2">
+          <div className="space-y-1">
 
             <div className="flex justify-between items-center">
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1">
 
                 <SearchBox />
 
                 <Link
                   href="/heatmap"
                   className="
-                    px-4
-                    py-2
-                    rounded-lg
+                    px-2
+                    py-0.5
+                    h-6
+                    rounded-md
                     bg-cyan-600
                     hover:bg-cyan-500
                     text-white
-                    text-sm
-                    font-semibold
+                    text-[11px]
+                    font-medium
+                    flex
+                    items-center
                   "
                 >
-                  HeatMap
+                  HM
                 </Link>
+
+                <EodButton />
+
+                <a
+                  href="/api/market-structure-audit"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="
+                    px-2
+                    py-0.5
+                    h-6
+                    rounded-md
+                    bg-cyan-600
+                    hover:bg-cyan-500
+                    text-white
+                    text-[11px]
+                    font-medium
+                    flex
+                    items-center
+                  "
+                >
+                  AUD
+                </a>
 
               </div>
 
@@ -100,25 +120,25 @@ export default function Home() {
 
             <MarketSnapshot />
 
-            <div className="grid grid-cols-12 gap-2">
+            <div className="grid grid-cols-12 gap-1">
 
-  <div className="col-span-4">
-    <PivotTable />
-  </div>
+              <div className="col-span-4">
+                <PivotTable />
+              </div>
 
-  <div className="col-span-2">
-    <CPRTable />
-  </div>
+              <div className="col-span-2">
+                <CPRTable />
+              </div>
 
-  <div className="col-span-2">
-    <VWAPTable />
-  </div>
+              <div className="col-span-2">
+                <VWAPTable />
+              </div>
 
-  <div className="col-span-4">
-    <VolumeTable />
-  </div>
+              <div className="col-span-4">
+                <VolumeTable />
+              </div>
 
-</div>
+            </div>
 
             <SwingTable />
 

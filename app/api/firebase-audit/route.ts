@@ -8,32 +8,27 @@ import {
 import { db } from "@/lib/firebase";
 
 export async function GET() {
-
   try {
+    const snapshot = await getDocs(
+      collection(
+        db,
+        "marketStructure"
+      )
+    );
 
-    const snapshot =
-      await getDocs(
-        collection(
-          db,
-          "marketStructure"
-        )
-      );
-
-    const documents =
-      snapshot.docs.map(
-        (doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })
-      );
+    const documents = snapshot.docs.map(
+      (doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })
+    );
 
     const audit: any[] = [];
 
     let passed = 0;
     let failed = 0;
 
-    for (const stock of documents) {
-
+    for (const stock of documents as any[]) {
       const issues: string[] = [];
 
       if (!stock.symbol)
@@ -60,20 +55,23 @@ export async function GET() {
       if (!stock.monthlyCPR)
         issues.push("NO_MONTHLY_CPR");
 
-      if (!stock.weeklyFib)
-        issues.push("NO_WEEKLY_FIB");
+      if (!stock.dailyVWAP)
+        issues.push("NO_DAILY_VWAP");
 
-      if (!stock.monthlyFib)
-        issues.push("NO_MONTHLY_FIB");
+      if (!stock.weeklyVWAP)
+        issues.push("NO_WEEKLY_VWAP");
 
-      if (!stock.dailySwing)
-        issues.push("NO_DAILY_SWING");
+      if (!stock.monthlyVWAP)
+        issues.push("NO_MONTHLY_VWAP");
 
-      if (!stock.weeklySwing)
-        issues.push("NO_WEEKLY_SWING");
+      if (!stock.totalVolumeDaily)
+        issues.push("NO_DAILY_VOLUME");
 
-      if (!stock.monthlySwing)
-        issues.push("NO_MONTHLY_SWING");
+      if (!stock.totalVolumeWeekly)
+        issues.push("NO_WEEKLY_VOLUME");
+
+      if (!stock.totalVolumeMonthly)
+        issues.push("NO_MONTHLY_VOLUME");
 
       if (!stock.weeklyOHLC)
         issues.push("NO_WEEKLY_OHLC");
@@ -82,57 +80,32 @@ export async function GET() {
         issues.push("NO_MONTHLY_OHLC");
 
       if (issues.length === 0) {
-
         passed++;
-
       } else {
-
         failed++;
-
       }
 
       audit.push({
-
-        symbol:
-          stock.symbol,
-
+        symbol: stock.symbol || "",
         status:
           issues.length === 0
             ? "OK"
             : "FAILED",
-
         issues,
-
       });
-
     }
 
     return NextResponse.json({
-
       success: true,
-
-      total:
-        documents.length,
-
+      total: documents.length,
       passed,
-
       failed,
-
       audit,
-
     });
-
   } catch (error: any) {
-
     return NextResponse.json({
-
       success: false,
-
-      error:
-        error.message,
-
+      error: error.message,
     });
-
   }
-
 }

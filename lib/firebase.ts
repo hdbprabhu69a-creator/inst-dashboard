@@ -2,14 +2,31 @@ import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "PASTE_API_KEY_HERE",
-  authDomain: "inst-dashboard-6e9c6.firebaseapp.com",
-  projectId: "inst-dashboard-6e9c6",
-  storageBucket: "inst-dashboard-6e9c6.firebasestorage.app",
-  messagingSenderId: "603362675367",
-  appId: "1:603362675367:web:53e45dc59dd9ca90bca982",
+  apiKey:
+    process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+
+  authDomain:
+    process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+
+  projectId:
+    process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+
+  storageBucket:
+    process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+
+  messagingSenderId:
+    process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+
+  appId:
+    process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-export const app = initializeApp(firebaseConfig);
+export const app =
+  initializeApp(
+    firebaseConfig
+  );
 
-export const db = getFirestore(app);
+export const db =
+  getFirestore(
+    app
+  );
