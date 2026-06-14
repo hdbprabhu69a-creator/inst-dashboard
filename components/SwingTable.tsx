@@ -119,7 +119,7 @@ export default function SwingTable() {
 
     <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-1 overflow-x-auto">
 
-      <table className="w-full text-xs table-fixed">
+      <table className="w-full text-xs">
 
         <thead>
 

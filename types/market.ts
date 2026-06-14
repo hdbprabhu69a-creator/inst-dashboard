@@ -1,3 +1,167 @@
+export interface PivotLevels {
+
+  pivot: number;
+
+  r1: number;
+  r2: number;
+  r3: number;
+
+  s1: number;
+  s2: number;
+  s3: number;
+
+}
+
+export interface CPRLevels {
+
+  pivot: number;
+
+  tc: number;
+
+  bc: number;
+
+}
+
+export interface OHLCData {
+
+  open?: number;
+
+  high: number;
+
+  low: number;
+
+  close: number;
+
+  volume: number;
+
+  vwap: number;
+
+}
+
+export interface SwingData {
+
+  high: number;
+
+  low: number;
+
+  range: number;
+
+  highDate: any;
+
+  lowDate: any;
+
+}
+
+export interface FibData {
+
+  fib236: number;
+
+  fib382: number;
+
+  fib50: number;
+
+  fib618: number;
+
+  fib786: number;
+
+}
+
+export interface MarketStructure {
+
+  symbol: string;
+
+  instrumentToken: number;
+
+  cmp: number;
+
+  //
+  // DAILY
+  //
+
+  dailyOHLC: OHLCData;
+
+  dailyPivot: PivotLevels;
+
+  dailyCPR: CPRLevels;
+
+  dailyVWAP: number;
+
+  totalVolumeDaily: number;
+
+  //
+  // WEEKLY
+  //
+
+  weeklyOHLC: OHLCData;
+
+  weeklyPivot: PivotLevels;
+
+  weeklyCPR: CPRLevels;
+
+  weeklyVWAP: number;
+
+  totalVolumeWeekly: number;
+
+  weeklyFib?: FibData;
+
+  //
+  // MONTHLY
+  //
+
+  monthlyOHLC: OHLCData;
+
+  monthlyPivot: PivotLevels;
+
+  monthlyCPR: CPRLevels;
+
+  monthlyVWAP: number;
+
+  totalVolumeMonthly: number;
+
+  monthlyFib?: FibData;
+
+  //
+  // SWINGS
+  //
+
+  oneWeekSwing: SwingData;
+
+  twoWeekSwing: SwingData;
+
+  oneMonthSwing: SwingData;
+
+  threeMonthSwing: SwingData;
+
+  sixMonthSwing: SwingData;
+
+  oneYearSwing: SwingData;
+
+  //
+  // SCORES
+  //
+
+  heatScore: number;
+
+  rsScore: number;
+
+  volumeScore: number;
+
+  deliveryScore: number;
+
+  sectorScore: number;
+
+  trendScore: number;
+
+  //
+  // METADATA
+  //
+
+  updatedAt?: string;
+
+  updatedAtReadable?: string;
+
+}
+
 export interface QuoteData {
 
   instrument_token: number;
@@ -36,30 +200,6 @@ export interface KiteApiResponse {
       QuoteData;
 
   };
-
-}
-
-export interface MarketStructure {
-
-  symbol: string;
-
-  instrument_token: number;
-
-  ltp: number;
-
-  open: number;
-
-  high: number;
-
-  low: number;
-
-  close: number;
-
-  volume: number;
-
-  average_price: number;
-
-  timestamp: string;
 
 }
 

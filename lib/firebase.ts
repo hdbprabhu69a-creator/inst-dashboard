@@ -1,3 +1,13 @@
+console.log(
+  "PROJECT ID:",
+  process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
+);
+
+console.log(
+  "API KEY EXISTS:",
+  !!process.env.NEXT_PUBLIC_FIREBASE_API_KEY
+);
+
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 

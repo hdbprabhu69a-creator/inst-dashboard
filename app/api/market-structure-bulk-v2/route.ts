@@ -2,7 +2,12 @@ import {
   buildDailyStructure,
   buildWeeklyStructure,
   buildMonthlyStructure,
+  buildFibLevels,
 } from "@/src/lib/marketStructureEngine";
+import {
+  canRunEOD,
+} from "@/src/lib/eodGuard";
+
 import {
   buildAllSwings,
 } from "@/src/lib/swingEngine";
@@ -29,12 +34,67 @@ import {
   doc,
   getDoc,
   setDoc,
+  serverTimestamp,
 } from "firebase/firestore";
-
 import { db } from "@/lib/firebase";
 
 export async function GET() {
+if (
+  !canRunEOD()
+) {
 
+  return NextResponse.json({
+
+    success: false,
+
+    message:
+      "Market Still Open",
+
+  });
+
+}
+const today =
+  new Date()
+    .toISOString()
+    .split("T")[0];
+
+const eodStatusRef =
+  doc(
+    db,
+    "settings",
+    "eodStatus"
+  );
+
+const eodStatusDoc =
+  await getDoc(
+    eodStatusRef
+  );
+
+if (
+  eodStatusDoc.exists()
+) {
+
+  const lastRunDate =
+    eodStatusDoc.data()
+      ?.lastRunDate;
+
+  if (
+    lastRunDate ===
+    today
+  ) {
+
+    return NextResponse.json({
+
+      success: false,
+
+      message:
+        "Already Updated Today",
+
+    });
+
+  }
+
+}
   try {
 
     const tokenDoc =
@@ -253,10 +313,48 @@ export async function GET() {
           totalVolumeMonthly,
           monthlyOHLC,
         } = monthlyData;
-const swings =
-  buildAllSwings(
-    candles
-  );
+
+        const swings =
+          buildAllSwings(
+            candles
+          );
+
+        const oneWeekFib =
+          buildFibLevels(
+            swings.oneWeekSwing.high,
+            swings.oneWeekSwing.low
+          );
+
+        const twoWeekFib =
+          buildFibLevels(
+            swings.twoWeekSwing.high,
+            swings.twoWeekSwing.low
+          );
+
+        const oneMonthFib =
+          buildFibLevels(
+            swings.oneMonthSwing.high,
+            swings.oneMonthSwing.low
+          );
+
+        const threeMonthFib =
+          buildFibLevels(
+            swings.threeMonthSwing.high,
+            swings.threeMonthSwing.low
+          );
+
+        const sixMonthFib =
+          buildFibLevels(
+            swings.sixMonthSwing.high,
+            swings.sixMonthSwing.low
+          );
+
+        const oneYearFib =
+          buildFibLevels(
+            swings.oneYearSwing.high,
+            swings.oneYearSwing.low
+          );
+
         await setDoc(
 
           doc(
@@ -294,11 +392,18 @@ const swings =
             totalVolumeMonthly,
 
             weeklyOHLC,
-monthlyOHLC,
+            monthlyOHLC,
 
-...swings,
+            ...swings,
 
-...buildMetadata(),
+            oneWeekFib,
+            twoWeekFib,
+            oneMonthFib,
+            threeMonthFib,
+            sixMonthFib,
+            oneYearFib,
+
+            ...buildMetadata(),
 
             heatScore: 0,
             rsScore: 0,
@@ -341,6 +446,26 @@ monthlyOHLC,
       }
 
     }
+await setDoc(
+
+  eodStatusRef,
+
+  {
+
+    lastRunDate:
+      today,
+
+    updatedAt:
+      serverTimestamp(),
+
+  },
+
+  {
+    merge: true,
+  }
+
+);
+
 
     return NextResponse.json({
 

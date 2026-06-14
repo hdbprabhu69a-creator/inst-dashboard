@@ -83,8 +83,39 @@ export function SelectedStockProvider({
           snapshot.exists()
         ) {
 
+          const data =
+            snapshot.data();
+
+          console.log(
+            "================================="
+          );
+
+          console.log(
+            "SELECTED STOCK:",
+            selectedStock
+          );
+
+          console.log(
+            "MONTHLY OHLC:",
+            data.monthlyOHLC
+          );
+
+          console.log(
+            "MONTHLY PIVOT:",
+            data.monthlyPivot
+          );
+
+          console.log(
+            "MONTHLY CPR:",
+            data.monthlyCPR
+          );
+
+          console.log(
+            "================================="
+          );
+
           setMarketStructure(
-            snapshot.data() as MarketStructure
+            data as MarketStructure
           );
 
         } else {

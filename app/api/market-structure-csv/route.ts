@@ -224,7 +224,97 @@ export async function GET() {
             formatDate(
               data.oneYearSwing?.lowDate
             ),
+// FIB AUDIT
 
+oneWeekFib236:
+  data.oneWeekFib?.fib236,
+
+oneWeekFib382:
+  data.oneWeekFib?.fib382,
+
+oneWeekFib50:
+  data.oneWeekFib?.fib50,
+
+oneWeekFib618:
+  data.oneWeekFib?.fib618,
+
+oneWeekFib786:
+  data.oneWeekFib?.fib786,
+
+twoWeekFib236:
+  data.twoWeekFib?.fib236,
+
+twoWeekFib382:
+  data.twoWeekFib?.fib382,
+
+twoWeekFib50:
+  data.twoWeekFib?.fib50,
+
+twoWeekFib618:
+  data.twoWeekFib?.fib618,
+
+twoWeekFib786:
+  data.twoWeekFib?.fib786,
+
+oneMonthFib236:
+  data.oneMonthFib?.fib236,
+
+oneMonthFib382:
+  data.oneMonthFib?.fib382,
+
+oneMonthFib50:
+  data.oneMonthFib?.fib50,
+
+oneMonthFib618:
+  data.oneMonthFib?.fib618,
+
+oneMonthFib786:
+  data.oneMonthFib?.fib786,
+
+threeMonthFib236:
+  data.threeMonthFib?.fib236,
+
+threeMonthFib382:
+  data.threeMonthFib?.fib382,
+
+threeMonthFib50:
+  data.threeMonthFib?.fib50,
+
+threeMonthFib618:
+  data.threeMonthFib?.fib618,
+
+threeMonthFib786:
+  data.threeMonthFib?.fib786,
+
+sixMonthFib236:
+  data.sixMonthFib?.fib236,
+
+sixMonthFib382:
+  data.sixMonthFib?.fib382,
+
+sixMonthFib50:
+  data.sixMonthFib?.fib50,
+
+sixMonthFib618:
+  data.sixMonthFib?.fib618,
+
+sixMonthFib786:
+  data.sixMonthFib?.fib786,
+
+oneYearFib236:
+  data.oneYearFib?.fib236,
+
+oneYearFib382:
+  data.oneYearFib?.fib382,
+
+oneYearFib50:
+  data.oneYearFib?.fib50,
+
+oneYearFib618:
+  data.oneYearFib?.fib618,
+
+oneYearFib786:
+  data.oneYearFib?.fib786,
           // EXISTING DATA
 
           dailyVWAP:

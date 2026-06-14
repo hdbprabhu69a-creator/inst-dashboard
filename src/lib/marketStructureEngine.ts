@@ -1,14 +1,71 @@
 import {
+
   calculatePivot,
+
   calculateCPR,
+
   calculateVWAP,
+
   calculateTotalVolume,
+
 } from "@/src/lib/marketStructure";
 
 import {
+
   getCompletedWeeklyCandles,
+
   getCompletedMonthlyCandles,
+
 } from "@/src/lib/eodEngine";
+
+export function buildFibLevels(
+  high: number,
+  low: number
+) {
+
+  const range =
+    high - low;
+
+  return {
+
+    fib236: Number(
+      (
+        high -
+        range * 0.236
+      ).toFixed(2)
+    ),
+
+    fib382: Number(
+      (
+        high -
+        range * 0.382
+      ).toFixed(2)
+    ),
+
+    fib50: Number(
+      (
+        high -
+        range * 0.5
+      ).toFixed(2)
+    ),
+
+    fib618: Number(
+      (
+        high -
+        range * 0.618
+      ).toFixed(2)
+    ),
+
+    fib786: Number(
+      (
+        high -
+        range * 0.786
+      ).toFixed(2)
+    ),
+
+  };
+
+}
 
 export function buildDailyStructure(
   lastCandle: any
@@ -71,45 +128,47 @@ export function buildWeeklyStructure(
   today: Date
 ) {
 
-  const previousWeekCandles =
-    getCompletedWeeklyCandles(
-      candles
-    );
+ const weeklyCandles =
+  getCompletedWeeklyCandles(
+    candles
+  );
 
   if (
-    !previousWeekCandles ||
-    previousWeekCandles.length === 0
+    !weeklyCandles ||
+    weeklyCandles.length === 0
   ) {
+
     return null;
+
   }
 
   const weeklyHigh =
     Math.max(
-      ...previousWeekCandles.map(
+      ...weeklyCandles.map(
         (c: any) => c.high
       )
     );
 
   const weeklyLow =
     Math.min(
-      ...previousWeekCandles.map(
+      ...weeklyCandles.map(
         (c: any) => c.low
       )
     );
 
   const weeklyClose =
-    previousWeekCandles[
-      previousWeekCandles.length - 1
+    weeklyCandles[
+      weeklyCandles.length - 1
     ].close;
 
   const weeklyVWAP =
     calculateVWAP(
-      previousWeekCandles
+      weeklyCandles
     );
 
   const totalVolumeWeekly =
     calculateTotalVolume(
-      previousWeekCandles
+      weeklyCandles
     );
 
   return {
@@ -169,7 +228,9 @@ export function buildMonthlyStructure(
     !previousMonthCandles ||
     previousMonthCandles.length === 0
   ) {
+
     return null;
+
   }
 
   const monthlyHigh =

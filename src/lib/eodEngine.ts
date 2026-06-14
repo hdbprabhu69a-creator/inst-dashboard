@@ -3,6 +3,29 @@ export function isMarketClosed() {
   const now =
     new Date();
 
+  const day =
+    now.getDay();
+
+  //
+  // SATURDAY
+  //
+
+  if (day === 6) {
+
+    return true;
+
+  }
+
+  //
+  // SUNDAY
+  //
+
+  if (day === 0) {
+
+    return true;
+
+  }
+
   const hours =
     now.getHours();
 
@@ -19,13 +42,40 @@ export function isMarketClosed() {
 
 }
 
-export function isFridayAfterClose() {
+export function isWeeklyClosed() {
 
   const now =
     new Date();
 
+  const day =
+    now.getDay();
+
+  //
+  // SATURDAY
+  //
+
+  if (day === 6) {
+
+    return true;
+
+  }
+
+  //
+  // SUNDAY
+  //
+
+  if (day === 0) {
+
+    return true;
+
+  }
+
+  //
+  // FRIDAY AFTER CLOSE
+  //
+
   return (
-    now.getDay() === 5 &&
+    day === 5 &&
     isMarketClosed()
   );
 
@@ -39,16 +89,17 @@ export function getCompletedDailyCandle(
     !candles ||
     candles.length === 0
   ) {
+
     return null;
+
   }
 
-  const marketClosed =
-    isMarketClosed();
+  return isMarketClosed()
 
-  return marketClosed
     ? candles[
         candles.length - 1
       ]
+
     : candles[
         candles.length - 2
       ];
@@ -63,7 +114,7 @@ export function getCompletedWeeklyCandles(
     new Date();
 
   const useCurrentWeek =
-    isFridayAfterClose();
+    isWeeklyClosed();
 
   const daysFromMonday =
     now.getDay() === 0
@@ -134,6 +185,11 @@ export function getCompletedMonthlyCandles(
   const now =
     new Date();
 
+  //
+  // ALWAYS USE LAST
+  // COMPLETED MONTH
+  //
+
   let month =
     now.getMonth() - 1;
 
@@ -145,6 +201,7 @@ export function getCompletedMonthlyCandles(
   ) {
 
     month = 11;
+
     year--;
 
   }
@@ -156,10 +213,69 @@ export function getCompletedMonthlyCandles(
         new Date(c.date);
 
       return (
+
         d.getMonth() ===
           month &&
+
         d.getFullYear() ===
           year
+
+      );
+
+    }
+  );
+
+}
+export function getPreviousCompletedWeekCandles(
+  candles: any[]
+) {
+
+  const now =
+    new Date();
+
+  const daysFromMonday =
+    now.getDay() === 0
+      ? 6
+      : now.getDay() - 1;
+
+  const startOfCurrentWeek =
+    new Date(now);
+
+  startOfCurrentWeek.setDate(
+    now.getDate() -
+    daysFromMonday
+  );
+
+  startOfCurrentWeek.setHours(
+    0,
+    0,
+    0,
+    0
+  );
+
+  const startOfPreviousWeek =
+    new Date(
+      startOfCurrentWeek
+    );
+
+  startOfPreviousWeek.setDate(
+    startOfPreviousWeek.getDate() - 7
+  );
+
+  return candles.filter(
+    (c: any) => {
+
+      const d =
+        new Date(c.date);
+
+      return (
+
+        d >=
+          startOfPreviousWeek &&
+
+        d <
+          startOfCurrentWeek
+
       );
 
     }

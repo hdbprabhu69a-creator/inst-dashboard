@@ -47,32 +47,32 @@ export default function FibTable() {
 
     {
       tf: "1W",
-      fib: marketStructure.weeklyFib,
+      fib: marketStructure.oneWeekFib,
     },
 
     {
       tf: "2W",
-      fib: marketStructure.weeklyFib,
+      fib: marketStructure.twoWeekFib,
     },
 
     {
       tf: "1M",
-      fib: marketStructure.monthlyFib,
+      fib: marketStructure.oneMonthFib,
     },
 
     {
       tf: "3M",
-      fib: marketStructure.monthlyFib,
+      fib: marketStructure.threeMonthFib,
     },
 
     {
       tf: "6M",
-      fib: marketStructure.monthlyFib,
+      fib: marketStructure.sixMonthFib,
     },
 
     {
       tf: "1Y",
-      fib: marketStructure.monthlyFib,
+      fib: marketStructure.oneYearFib,
     },
 
   ];
@@ -91,23 +91,23 @@ export default function FibTable() {
               TF
             </th>
 
-            <th className="text-right py-1">
+            <th className="text-center py-1">
               23.6
             </th>
 
-            <th className="text-right py-1">
+            <th className="text-center py-1">
               38.2
             </th>
 
-            <th className="text-right py-1">
+            <th className="text-center py-1">
               50
             </th>
 
-            <th className="text-right py-1">
+            <th className="text-center py-1">
               61.8
             </th>
 
-            <th className="text-right py-1">
+            <th className="text-center py-1">
               78.6
             </th>
 
@@ -134,33 +134,33 @@ export default function FibTable() {
 
                 </td>
 
-                <td className="text-right text-orange-200">
+                <td className="text-center text-orange-200">
 
-                  {row.fib?.fib236?.toFixed(2)}
-
-                </td>
-
-                <td className="text-right text-orange-200">
-
-                  {row.fib?.fib382?.toFixed(2)}
+                  {row.fib?.fib236?.toFixed(2) ?? "-"}
 
                 </td>
 
-                <td className="text-right text-blue-400">
+                <td className="text-center text-orange-200">
 
-                  {row.fib?.fib50?.toFixed(2)}
-
-                </td>
-
-                <td className="text-right text-green-400">
-
-                  {row.fib?.fib618?.toFixed(2)}
+                  {row.fib?.fib382?.toFixed(2) ?? "-"}
 
                 </td>
 
-                <td className="text-right text-green-400">
+                <td className="text-center text-blue-400">
 
-                  {row.fib?.fib786?.toFixed(2)}
+                  {row.fib?.fib50?.toFixed(2) ?? "-"}
+
+                </td>
+
+                <td className="text-center text-green-400">
+
+                  {row.fib?.fib618?.toFixed(2) ?? "-"}
+
+                </td>
+
+                <td className="text-center text-green-400">
+
+                  {row.fib?.fib786?.toFixed(2) ?? "-"}
 
                 </td>
 

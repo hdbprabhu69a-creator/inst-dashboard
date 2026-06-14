@@ -140,10 +140,17 @@ export default function Home() {
 
             </div>
 
-            <SwingTable />
+            <div className="flex gap-1 items-start">
 
-            <FibTable />
+  <div className="w-[42%]">
+    <SwingTable />
+  </div>
 
+  <div className="flex-1">
+    <FibTable />
+  </div>
+
+</div>
           </div>
 
         </section>

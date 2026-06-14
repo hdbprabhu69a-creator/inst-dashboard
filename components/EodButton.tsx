@@ -31,23 +31,27 @@ export default function EodButton() {
         const data =
           await response.json();
 
-        if (!response.ok) {
+   if (
+  !data.success
+) {
 
-          throw new Error(
-            data.error ||
-            "EOD Update Failed"
-          );
+  alert(
+    data.message ||
+    data.error ||
+    "EOD Update Failed"
+  );
 
-        }
+  return;
 
-        alert(
-          `EOD Update Completed
+}
+
+alert(
+  `EOD Update Completed
 
 Updated: ${data.updated}
 Ignored: ${data.ignored}
 Failed: ${data.failed}`
-        );
-
+);
       } catch (error: any) {
 
         console.error(

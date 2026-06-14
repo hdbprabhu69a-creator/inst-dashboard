@@ -36,15 +36,11 @@ export function calculatePivot(
     pivot,
 
     r1,
-
     r2,
-
     r3,
 
     s1,
-
     s2,
-
     s3,
 
   };
@@ -77,6 +73,7 @@ export function calculateCPR(
   };
 
 }
+
 export function calculateVWAP(
   candles: any[]
 ) {
@@ -86,41 +83,150 @@ export function calculateVWAP(
   }
 
   let totalPV = 0;
+
   let totalVolume = 0;
 
-  candles.forEach((c) => {
+  candles.forEach(
+    (c) => {
 
-    const typicalPrice =
-      (c.high + c.low + c.close) / 3;
+      const typicalPrice =
+        (
+          c.high +
+          c.low +
+          c.close
+        ) / 3;
 
-    totalPV +=
-      typicalPrice * c.volume;
+      totalPV +=
+        typicalPrice *
+        c.volume;
 
-    totalVolume +=
-      c.volume;
+      totalVolume +=
+        c.volume;
 
-  });
+    }
+  );
 
-  if (totalVolume === 0) {
+  if (
+    totalVolume === 0
+  ) {
+
     return 0;
+
   }
 
-  return totalPV / totalVolume;
+  return (
+    totalPV /
+    totalVolume
+  );
 
 }
+
 export function calculateTotalVolume(
   candles: any[]
 ) {
 
   if (!candles.length) {
+
     return 0;
+
   }
 
   return candles.reduce(
-    (sum, c) =>
-      sum + (c.volume || 0),
+
+    (
+      sum,
+      c
+    ) =>
+
+      sum +
+      (c.volume || 0),
+
     0
+
   );
 
 }
 
+export function calculateFib(
+  high: number,
+  low: number
+) {
+
+  const range =
+    high - low;
+
+  return {
+
+    fib236:
+
+      Number(
+
+        (
+          high -
+          (
+            range *
+            0.236
+          )
+        ).toFixed(2)
+
+      ),
+
+    fib382:
+
+      Number(
+
+        (
+          high -
+          (
+            range *
+            0.382
+          )
+        ).toFixed(2)
+
+      ),
+
+    fib50:
+
+      Number(
+
+        (
+          high -
+          (
+            range *
+            0.50
+          )
+        ).toFixed(2)
+
+      ),
+
+    fib618:
+
+      Number(
+
+        (
+          high -
+          (
+            range *
+            0.618
+          )
+        ).toFixed(2)
+
+      ),
+
+    fib786:
+
+      Number(
+
+        (
+          high -
+          (
+            range *
+            0.786
+          )
+        ).toFixed(2)
+
+      ),
+
+  };
+
+}
