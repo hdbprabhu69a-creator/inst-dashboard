@@ -10,6 +10,7 @@ import SearchBox from "@/components/SearchBox";
 import BrokerConnectionManager from "@/components/BrokerConnectionManager";
 import MarketSnapshot from "@/components/MarketSnapshot";
 import EodButton from "@/components/EodButton";
+import VerifyButton from "@/components/VerifyButton";
 
 import PivotTable from "@/components/PivotTable";
 import CPRTable from "@/components/CPRTable";
@@ -89,7 +90,28 @@ export default function Home() {
                   HM
                 </Link>
 
+                <Link
+                  href="/scanner"
+                  className="
+                    px-2
+                    py-0.5
+                    h-6
+                    rounded-md
+                    bg-green-600
+                    hover:bg-green-500
+                    text-white
+                    text-[11px]
+                    font-medium
+                    flex
+                    items-center
+                  "
+                >
+                  SCN
+                </Link>
+
                 <EodButton />
+
+                <VerifyButton />
 
                 <a
                   href="/api/market-structure-audit"
@@ -142,15 +164,16 @@ export default function Home() {
 
             <div className="flex gap-1 items-start">
 
-  <div className="w-[42%]">
-    <SwingTable />
-  </div>
+              <div className="w-[42%]">
+                <SwingTable />
+              </div>
 
-  <div className="flex-1">
-    <FibTable />
-  </div>
+              <div className="flex-1">
+                <FibTable />
+              </div>
 
-</div>
+            </div>
+
           </div>
 
         </section>

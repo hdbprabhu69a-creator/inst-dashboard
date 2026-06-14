@@ -107,7 +107,7 @@ export async function GET() {
     }
 
     //
-    // RUN BULK UPDATE
+    // BASE URL
     //
 
     const baseUrl =
@@ -115,28 +115,62 @@ export async function GET() {
         .NEXT_PUBLIC_APP_URL ||
       "http://localhost:3000";
 
-    const response =
+    //
+    // RUN MARKET STRUCTURE
+    //
+
+    const structureResponse =
       await fetch(
         `${baseUrl}/api/market-structure-bulk-v2`
       );
 
-    const result =
-      await response.json();
+    const structureResult =
+      await structureResponse.json();
 
     if (
-      !result.success
+      !structureResult.success
     ) {
 
       return NextResponse.json({
+
         success: false,
+
         error:
-          result.error,
+          structureResult.error,
+
       });
 
     }
 
     //
-    // SAVE EOD DATE
+    // RUN DELIVERY IMPORT
+    //
+
+    const deliveryResponse =
+      await fetch(
+        `${baseUrl}/api/delivery-bulk`
+      );
+
+    const deliveryResult =
+      await deliveryResponse.json();
+
+    if (
+      !deliveryResult.success
+    ) {
+
+      return NextResponse.json({
+
+        success: false,
+
+        error:
+          deliveryResult.error,
+
+      });
+
+    }
+
+    //
+    // SAVE EOD STATUS
     //
 
     await setDoc(
@@ -160,25 +194,35 @@ export async function GET() {
 
     );
 
+    //
+    // SUCCESS
+    //
+
     return NextResponse.json({
 
       success: true,
 
       updated:
-        result.updated,
+        structureResult.updated,
 
       ignored:
-        result.ignored,
+        structureResult.ignored,
 
       failed:
-        result.failed,
+        structureResult.failed,
+
+      deliveryFiles:
+        deliveryResult.files,
+
+      deliveryRecords:
+        deliveryResult.written,
 
       timestamp:
         new Date()
           .toISOString(),
 
       message:
-        "EOD REFRESH COMPLETE",
+        "EOD + DELIVERY COMPLETE",
 
     });
 

@@ -41,9 +41,25 @@ export function SelectedStockProvider({
   const [
     selectedStock,
     setSelectedStock,
-  ] = useState(
-    DEFAULT_STOCK
-  );
+  ] = useState(() => {
+
+    if (
+      typeof window !==
+      "undefined"
+    ) {
+
+      return (
+        localStorage.getItem(
+          "selectedStock"
+        ) ||
+        DEFAULT_STOCK
+      );
+
+    }
+
+    return DEFAULT_STOCK;
+
+  });
 
   const [
     marketStructure,
@@ -58,6 +74,17 @@ export function SelectedStockProvider({
   ] = useState(
     true
   );
+
+  useEffect(() => {
+
+    localStorage.setItem(
+      "selectedStock",
+      selectedStock
+    );
+
+  }, [
+    selectedStock,
+  ]);
 
   useEffect(() => {
 

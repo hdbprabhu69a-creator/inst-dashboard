@@ -102,8 +102,6 @@ export interface MarketStructure {
 
   totalVolumeWeekly: number;
 
-  weeklyFib?: FibData;
-
   //
   // MONTHLY
   //
@@ -117,8 +115,6 @@ export interface MarketStructure {
   monthlyVWAP: number;
 
   totalVolumeMonthly: number;
-
-  monthlyFib?: FibData;
 
   //
   // SWINGS
@@ -135,6 +131,22 @@ export interface MarketStructure {
   sixMonthSwing: SwingData;
 
   oneYearSwing: SwingData;
+
+  //
+  // FIBS
+  //
+
+  oneWeekFib: FibData;
+
+  twoWeekFib: FibData;
+
+  oneMonthFib: FibData;
+
+  threeMonthFib: FibData;
+
+  sixMonthFib: FibData;
+
+  oneYearFib: FibData;
 
   //
   // SCORES
