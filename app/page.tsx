@@ -9,8 +9,10 @@ import Link from "next/link";
 import SearchBox from "@/components/SearchBox";
 import BrokerConnectionManager from "@/components/BrokerConnectionManager";
 import MarketSnapshot from "@/components/MarketSnapshot";
+
 import EodButton from "@/components/EodButton";
 import VerifyButton from "@/components/VerifyButton";
+import DeliveryImportButton from "@/components/DeliveryImportButton";
 
 import PivotTable from "@/components/PivotTable";
 import CPRTable from "@/components/CPRTable";
@@ -108,6 +110,8 @@ export default function Home() {
                 >
                   SCN
                 </Link>
+
+                <DeliveryImportButton />
 
                 <EodButton />
 

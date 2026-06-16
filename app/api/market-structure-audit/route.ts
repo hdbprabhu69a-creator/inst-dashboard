@@ -220,6 +220,77 @@ export async function GET() {
     workbook.addWorksheet(
       "Monthly"
     );
+    const deliverySheet =
+  workbook.addWorksheet(
+    "Delivery"
+  );
+  deliverySheet.columns = [
+
+  {
+    header: "Symbol",
+    key: "symbol",
+    width: 18,
+  },
+
+  {
+    header: "D Vol",
+    key: "totalVolumeDaily",
+    width: 18,
+  },
+
+  {
+    header: "D Del",
+    key: "totalDeliveryDaily",
+    width: 18,
+  },
+
+  {
+    header: "D Del %",
+    key: "deliveryPctDaily",
+    width: 15,
+  },
+
+  {
+    header: "W Vol",
+    key: "totalVolumeWeekly",
+    width: 18,
+  },
+
+  {
+    header: "W Del",
+    key: "totalDeliveryWeekly",
+    width: 18,
+  },
+
+  {
+    header: "W Del %",
+    key: "deliveryPctWeekly",
+    width: 15,
+  },
+
+  {
+    header: "M Vol",
+    key: "totalVolumeMonthly",
+    width: 18,
+  },
+
+  {
+    header: "M Del",
+    key: "totalDeliveryMonthly",
+    width: 18,
+  },
+
+  {
+    header: "M Del %",
+    key: "deliveryPctMonthly",
+    width: 15,
+  },
+
+];
+deliverySheet.addRows(
+  result.rows
+);
+
     const swingSheet =
   workbook.addWorksheet(
     "Swing"
@@ -892,6 +963,7 @@ fibSheet.columns = [
   dailySheet,
   weeklySheet,
   monthlySheet,
+  deliverySheet,
   swingSheet,
   fibSheet,
 ];

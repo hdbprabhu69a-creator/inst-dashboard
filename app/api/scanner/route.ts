@@ -1,11 +1,14 @@
 import { NextResponse } from "next/server";
-
+import { sendEmail } from "@/src/services/email";
 import {
   collection,
   getDocs,
 } from "firebase/firestore";
 
 import { db } from "@/lib/firebase";
+import {
+  buyZoneScanner,
+} from "@/src/lib/scanners/buyZoneScanner";
 
 //
 // GET
@@ -109,7 +112,9 @@ export async function GET() {
 export async function POST(
   request: Request
 ) {
-
+  console.log(
+    "POST HIT"
+  );
   try {
 
     const filters =
@@ -118,7 +123,10 @@ export async function POST(
     const scanner =
       filters.scanner ||
       "ALL";
-
+console.log(
+  "SCANNER:",
+  scanner
+);
     const marketSnapshot =
       await getDocs(
         collection(
@@ -460,35 +468,163 @@ if (
   }
 
 }
+//
+// BUY ZONE SCANNER
+//
+
+if (
+  scanner ===
+  "BUYZONE"
+) {
+
+  const result =
+    buyZoneScanner(
+      stock
+    );
+
+  stock.buyZoneScore =
+    result.score;
+
+  stock.buyZoneType =
+    result.buyZoneType;
+
+  stock.zoneLow =
+    result.zoneLow;
+
+  stock.zoneHigh =
+    result.zoneHigh;
+
+if (
+  !result.inBuyZone
+) {
+
+  return false;
+
+}
+}
           return true;
 
         }
       );
-results.sort(
-  (
-    a: any,
-    b: any
-  ) =>
+if (
+  scanner ===
+  "BUYZONE"
+) {
+
+  results.sort(
     (
-      b.alignmentScore ||
-      0
-    ) -
+      a: any,
+      b: any
+    ) =>
+      (
+        b.buyZoneScore ||
+        0
+      ) -
+      (
+        a.buyZoneScore ||
+        0
+      )
+  );
+
+}
+if (
+  scanner === "BUYZONE" &&
+  results.length > 0
+) {
+
+  const message =
+    "🔥 BUYZONE ALERT\n\n" +
+
+    results
+      .slice(0, 10)
+      .map(
+        (stock: any, index: number) =>
+          `${index + 1}. ${stock.symbol}
+Score: ${stock.buyZoneScore}
+Type: ${stock.buyZoneType}`
+      )
+      .join("\n\n");
+
+ try {
+
+  console.log(
+    "SENDING EMAIL..."
+  );
+
+  await sendEmail(
+    "BUYZONE ALERT",
+    message
+  );
+
+  console.log(
+    "EMAIL SENT"
+  );
+
+} catch (error) {
+
+  console.error(
+    "EMAIL ERROR:",
+    error
+  );
+
+}
+} 
+else {
+
+  results.sort(
     (
-      a.alignmentScore ||
-      0
-    )
-);
-    return NextResponse.json({
+      a: any,
+      b: any
+    ) =>
+      (
+        b.alignmentScore ||
+        0
+      ) -
+      (
+        a.alignmentScore ||
+        0
+      )
+  );
 
-      success: true,
+}    return NextResponse.json({
 
-      count:
-        results.length,
+  success: true,
 
-      stocks:
-        results,
+  count:
+    results.length,
 
-    });
+  stocks:
+    results.map(
+      (stock: any) => ({
+
+        symbol:
+          stock.symbol,
+
+        sector:
+          stock.sector,
+
+        cmp:
+          stock.cmp,
+
+        buyZoneType:
+          stock.buyZoneType,
+
+        buyZoneScore:
+          stock.buyZoneScore,
+
+        zoneLow:
+          stock.zoneLow,
+
+        zoneHigh:
+          stock.zoneHigh,
+
+        alignmentScore:
+          stock.alignmentScore,
+
+      })
+    ),
+
+});
 
   } catch (error: any) {
 

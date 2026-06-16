@@ -173,7 +173,9 @@ export function buildWeeklyStructure(
 
   return {
 
-    weeklyPivot:
+  weeklyCandles,
+
+  weeklyPivot:
       calculatePivot(
         weeklyHigh,
         weeklyLow,
@@ -263,7 +265,7 @@ export function buildMonthlyStructure(
     );
 
   return {
-
+previousMonthCandles,
     monthlyPivot:
       calculatePivot(
         monthlyHigh,

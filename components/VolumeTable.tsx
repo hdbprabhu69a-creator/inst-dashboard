@@ -4,6 +4,14 @@ import {
   useSelectedStock,
 } from "@/src/context/SelectedStockContext";
 
+function toMillion(
+  value: number = 0
+) {
+  return (
+    value / 1000000
+  ).toFixed(2);
+}
+
 export default function VolumeTable() {
 
   const {
@@ -58,7 +66,15 @@ export default function VolumeTable() {
             </th>
 
             <th className="text-right py-0.5">
-             VOLUME
+              VOL(M)
+            </th>
+
+            <th className="text-right py-0.5">
+              DEL(M)
+            </th>
+
+            <th className="text-right py-0.5">
+              DEL%
             </th>
 
           </tr>
@@ -74,9 +90,25 @@ export default function VolumeTable() {
             </td>
 
             <td className="text-right text-yellow-400">
-              {Math.round(
-                marketStructure.totalVolumeDaily || 0
-              ).toLocaleString()}
+
+              {toMillion(
+                marketStructure.totalVolumeDaily
+              )}
+
+            </td>
+
+            <td className="text-right text-orange-300">
+
+              {toMillion(
+                marketStructure.totalDeliveryDaily
+              )}
+
+            </td>
+
+            <td className="text-right text-green-400">
+
+              {marketStructure.deliveryPctDaily?.toFixed(1)}
+
             </td>
 
           </tr>
@@ -88,10 +120,25 @@ export default function VolumeTable() {
             </td>
 
             <td className="text-right text-yellow-400">
-              {Math.round(
-                  marketStructure.totalVolumeWeekly || 0
- 
-              ).toLocaleString()}
+
+              {toMillion(
+                marketStructure.totalVolumeWeekly
+              )}
+
+            </td>
+
+            <td className="text-right text-orange-300">
+
+              {toMillion(
+                marketStructure.totalDeliveryWeekly
+              )}
+
+            </td>
+
+            <td className="text-right text-green-400">
+
+              {marketStructure.deliveryPctWeekly?.toFixed(1)}
+
             </td>
 
           </tr>
@@ -103,9 +150,25 @@ export default function VolumeTable() {
             </td>
 
             <td className="text-right text-yellow-400">
-              {Math.round(
-                marketStructure.totalVolumeMonthly || 0
-              ).toLocaleString()}
+
+              {toMillion(
+                marketStructure.totalVolumeMonthly
+              )}
+
+            </td>
+
+            <td className="text-right text-orange-300">
+
+              {toMillion(
+                marketStructure.totalDeliveryMonthly
+              )}
+
+            </td>
+
+            <td className="text-right text-green-400">
+
+              {marketStructure.deliveryPctMonthly?.toFixed(1)}
+
             </td>
 
           </tr>

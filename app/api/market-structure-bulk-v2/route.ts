@@ -35,6 +35,8 @@ import {
   getDoc,
   setDoc,
   serverTimestamp,
+  query,
+  where,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
@@ -281,13 +283,22 @@ if (
         }
 
         const {
-          weeklyPivot,
-          weeklyCPR,
-          weeklyVWAP,
-          totalVolumeWeekly,
-          weeklyOHLC,
-        } = weeklyData;
-
+  weeklyPivot,
+  weeklyCPR,
+  weeklyVWAP,
+  totalVolumeWeekly,
+  weeklyOHLC,
+  weeklyCandles,
+} = weeklyData;
+const completedWeekDates =
+  new Set(
+    weeklyCandles.map(
+      (c: any) =>
+        new Date(c.date)
+          .toISOString()
+          .split("T")[0]
+    )
+  );
         const monthlyData =
           buildMonthlyStructure(
             candles,
@@ -307,13 +318,118 @@ if (
         }
 
         const {
+          previousMonthCandles,
           monthlyPivot,
           monthlyCPR,
           monthlyVWAP,
           totalVolumeMonthly,
           monthlyOHLC,
         } = monthlyData;
+        const completedMonthDates =
+  new Set(
+    previousMonthCandles.map(
+      (c: any) =>
+        new Date(c.date)
+          .toISOString()
+          .split("T")[0]
+    )
+  );
+const deliverySnapshot =
+  await getDocs(
+    query(
+      collection(
+        db,
+        "delivery_history"
+      ),
+      where(
+        "symbol",
+        "==",
+        symbol
+      )
+    )
+  );
 
+const deliveryRecords =
+  deliverySnapshot.docs.map(
+    (doc) => doc.data()
+  );
+  const latestDelivery =
+  deliveryRecords
+    .sort(
+      (a: any, b: any) =>
+        new Date(b.date).getTime() -
+        new Date(a.date).getTime()
+    )[0];
+
+const totalDeliveryDaily =
+  latestDelivery?.deliveryQty || 0;
+
+const deliveryPctDaily =
+  latestDelivery?.deliveryPct || 0;
+  const weeklyDeliveryRecords =
+  deliveryRecords.filter(
+    (row: any) =>
+      completedWeekDates.has(
+        row.date
+      )
+  );
+
+const totalDeliveryWeekly =
+  weeklyDeliveryRecords.reduce(
+    (sum: number, row: any) =>
+      sum + (row.deliveryQty || 0),
+    0
+  );
+
+const totalWeeklyVolume =
+  weeklyDeliveryRecords.reduce(
+    (sum: number, row: any) =>
+      sum + (row.volume || 0),
+    0
+  );
+
+const deliveryPctWeekly =
+  totalWeeklyVolume > 0
+    ? Number(
+        (
+          totalDeliveryWeekly /
+          totalWeeklyVolume *
+          100
+        ).toFixed(2)
+      )
+    : 0;
+    const monthlyDeliveryRecords =
+  deliveryRecords.filter(
+    (row: any) =>
+      completedMonthDates.has(
+        row.date
+      )
+  );
+
+const totalDeliveryMonthly =
+  monthlyDeliveryRecords.reduce(
+    (sum: number, row: any) =>
+      sum + (row.deliveryQty || 0),
+    0
+  );
+
+const totalMonthlyVolume =
+  monthlyDeliveryRecords.reduce(
+    (sum: number, row: any) =>
+      sum + (row.volume || 0),
+    0
+  );
+
+const deliveryPctMonthly =
+  totalMonthlyVolume > 0
+    ? Number(
+        (
+          totalDeliveryMonthly /
+          totalMonthlyVolume *
+          100
+        ).toFixed(2)
+      )
+    : 0;
         const swings =
           buildAllSwings(
             candles
@@ -377,20 +493,28 @@ if (
             dailyOHLC,
 
             dailyPivot,
-            dailyCPR,
-            dailyVWAP,
-            totalVolumeDaily,
+dailyCPR,
+dailyVWAP,
+totalVolumeDaily,
 
-            weeklyPivot,
-            weeklyCPR,
-            weeklyVWAP,
-            totalVolumeWeekly,
+totalDeliveryDaily,
+deliveryPctDaily,
 
-            monthlyPivot,
-            monthlyCPR,
-            monthlyVWAP,
-            totalVolumeMonthly,
+weeklyPivot,
+weeklyCPR,
+weeklyVWAP,
+totalVolumeWeekly,
 
+totalDeliveryWeekly,
+deliveryPctWeekly,
+
+monthlyPivot,
+monthlyCPR,
+monthlyVWAP,
+totalVolumeMonthly,
+
+totalDeliveryMonthly,
+deliveryPctMonthly,
             weeklyOHLC,
             monthlyOHLC,
 

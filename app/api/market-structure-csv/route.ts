@@ -315,6 +315,34 @@ oneYearFib618:
 
 oneYearFib786:
   data.oneYearFib?.fib786,
+  // DELIVERY AUDIT
+
+totalVolumeDaily:
+  data.totalVolumeDaily,
+
+totalDeliveryDaily:
+  data.totalDeliveryDaily,
+
+deliveryPctDaily:
+  data.deliveryPctDaily,
+
+totalVolumeWeekly:
+  data.totalVolumeWeekly,
+
+totalDeliveryWeekly:
+  data.totalDeliveryWeekly,
+
+deliveryPctWeekly:
+  data.deliveryPctWeekly,
+
+totalVolumeMonthly:
+  data.totalVolumeMonthly,
+
+totalDeliveryMonthly:
+  data.totalDeliveryMonthly,
+
+deliveryPctMonthly:
+  data.deliveryPctMonthly,
           // EXISTING DATA
 
           dailyVWAP:

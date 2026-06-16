@@ -281,6 +281,9 @@ export default function ScannerPage() {
   Alignment 8/9+
 </option>
 
+<option value="BUYZONE">
+  Buy Zone
+</option>
           </select>
 
           <div
@@ -494,40 +497,62 @@ xl:grid-cols-10
   </div>
 
   <div
-    className="
-      text-zinc-400
-      text-[9px]
-    "
-  >
-    CMP {stock.cmp?.toFixed(0)}
-  </div>
+  className="
+    text-zinc-400
+    text-[9px]
+  "
+>
+  CMP {stock.cmp?.toFixed(0)}
+</div>
 
-  <div
-    className="
-      text-cyan-400
-      text-[9px]
-    "
-  >
+{
+  scanner === "BUYZONE" && (
 
-    {
-      scanner === "ALIGNMENT"
+    <div
+      className="
+        text-green-400
+        text-[8px]
+      "
+    >
+      Z:
+      {" "}
+      {stock.zoneLow?.toFixed(0)}
+      {"-"}
+      {stock.zoneHigh?.toFixed(0)}
+    </div>
 
-        ? `A ${stock.alignmentScore || 0}/9`
+  )
+}
 
-        : scanner === "CPR05" ||
-          scanner === "CPR10"
+<div
+  className="
+    text-cyan-400
+    text-[9px]
+  "
+>
 
-        ? `C ${
-            stock.cprWidth
-              ? stock.cprWidth.toFixed(2)
-              : "0.00"
-          }%`
+  {
+    scanner === "ALIGNMENT"
 
-        : ""
-    }
+      ? `A ${stock.alignmentScore || 0}/9`
 
-  </div>
+      : scanner === "CPR05" ||
+        scanner === "CPR10"
 
+      ? `C ${
+          stock.cprWidth
+            ? stock.cprWidth.toFixed(2)
+            : "0.00"
+        }%`
+
+      : scanner === "BUYZONE"
+
+      ? `${stock.buyZoneType} (${stock.buyZoneScore || 0})`
+
+      : ""
+  }
+
+</div>
 </div>
                    
                   </div>
