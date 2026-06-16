@@ -61,7 +61,7 @@ export default function MarketSnapshot() {
           <p className="text-green-400 text-base font-bold">
             {structure
               ? formatPrice(
-                 (structure as any).ltp
+                 (structure as any).cmp
                 )
               : "-"}
           </p>
@@ -132,9 +132,9 @@ export default function MarketSnapshot() {
             TOKEN
           </p>
 
-          <p className="text-yellow-400 text-xs font-semibold">
-           {(structure as any)?.instrument_token || "-"}
-          </p>
+         <p className="text-yellow-400 text-xs font-semibold">
+  {(structure as any)?.instrumentToken || "-"}
+</p>
         </div>
 
       </div>
