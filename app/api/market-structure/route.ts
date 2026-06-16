@@ -28,21 +28,19 @@ export async function GET() {
         )
       );
 
-    const stocks =
-      snapshot.docs.map(
-        (doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })
-      );
-
-    const voltas =
-      stocks.find(
-        (stock: any) =>
-          stock.symbol ===
-          "VOLTAS"
-      );
-
+    const stocks: any[] =
+  snapshot.docs.map(
+    (doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })
+  );
+    const voltas: any =
+  stocks.find(
+    (stock: any) =>
+      stock.symbol ===
+      "VOLTAS"
+  );
     if (!voltas) {
 
       return NextResponse.json({

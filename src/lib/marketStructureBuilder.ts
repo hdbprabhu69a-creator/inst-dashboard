@@ -25,10 +25,10 @@ export function buildMarketStructure(
     symbol:
       data.symbol,
 
-    instrument_token:
+    instrumentToken:
       quote.instrument_token,
 
-    ltp:
+    cmp:
       quote.last_price,
 
     open:
@@ -52,6 +52,6 @@ export function buildMarketStructure(
     timestamp:
       quote.timestamp,
 
-  };
+  } as any;
 
 }

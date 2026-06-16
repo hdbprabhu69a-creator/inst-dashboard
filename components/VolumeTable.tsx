@@ -51,6 +51,9 @@ export default function VolumeTable() {
 
   }
 
+  const ms =
+    marketStructure as any;
+
   return (
 
     <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-1">
@@ -92,7 +95,7 @@ export default function VolumeTable() {
             <td className="text-right text-yellow-400">
 
               {toMillion(
-                marketStructure.totalVolumeDaily
+                ms.totalVolumeDaily || 0
               )}
 
             </td>
@@ -100,14 +103,14 @@ export default function VolumeTable() {
             <td className="text-right text-orange-300">
 
               {toMillion(
-                marketStructure.totalDeliveryDaily
+                ms.totalDeliveryDaily || 0
               )}
 
             </td>
 
             <td className="text-right text-green-400">
 
-              {marketStructure.deliveryPctDaily?.toFixed(1)}
+              {ms.deliveryPctDaily?.toFixed(1) || "-"}
 
             </td>
 
@@ -122,7 +125,7 @@ export default function VolumeTable() {
             <td className="text-right text-yellow-400">
 
               {toMillion(
-                marketStructure.totalVolumeWeekly
+                ms.totalVolumeWeekly || 0
               )}
 
             </td>
@@ -130,14 +133,14 @@ export default function VolumeTable() {
             <td className="text-right text-orange-300">
 
               {toMillion(
-                marketStructure.totalDeliveryWeekly
+                ms.totalDeliveryWeekly || 0
               )}
 
             </td>
 
             <td className="text-right text-green-400">
 
-              {marketStructure.deliveryPctWeekly?.toFixed(1)}
+              {ms.deliveryPctWeekly?.toFixed(1) || "-"}
 
             </td>
 
@@ -152,7 +155,7 @@ export default function VolumeTable() {
             <td className="text-right text-yellow-400">
 
               {toMillion(
-                marketStructure.totalVolumeMonthly
+                ms.totalVolumeMonthly || 0
               )}
 
             </td>
@@ -160,14 +163,14 @@ export default function VolumeTable() {
             <td className="text-right text-orange-300">
 
               {toMillion(
-                marketStructure.totalDeliveryMonthly
+                ms.totalDeliveryMonthly || 0
               )}
 
             </td>
 
             <td className="text-right text-green-400">
 
-              {marketStructure.deliveryPctMonthly?.toFixed(1)}
+              {ms.deliveryPctMonthly?.toFixed(1) || "-"}
 
             </td>
 

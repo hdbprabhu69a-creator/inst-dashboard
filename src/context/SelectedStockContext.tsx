@@ -16,7 +16,7 @@ import { db } from "@/lib/firebase";
 
 import {
   SelectedStockContextType,
-} from "@/src/types/context";
+} from "@/types/context";
 
 import {
   MarketStructure,

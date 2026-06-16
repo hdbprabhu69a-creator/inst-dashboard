@@ -61,7 +61,7 @@ export default function MarketSnapshot() {
           <p className="text-green-400 text-base font-bold">
             {structure
               ? formatPrice(
-                  structure.ltp
+                 (structure as any).ltp
                 )
               : "-"}
           </p>
@@ -74,7 +74,7 @@ export default function MarketSnapshot() {
 
           <p className="text-cyan-400 text-xs font-semibold">
             {formatVolume(
-              structure?.volume || 0
+              (structure as any)?.volume
             )}
           </p>
         </div>
@@ -86,7 +86,7 @@ export default function MarketSnapshot() {
 
           <p className="text-white text-xs">
             {formatPrice(
-              structure?.open || 0
+             (structure as any)?.open
             )}
           </p>
         </div>
@@ -98,7 +98,7 @@ export default function MarketSnapshot() {
 
           <p className="text-green-400 text-xs">
             {formatPrice(
-              structure?.high || 0
+              (structure as any)?.high || 0
             )}
           </p>
         </div>
@@ -110,7 +110,7 @@ export default function MarketSnapshot() {
 
           <p className="text-red-400 text-xs">
             {formatPrice(
-              structure?.low || 0
+              (structure as any)?.low
             )}
           </p>
         </div>
@@ -122,7 +122,7 @@ export default function MarketSnapshot() {
 
           <p className="text-white text-xs">
             {formatPrice(
-              structure?.close || 0
+              (structure as any)?.close
             )}
           </p>
         </div>
@@ -133,8 +133,7 @@ export default function MarketSnapshot() {
           </p>
 
           <p className="text-yellow-400 text-xs font-semibold">
-            {structure
-              ?.instrument_token || "-"}
+           {(structure as any)?.instrument_token || "-"}
           </p>
         </div>
 

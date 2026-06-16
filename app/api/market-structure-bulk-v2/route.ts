@@ -436,41 +436,52 @@ const deliveryPctMonthly =
           );
 
         const oneWeekFib =
-          buildFibLevels(
-            swings.oneWeekSwing.high,
-            swings.oneWeekSwing.low
-          );
+  swings.oneWeekSwing
+    ? buildFibLevels(
+        swings.oneWeekSwing.high,
+        swings.oneWeekSwing.low
+      )
+    : null;
 
-        const twoWeekFib =
-          buildFibLevels(
-            swings.twoWeekSwing.high,
-            swings.twoWeekSwing.low
-          );
+const twoWeekFib =
+  swings.twoWeekSwing
+    ? buildFibLevels(
+        swings.twoWeekSwing.high,
+        swings.twoWeekSwing.low
+      )
+    : null;
 
-        const oneMonthFib =
-          buildFibLevels(
-            swings.oneMonthSwing.high,
-            swings.oneMonthSwing.low
-          );
+const oneMonthFib =
+  swings.oneMonthSwing
+    ? buildFibLevels(
+        swings.oneMonthSwing.high,
+        swings.oneMonthSwing.low
+      )
+    : null;
 
-        const threeMonthFib =
-          buildFibLevels(
-            swings.threeMonthSwing.high,
-            swings.threeMonthSwing.low
-          );
+const threeMonthFib =
+  swings.threeMonthSwing
+    ? buildFibLevels(
+        swings.threeMonthSwing.high,
+        swings.threeMonthSwing.low
+      )
+    : null;
 
-        const sixMonthFib =
-          buildFibLevels(
-            swings.sixMonthSwing.high,
-            swings.sixMonthSwing.low
-          );
+const sixMonthFib =
+  swings.sixMonthSwing
+    ? buildFibLevels(
+        swings.sixMonthSwing.high,
+        swings.sixMonthSwing.low
+      )
+    : null;
 
-        const oneYearFib =
-          buildFibLevels(
-            swings.oneYearSwing.high,
-            swings.oneYearSwing.low
-          );
-
+const oneYearFib =
+  swings.oneYearSwing
+    ? buildFibLevels(
+        swings.oneYearSwing.high,
+        swings.oneYearSwing.low
+      )
+    : null;
         await setDoc(
 
           doc(

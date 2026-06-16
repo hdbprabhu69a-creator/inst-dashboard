@@ -2,7 +2,7 @@ export * from "./constants";
 
 export * from "./formatters";
 
-export * from "./marketData";
+export * from "./marketdata";
 
 export * from "./marketStructure";
 
