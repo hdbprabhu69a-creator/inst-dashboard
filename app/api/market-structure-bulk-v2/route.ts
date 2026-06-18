@@ -55,10 +55,37 @@ if (
   });
 
 }
+const indiaTime =
+  new Date(
+    new Date().toLocaleString(
+      "en-US",
+      {
+        timeZone:
+          "Asia/Kolkata",
+      }
+    )
+  );
+
 const today =
-  new Date()
+  indiaTime
     .toISOString()
     .split("T")[0];
+
+const currentSession =
+
+  (
+    indiaTime.getHours() > 15 ||
+
+    (
+      indiaTime.getHours() === 15 &&
+      indiaTime.getMinutes() >= 30
+    )
+
+  )
+
+    ? "POST_CLOSE"
+
+    : "PRE_CLOSE";
 
 const eodStatusRef =
   doc(
@@ -80,9 +107,18 @@ if (
     eodStatusDoc.data()
       ?.lastRunDate;
 
+  const lastSession =
+    eodStatusDoc.data()
+      ?.session;
+
   if (
+
     lastRunDate ===
-    today
+      today &&
+
+    lastSession ===
+      currentSession
+
   ) {
 
     return NextResponse.json({
@@ -96,8 +132,7 @@ if (
 
   }
 
-}
-  try {
+}  try {
 
     const tokenDoc =
       await getDoc(
@@ -590,6 +625,9 @@ await setDoc(
     lastRunDate:
       today,
 
+    session:
+      currentSession,
+
     updatedAt:
       serverTimestamp(),
 
@@ -600,7 +638,6 @@ await setDoc(
   }
 
 );
-
 
     return NextResponse.json({
 

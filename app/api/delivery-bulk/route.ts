@@ -77,7 +77,7 @@ export async function GET() {
       );
 
     //
-    // FIND LATEST CSV
+    // DELIVERY FOLDER
     //
 
     const deliveryFolder =
@@ -94,19 +94,30 @@ export async function GET() {
         )
         .filter(
           (file) =>
-            file.endsWith(
-              ".csv"
-            )
+            file
+              .toLowerCase()
+              .endsWith(
+                ".csv"
+              )
         )
         .sort();
 
-    const latestFile =
-      files[
-        files.length - 1
-      ];
+    console.log(
+      "DELIVERY FOLDER:",
+      deliveryFolder
+    );
+
+    console.log(
+      "FILES FOUND:"
+    );
+
+    files.forEach(
+      (file) =>
+        console.log(file)
+    );
 
     if (
-      !latestFile
+      files.length === 0
     ) {
 
       return NextResponse.json({
@@ -114,152 +125,170 @@ export async function GET() {
         success: false,
 
         error:
-          "No delivery file found",
+          "No delivery files found",
 
       });
 
     }
 
-    //
-    // READ FILE
-    //
-
-    const rows: any[] = [];
-
-    await new Promise(
-      (
-        resolve,
-        reject
-      ) => {
-
-        fs
-          .createReadStream(
-            path.join(
-              deliveryFolder,
-              latestFile
-            )
-          )
-
-          .pipe(
-            csv({
-              mapHeaders:
-                ({ header }) =>
-                  header.trim(),
-            })
-          )
-
-          .on(
-            "data",
-            (
-              data
-            ) => {
-
-              rows.push(
-                buildDeliveryRecord(
-                  data
-                )
-              );
-
-            }
-          )
-
-          .on(
-            "end",
-            resolve
-          )
-
-          .on(
-            "error",
-            reject
-          );
-
-      }
-    );
-
-    //
-    // FILTER UNIVERSE
-    //
-
-    const filtered =
-      rows.filter(
-        (
-          row
-        ) =>
-          universeSymbols.includes(
-            row.symbol
-          )
-      );
-
     let written = 0;
-    let skipped = 0;
+    let updated = 0;
+    let failed = 0;
 
     //
-    // WRITE ONLY NEW RECORDS
+    // PROCESS ALL FILES
     //
 
     for (
-      const stock of filtered
+      const file of files
     ) {
 
-      const isoDate =
-        convertDate(
-          stock.date
+      console.log(
+        "PROCESSING:",
+        file
+      );
+
+      const rows: any[] = [];
+
+      await new Promise(
+        (
+          resolve,
+          reject
+        ) => {
+
+          fs
+            .createReadStream(
+              path.join(
+                deliveryFolder,
+                file
+              )
+            )
+
+            .pipe(
+              csv({
+                mapHeaders:
+                  ({
+                    header,
+                  }) =>
+                    header.trim(),
+              })
+            )
+
+            .on(
+              "data",
+              (
+                data
+              ) => {
+
+                rows.push(
+                  buildDeliveryRecord(
+                    data
+                  )
+                );
+
+              }
+            )
+
+            .on(
+              "end",
+              resolve
+            )
+
+            .on(
+              "error",
+              reject
+            );
+
+        }
+      );
+
+      const filtered =
+        rows.filter(
+          (
+            row
+          ) =>
+            universeSymbols.includes(
+              row.symbol
+            )
         );
 
-      const docId =
-        `${stock.symbol}_${isoDate}`;
-
-      const docRef =
-        doc(
-          db,
-          "delivery_history",
-          docId
-        );
-
-      const existing =
-        await getDoc(
-          docRef
-        );
-
-      if (
-        existing.exists()
+      for (
+        const stock of filtered
       ) {
 
-        skipped++;
+        try {
 
-        continue;
+          const isoDate =
+            convertDate(
+              stock.date
+            );
 
-      }
+          const docId =
+            `${stock.symbol}_${isoDate}`;
 
-      await setDoc(
+          const docRef =
+            doc(
+              db,
+              "delivery_history",
+              docId
+            );
 
-        docRef,
+          const existing =
+            await getDoc(
+              docRef
+            );
 
-        {
+          await setDoc(
 
-          symbol:
-            stock.symbol,
+            docRef,
 
-          date:
-            isoDate,
+            {
 
-          volume:
-            stock.volume,
+              symbol:
+                stock.symbol,
 
-          deliveryQty:
-            stock.deliveryQty,
+              date:
+                isoDate,
 
-          deliveryPct:
-            stock.deliveryPct,
+              volume:
+                stock.volume,
 
-          createdAt:
-            Date.now(),
+              deliveryQty:
+                stock.deliveryQty,
+
+              deliveryPct:
+                stock.deliveryPct,
+
+              updatedAt:
+                Date.now(),
+
+            },
+
+            {
+              merge: true,
+            }
+
+          );
+
+          if (
+            existing.exists()
+          ) {
+
+            updated++;
+
+          } else {
+
+            written++;
+
+          }
+
+        } catch {
+
+          failed++;
 
         }
 
-      );
-
-      written++;
+      }
 
     }
 
@@ -267,18 +296,14 @@ export async function GET() {
 
       success: true,
 
-      file:
-        latestFile,
-
-      universeCount:
-        universeSymbols.length,
-
-      matchedStocks:
-        filtered.length,
+      filesProcessed:
+        files.length,
 
       written,
 
-      skipped,
+      updated,
+
+      failed,
 
     });
 

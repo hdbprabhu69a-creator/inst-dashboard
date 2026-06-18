@@ -1,88 +1,183 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { fetchMarketData } from "@/services/marketService";
-import { KiteApiResponse } from "@/types/market";
+import {
+  useEffect,
+  useState,
+} from "react";
+
+import {
+  fetchMarketData,
+} from "@/services/marketService";
+
+import {
+  KiteApiResponse,
+} from "@/types/market";
 
 export function useKiteData(
   symbol: string
 ) {
-  const [data, setData] =
+
+  const [
+    data,
+    setData,
+  ] =
     useState<KiteApiResponse | null>(
       null
     );
 
-  const [loading, setLoading] =
+  const [
+    loading,
+    setLoading,
+  ] =
     useState(false);
 
-  const [error, setError] =
+  const [
+    error,
+    setError,
+  ] =
     useState("");
 
   useEffect(() => {
+
     const cleanSymbol =
       symbol?.trim();
 
     if (
+
       !cleanSymbol ||
-      cleanSymbol === "undefined" ||
-      cleanSymbol === "null"
+
+      cleanSymbol ===
+        "undefined" ||
+
+      cleanSymbol ===
+        "null"
+
     ) {
+
       setLoading(false);
+
       setError("");
+
       setData(null);
 
       return;
+
     }
 
-    let isMounted = true;
+    let isMounted =
+      true;
 
-    const loadData = async () => {
-      try {
-        setLoading(true);
+    const loadData =
+      async () => {
 
-        const result =
-          await fetchMarketData(
-            cleanSymbol
+        try {
+
+          const result =
+            await fetchMarketData(
+              cleanSymbol
+            );
+
+          if (
+            !isMounted
+          ) {
+
+            return;
+
+          }
+
+          setData(
+            result
           );
 
-        if (!isMounted) {
-          return;
-        }
+          setError("");
 
-        setData(result);
+        } catch (
+          err: any
+        ) {
 
-        setError("");
-      } catch (err: any) {
-        if (!isMounted) {
-          return;
-        }
+          if (
+            !isMounted
+          ) {
 
-        console.error(
-          "KITE HOOK ERROR:",
-          err
-        );
+            return;
 
-        setError(
-          err?.message ||
+          }
+
+          console.error(
+            "KITE HOOK ERROR:",
+            err
+          );
+
+          setError(
+
+            err?.message ||
+
             "Market data unavailable"
-        );
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    };
 
-    loadData();
+          );
+
+        }
+
+      };
+
+    //
+    // INITIAL LOAD
+    //
+
+    setLoading(
+      true
+    );
+
+    loadData()
+
+      .finally(
+        () => {
+
+          if (
+            isMounted
+          ) {
+
+            setLoading(
+              false
+            );
+
+          }
+
+        }
+      );
+
+    //
+    // LIVE REFRESH
+    // EVERY 1 SECOND
+    //
+
+    const interval =
+      setInterval(
+        loadData,
+        1000
+      );
 
     return () => {
-  isMounted = false;
-};
+
+      isMounted =
+        false;
+
+      clearInterval(
+        interval
+      );
+
+    };
+
   }, [symbol]);
 
   return {
+
     data,
+
     loading,
+
     error,
+
   };
+
 }
