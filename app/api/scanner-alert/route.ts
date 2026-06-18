@@ -34,11 +34,15 @@ export async function GET() {
         )
       );
 
-    const stocks =
+    const stocks: any[] =
       snapshot.docs.map(
         (d) => ({
-          id: d.id,
-          ...d.data(),
+
+          id:
+            d.id,
+
+          ...(d.data() as any),
+
         })
       );
 
@@ -76,8 +80,7 @@ export async function GET() {
       [];
 
     for (
-      const stock
-      of buyZoneStocks
+      const stock of buyZoneStocks
     ) {
 
       const alertId =
@@ -133,13 +136,12 @@ export async function GET() {
         cmp:
           stock.cmp,
 
-        });
+      });
 
     }
 
     //
     // SEND EMAIL
-    // ONLY IF NEW ALERTS
     //
 
     let emailSent =
