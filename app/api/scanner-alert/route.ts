@@ -1,4 +1,5 @@
 // force deployment
+
 import { NextResponse } from "next/server";
 
 import {
@@ -18,6 +19,10 @@ import {
 import {
   sendEmail,
 } from "@/src/services/email";
+
+import {
+  sendWhatsApp,
+} from "@/src/services/whatsapp";
 
 export async function GET() {
 
@@ -142,10 +147,13 @@ export async function GET() {
     }
 
     //
-    // SEND EMAIL
+    // SEND EMAIL + WHATSAPP
     //
 
     let emailSent =
+      false;
+
+    let whatsappSent =
       false;
 
     if (
@@ -154,22 +162,22 @@ export async function GET() {
 
       const message =
 
-        "🔥 BUYZONE ALERT\n\n" +
+`🚨 BUYZONE ALERT
 
-        newAlerts
-          .map(
-            (
-              stock: any,
-              index: number
-            ) =>
+${newAlerts
+  .map(
+    (
+      stock: any,
+      index: number
+    ) =>
 
-              `${index + 1}. ${stock.symbol}
-CMP: ${stock.cmp}`
+`${index + 1}. ${stock.symbol}
+CMP: ₹${stock.cmp}`
 
-          )
-          .join(
-            "\n\n"
-          );
+  )
+  .join("\n\n")}
+
+INST Dashboard`;
 
       try {
 
@@ -199,6 +207,30 @@ CMP: ${stock.cmp}`
 
       }
 
+      try {
+
+        await sendWhatsApp(
+          message
+        );
+
+        whatsappSent =
+          true;
+
+        console.log(
+          "WHATSAPP SENT"
+        );
+
+      } catch (
+        error
+      ) {
+
+        console.error(
+          "WHATSAPP ERROR:",
+          error
+        );
+
+      }
+
     }
 
     return NextResponse.json({
@@ -215,6 +247,8 @@ CMP: ${stock.cmp}`
         newAlerts.length,
 
       emailSent,
+
+      whatsappSent,
 
       newAlerts,
 
