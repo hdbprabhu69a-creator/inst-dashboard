@@ -28,10 +28,6 @@ export async function GET() {
 
   try {
 
-    //
-    // LOAD MARKET STRUCTURE
-    //
-
     const snapshot =
       await getDocs(
         collection(
@@ -44,17 +40,12 @@ export async function GET() {
       snapshot.docs.map(
         (d) => ({
 
-          id:
-            d.id,
+          id: d.id,
 
           ...(d.data() as any),
 
         })
       );
-
-    //
-    // BUYZONE RESULTS
-    //
 
     const buyZoneStocks =
       stocks.filter(
@@ -71,11 +62,6 @@ export async function GET() {
 
         }
       );
-
-    //
-    // NEW ALERTS ONLY
-    // ONE ALERT PER DAY
-    //
 
     const today =
       new Date()
@@ -146,10 +132,6 @@ export async function GET() {
 
     }
 
-    //
-    // SEND EMAIL + WHATSAPP
-    //
-
     let emailSent =
       false;
 
@@ -208,6 +190,10 @@ INST Dashboard`;
       }
 
       try {
+
+        console.log(
+          "ABOUT TO SEND WHATSAPP"
+        );
 
         await sendWhatsApp(
           message
