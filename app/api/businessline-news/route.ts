@@ -1,36 +1,45 @@
 import { NextResponse } from "next/server";
+import { adminDb } from "@/lib/firebase-admin";
 
 export async function GET() {
   try {
-    const baseUrl =
-      process.env.NEXT_PUBLIC_APP_URL ||
-      "https://YOUR-VERCEL-URL.vercel.app";
+    const snapshot = await adminDb
+      .collection("businessline_news")
+      .get();
 
-    const response = await fetch(
-      `${baseUrl}/api/businessline`,
-      {
-        cache: "no-store",
-      }
-    );
+    const news = snapshot.docs
+      .map((doc) => {
+        const d = doc.data();
 
-    const data =
-      await response.json();
+        return {
+          title: d.title || "",
+          category: d.category || "General",
+          link: d.link || "",
+          pubDate: d.pubDate || "",
+        };
+      })
+      .sort(
+        (a, b) =>
+          new Date(b.pubDate).getTime() -
+          new Date(a.pubDate).getTime()
+      );
 
     return NextResponse.json({
       success: true,
-      count: data.count || 0,
-      timestamp:
-        new Date().toISOString(),
+      count: news.length,
+      news,
     });
   } catch (error: any) {
-    console.error(error);
+    console.error(
+      "BusinessLine Read Error:",
+      error
+    );
 
     return NextResponse.json(
       {
         success: false,
-        error:
-          error.message ||
-          "Unknown Error",
+        error: error.message,
+        news: [],
       },
       {
         status: 500,
