@@ -10,6 +10,7 @@ interface NewsItem {
 }
 
 const TABS = [
+  "All",
   "Markets",
   "Economy",
   "Companies",
@@ -27,7 +28,7 @@ export default function BusinesslineFeed() {
     useState(true);
 
   const [activeTab, setActiveTab] =
-    useState("Markets");
+    useState("All");
 
   async function loadNews() {
 
@@ -35,7 +36,10 @@ export default function BusinesslineFeed() {
 
       const response =
         await fetch(
-          "/api/businessline-news"
+          "/api/businessline-news",
+          {
+            cache: "no-store",
+          }
         );
 
       const data =
@@ -44,18 +48,24 @@ export default function BusinesslineFeed() {
       if (data.success) {
 
         const cleanedNews =
-          data.news.map(
-            (item: NewsItem) => ({
-              ...item,
-              category:
-                item.category
-                  ?.replace(
-                    "&amp;",
-                    "&"
-                  )
-                  ?.trim(),
-            })
-          );
+          data.news
+            .filter(
+              (item: NewsItem) =>
+                item.title &&
+                item.link
+            )
+            .map(
+              (item: NewsItem) => ({
+                ...item,
+                category:
+                  item.category
+                    ?.replace(
+                      "&amp;",
+                      "&"
+                    )
+                    ?.trim(),
+              })
+            );
 
         setNews(
           cleanedNews
@@ -97,11 +107,13 @@ export default function BusinesslineFeed() {
   }, []);
 
   const filteredNews =
-    news.filter(
-      (item) =>
-        item.category ===
-        activeTab
-    );
+    activeTab === "All"
+      ? news
+      : news.filter(
+          (item) =>
+            item.category ===
+            activeTab
+        );
 
   if (loading) {
 
@@ -121,9 +133,7 @@ export default function BusinesslineFeed() {
 
     <div className="p-4">
 
-      {/* TABS */}
-
-      <div className="flex justify-between gap-2 border-b border-zinc-800 pb-3 mb-2">
+      <div className="flex gap-2 overflow-x-auto border-b border-zinc-800 pb-3 mb-2">
 
         {TABS.map((tab) => (
 
@@ -149,12 +159,17 @@ export default function BusinesslineFeed() {
 
       </div>
 
-      {/* ARTICLES */}
+      <div className="mb-3 text-xs text-zinc-500">
+
+        Total Articles:
+        {" "}
+        {filteredNews.length}
+
+      </div>
 
       <div>
 
-        {filteredNews.length ===
-          0 && (
+        {filteredNews.length === 0 && (
 
           <div className="text-zinc-500 py-6 text-center">
 
@@ -175,10 +190,16 @@ export default function BusinesslineFeed() {
               href={item.link}
               target="_blank"
               rel="noreferrer"
-              className="block py-1 hover:bg-zinc-950 transition"
+              className="block py-2 hover:bg-zinc-950 transition"
             >
 
-              <div className="flex justify-end mb-1">
+              <div className="flex justify-between mb-1">
+
+                <span className="text-amber-500 text-xs">
+
+                  {item.category}
+
+                </span>
 
                 <span className="text-zinc-500 text-xs">
 
@@ -205,8 +226,7 @@ export default function BusinesslineFeed() {
               </div>
 
               {index <
-                filteredNews.length -
-                  1 && (
+                filteredNews.length - 1 && (
 
                 <div className="border-b border-zinc-800 mt-2" />
 
