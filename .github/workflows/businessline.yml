@@ -13,4 +13,4 @@ jobs:
     steps:
       - name: Call BusinessLine Job
         run: |
-          curl -L https://YOUR-VERCEL-URL.vercel.app/api/jobs/businessline
+          curl -L https://inst-dashboard-nrb6.vercel.app/api/jobs/businessline

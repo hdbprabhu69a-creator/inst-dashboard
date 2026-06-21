@@ -1,132 +1,40 @@
 import { NextResponse } from "next/server";
-import { XMLParser } from "fast-xml-parser";
 
 export async function GET() {
-
   try {
+    const baseUrl =
+      process.env.NEXT_PUBLIC_APP_URL ||
+      "https://YOUR-VERCEL-URL.vercel.app";
 
-    const response =
-      await fetch(
-        "https://www.thehindubusinessline.com/feeder/default.rss",
-        {
-          cache: "no-store",
-        }
-      );
+    const response = await fetch(
+      `${baseUrl}/api/businessline`,
+      {
+        cache: "no-store",
+      }
+    );
 
-    if (!response.ok) {
-
-      throw new Error(
-        `RSS fetch failed: ${response.status}`
-      );
-
-    }
-
-    const xml =
-      await response.text();
-
-    const parser =
-      new XMLParser({
-        ignoreAttributes: false,
-      });
-
-    const result =
-      parser.parse(xml);
-
-    const items =
-      result?.rss?.channel?.item || [];
-
-    const sevenDaysAgo =
-      Date.now() -
-      7 * 24 * 60 * 60 * 1000;
-
-    const news =
-      items
-        .filter((item: any) => {
-
-          if (!item.pubDate)
-            return false;
-
-          const articleDate =
-            new Date(
-              item.pubDate
-            ).getTime();
-
-          return (
-            articleDate >=
-            sevenDaysAgo
-          );
-
-        })
-        .map((item: any) => ({
-
-          title:
-            item.title || "",
-
-          category:
-            Array.isArray(
-              item.category
-            )
-              ? item.category[0]
-              : item.category ||
-                "General",
-
-          link:
-            item.link || "",
-
-          pubDate:
-            item.pubDate || "",
-
-        }))
-        .sort(
-          (
-            a: any,
-            b: any
-          ) =>
-            new Date(
-              b.pubDate
-            ).getTime() -
-            new Date(
-              a.pubDate
-            ).getTime()
-        )
-        .slice(0, 200);
+    const data =
+      await response.json();
 
     return NextResponse.json({
-
       success: true,
-
-      count:
-        news.length,
-
-      news,
-
+      count: data.count || 0,
+      timestamp:
+        new Date().toISOString(),
     });
-
   } catch (error: any) {
-
-    console.error(
-      "BusinessLine API Error:",
-      error
-    );
+    console.error(error);
 
     return NextResponse.json(
       {
-
         success: false,
-
         error:
-          error.message,
-
-        count: 0,
-
-        news: [],
-
+          error.message ||
+          "Unknown Error",
       },
       {
         status: 500,
       }
     );
-
   }
-
 }
