@@ -1,0 +1,16 @@
+name: BusinessLine Scheduler
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+
+  workflow_dispatch:
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Call BusinessLine Job
+        run: |
+          curl -L https://YOUR-VERCEL-URL.vercel.app/api/jobs/businessline

@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-
 import { XMLParser } from "fast-xml-parser";
 
 export async function GET() {
@@ -13,6 +12,14 @@ export async function GET() {
           cache: "no-store",
         }
       );
+
+    if (!response.ok) {
+
+      throw new Error(
+        `RSS fetch failed: ${response.status}`
+      );
+
+    }
 
     const xml =
       await response.text();
@@ -28,28 +35,68 @@ export async function GET() {
     const items =
       result?.rss?.channel?.item || [];
 
+    const sevenDaysAgo =
+      Date.now() -
+      7 * 24 * 60 * 60 * 1000;
+
     const news =
       items
-        .slice(0, 20)
+        .filter((item: any) => {
+
+          if (!item.pubDate)
+            return false;
+
+          const articleDate =
+            new Date(
+              item.pubDate
+            ).getTime();
+
+          return (
+            articleDate >=
+            sevenDaysAgo
+          );
+
+        })
         .map((item: any) => ({
 
           title:
-            item.title,
+            item.title || "",
 
           category:
-            item.category,
+            Array.isArray(
+              item.category
+            )
+              ? item.category[0]
+              : item.category ||
+                "General",
 
           link:
-            item.link,
+            item.link || "",
 
           pubDate:
-            item.pubDate,
+            item.pubDate || "",
 
-        }));
+        }))
+        .sort(
+          (
+            a: any,
+            b: any
+          ) =>
+            new Date(
+              b.pubDate
+            ).getTime() -
+            new Date(
+              a.pubDate
+            ).getTime()
+        )
+        .slice(0, 200);
 
     return NextResponse.json({
 
       success: true,
+
+      count:
+        news.length,
 
       news,
 
@@ -57,14 +104,28 @@ export async function GET() {
 
   } catch (error: any) {
 
-    return NextResponse.json({
+    console.error(
+      "BusinessLine API Error:",
+      error
+    );
 
-      success: false,
+    return NextResponse.json(
+      {
 
-      error:
-        error.message,
+        success: false,
 
-    });
+        error:
+          error.message,
+
+        count: 0,
+
+        news: [],
+
+      },
+      {
+        status: 500,
+      }
+    );
 
   }
 

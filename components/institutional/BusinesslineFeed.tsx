@@ -9,30 +9,13 @@ interface NewsItem {
   pubDate: string;
 }
 
-const ALLOWED_CATEGORIES = [
-
+const TABS = [
   "Markets",
-
   "Economy",
-
-  "Money & Banking",
-
   "Companies",
-
-  "Info-tech",
-
+  "Money & Banking",
   "Agri Business",
-
-  "Industry",
-
-  "Energy",
-
   "Commodities",
-
-  "Infrastructure",
-
-  "Auto",
-
 ];
 
 export default function BusinesslineFeed() {
@@ -43,8 +26,8 @@ export default function BusinesslineFeed() {
   const [loading, setLoading] =
     useState(true);
 
-  const [lastUpdated, setLastUpdated] =
-    useState("");
+  const [activeTab, setActiveTab] =
+    useState("Markets");
 
   async function loadNews() {
 
@@ -58,39 +41,29 @@ export default function BusinesslineFeed() {
       const data =
         await response.json();
 
-      if (
-        data.success
-      ) {
+      if (data.success) {
 
-        const filtered =
-          data.news
-            .filter(
-              (item: NewsItem) =>
-                ALLOWED_CATEGORIES.includes(
-                  item.category
-                )
-            )
-            .slice(0, 15);
+        const cleanedNews =
+          data.news.map(
+            (item: NewsItem) => ({
+              ...item,
+              category:
+                item.category
+                  ?.replace(
+                    "&amp;",
+                    "&"
+                  )
+                  ?.trim(),
+            })
+          );
 
         setNews(
-          filtered
-        );
-
-        setLastUpdated(
-          new Date().toLocaleTimeString(
-            "en-IN",
-            {
-              hour: "2-digit",
-              minute: "2-digit",
-            }
-          )
+          cleanedNews
         );
 
       }
 
-    } catch (
-      error
-    ) {
+    } catch (error) {
 
       console.error(
         error
@@ -123,100 +96,128 @@ export default function BusinesslineFeed() {
 
   }, []);
 
-  return (
+  const filteredNews =
+    news.filter(
+      (item) =>
+        item.category ===
+        activeTab
+    );
 
-    <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 h-[600px] overflow-y-auto">
+  if (loading) {
 
-      <div className="flex justify-between items-center mb-4">
+    return (
 
-        <h2 className="text-white font-bold">
+      <div className="p-4 text-zinc-500">
 
-          BusinessLine RSS Feed
-
-        </h2>
-
-        <div className="text-right">
-
-          <div className="text-green-400 text-xs font-bold">
-
-            LIVE • 5M
-
-          </div>
-
-          <div className="text-zinc-500 text-xs">
-
-            {lastUpdated}
-
-          </div>
-
-        </div>
+        Loading...
 
       </div>
 
-      {loading ? (
+    );
 
-        <div className="text-zinc-500">
+  }
 
-          Loading...
+  return (
 
-        </div>
+    <div className="p-4">
 
-      ) : (
+      {/* TABS */}
 
-        <div className="space-y-3">
+      <div className="flex justify-between gap-2 border-b border-zinc-800 pb-3 mb-2">
 
-          {news.map(
-            (
-              item,
-              index
-            ) => (
+        {TABS.map((tab) => (
 
-              <a
-                key={index}
-                href={item.link}
-                target="_blank"
-                rel="noreferrer"
-                className="block border border-zinc-800 rounded-lg p-3 hover:bg-zinc-800 transition"
-              >
+          <button
+            key={tab}
+            onClick={() =>
+              setActiveTab(
+                tab
+              )
+            }
+            className={
+              activeTab === tab
+                ? "px-4 py-2 rounded-lg text-sm whitespace-nowrap bg-amber-600 text-white"
+                : "px-4 py-2 rounded-lg text-sm whitespace-nowrap bg-zinc-900 text-zinc-400 hover:text-white"
+            }
+          >
 
-                <div className="flex justify-between items-center mb-2">
+            {tab}
 
-                  <span className="text-cyan-400 text-xs font-semibold">
+          </button>
 
-                    {item.category}
+        ))}
 
-                  </span>
+      </div>
 
-                  <span className="text-zinc-500 text-xs">
+      {/* ARTICLES */}
 
-                    {new Date(
-                      item.pubDate
-                    ).toLocaleTimeString(
-                      "en-IN",
-                      {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      }
-                    )}
+      <div>
 
-                  </span>
+        {filteredNews.length ===
+          0 && (
 
-                </div>
+          <div className="text-zinc-500 py-6 text-center">
 
-                <div className="text-white text-sm leading-6">
+            No articles available
 
-                  {item.title}
+          </div>
 
-                </div>
+        )}
 
-              </a>
+        {filteredNews.map(
+          (
+            item,
+            index
+          ) => (
 
-            )
-          )}
+            <a
+              key={index}
+              href={item.link}
+              target="_blank"
+              rel="noreferrer"
+              className="block py-1 hover:bg-zinc-950 transition"
+            >
 
-        </div>
+              <div className="flex justify-end mb-1">
 
-      )}
+                <span className="text-zinc-500 text-xs">
+
+                  {new Date(
+                    item.pubDate
+                  ).toLocaleString(
+                    "en-IN",
+                    {
+                      day: "2-digit",
+                      month: "short",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    }
+                  )}
+
+                </span>
+
+              </div>
+
+              <div className="text-amber-50 text-lg leading-8">
+
+                {item.title}
+
+              </div>
+
+              {index <
+                filteredNews.length -
+                  1 && (
+
+                <div className="border-b border-zinc-800 mt-2" />
+
+              )}
+
+            </a>
+
+          )
+        )}
+
+      </div>
 
     </div>
 

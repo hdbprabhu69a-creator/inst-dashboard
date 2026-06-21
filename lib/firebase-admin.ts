@@ -1,14 +1,25 @@
+import "dotenv/config";
+
 import { cert, getApps, initializeApp } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 
 console.log("=================================");
-console.log("FIREBASE_PROJECT_ID =", process.env.FIREBASE_PROJECT_ID);
-console.log("FIREBASE_CLIENT_EMAIL =", process.env.FIREBASE_CLIENT_EMAIL);
+console.log("PROJECT_ID:", process.env.FIREBASE_PROJECT_ID);
 console.log(
-  "FIREBASE_PRIVATE_KEY_EXISTS =",
+  "CLIENT_EMAIL_EXISTS:",
+  !!process.env.FIREBASE_CLIENT_EMAIL
+);
+console.log(
+  "PRIVATE_KEY_EXISTS:",
   !!process.env.FIREBASE_PRIVATE_KEY
 );
 console.log("=================================");
+
+if (!process.env.FIREBASE_PRIVATE_KEY) {
+  throw new Error(
+    "FIREBASE_PRIVATE_KEY is missing"
+  );
+}
 
 const app =
   getApps().length > 0
@@ -16,14 +27,13 @@ const app =
     : initializeApp({
         credential: cert({
           projectId:
-            process.env.FIREBASE_PROJECT_ID ||
-            "inst-dashboard-6e9c6",
+            process.env.FIREBASE_PROJECT_ID,
 
           clientEmail:
             process.env.FIREBASE_CLIENT_EMAIL,
 
           privateKey:
-            process.env.FIREBASE_PRIVATE_KEY?.replace(
+            process.env.FIREBASE_PRIVATE_KEY.replace(
               /\\n/g,
               "\n"
             ),

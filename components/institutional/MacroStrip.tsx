@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 
 interface MacroData {
-
   nifty: number;
   niftyChange: number;
 
@@ -174,14 +173,17 @@ export default function MacroStrip() {
 
       </div>
 
-      <div className="grid grid-cols-10 gap-2">
+      <div className="flex gap-2 overflow-hidden">
 
         {cards.map(
-          (card, index) => (
+          (
+            card,
+            index
+          ) => (
 
             <div
               key={index}
-              className="bg-zinc-900 border border-zinc-800 rounded-lg p-2"
+              className="w-[125px] bg-zinc-900 border border-zinc-800 rounded-lg p-2"
             >
 
               <div className="text-zinc-500 text-[10px] font-medium">
@@ -191,7 +193,7 @@ export default function MacroStrip() {
               </div>
 
               <div
-                className={`text-base font-bold mt-1 ${
+                className={`text-lg font-bold mt-1 ${
                   card.change >= 0
                     ? "text-green-400"
                     : "text-red-400"
@@ -203,7 +205,7 @@ export default function MacroStrip() {
               </div>
 
               <div
-                className={`text-[10px] ${
+                className={`text-[11px] mt-1 ${
                   card.change >= 0
                     ? "text-green-400"
                     : "text-red-400"
