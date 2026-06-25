@@ -1,5 +1,12 @@
 import { Workbook } from "exceljs";
 
+import {
+  collection,
+  getDocs,
+} from "firebase/firestore";
+
+import { db } from "@/lib/firebase";
+
 export async function GET() {
 
   const response =
@@ -27,6 +34,18 @@ export async function GET() {
 
   const workbook =
     new Workbook();
+    const deliveryHistorySnapshot =
+  await getDocs(
+    collection(
+      db,
+      "delivery_history"
+    )
+  );
+
+const deliveryHistoryRows =
+  deliveryHistorySnapshot.docs.map(
+    (doc) => doc.data()
+  );
 
   //
   // DAILY SHEET
@@ -290,7 +309,6 @@ export async function GET() {
 deliverySheet.addRows(
   result.rows
 );
-
     const swingSheet =
   workbook.addWorksheet(
     "Swing"
@@ -491,6 +509,155 @@ const fibSheet =
   workbook.addWorksheet(
     "Fib"
   );
+  const deliveryHistorySheet =
+  workbook.addWorksheet(
+    "Delivery_History"
+  );
+  const deliverySummarySheet =
+  workbook.addWorksheet(
+    "Delivery_Summary"
+  );
+
+deliverySummarySheet.columns = [
+
+  {
+    header: "Symbol",
+    key: "symbol",
+    width: 18,
+  },
+
+  {
+    header: "D Vol",
+    key: "dVol",
+    width: 14,
+  },
+
+  {
+    header: "D Del",
+    key: "dDel",
+    width: 14,
+  },
+
+  {
+    header: "D Del%",
+    key: "dPct",
+    width: 12,
+  },
+
+  {
+    header: "W Vol",
+    key: "wVol",
+    width: 14,
+  },
+
+  {
+    header: "W Del",
+    key: "wDel",
+    width: 14,
+  },
+
+  {
+    header: "W Del%",
+    key: "wPct",
+    width: 12,
+  },
+
+  {
+    header: "M Vol",
+    key: "mVol",
+    width: 14,
+  },
+
+  {
+    header: "M Del",
+    key: "mDel",
+    width: 14,
+  },
+
+  {
+    header: "M Del%",
+    key: "mPct",
+    width: 12,
+  },
+
+];
+deliverySummarySheet.addRows(
+
+  result.rows.map(
+    (r: any) => ({
+
+      symbol:
+        r.symbol,
+
+      dVol:
+        r.totalVolumeDaily,
+
+      dDel:
+        r.totalDeliveryDaily,
+
+      dPct:
+        r.deliveryPctDaily,
+
+      wVol:
+        r.rollingWeekVol,
+
+      wDel:
+        r.rollingWeekDel,
+
+      wPct:
+        r.rollingWeekPct,
+
+      mVol:
+        r.rollingMonthVol,
+
+      mDel:
+        r.rollingMonthDel,
+
+      mPct:
+        r.rollingMonthPct,
+
+    })
+  )
+
+);
+
+deliveryHistorySheet.columns = [
+
+  {
+    header: "Symbol",
+    key: "symbol",
+    width: 18,
+  },
+
+  {
+    header: "Date",
+    key: "date",
+    width: 15,
+  },
+
+  {
+    header: "Volume",
+    key: "volume",
+    width: 18,
+  },
+
+  {
+    header: "Delivery Qty",
+    key: "deliveryQty",
+    width: 18,
+  },
+
+  {
+    header: "Delivery %",
+    key: "deliveryPct",
+    width: 15,
+  },
+
+];
+
+deliveryHistorySheet.addRows(
+  deliveryHistoryRows
+);
 fibSheet.columns = [
 
   {
@@ -964,9 +1131,12 @@ fibSheet.columns = [
   weeklySheet,
   monthlySheet,
   deliverySheet,
+  deliverySummarySheet,
   swingSheet,
   fibSheet,
+  deliveryHistorySheet,
 ];
+
   sheets.forEach(
     (sheet) => {
 

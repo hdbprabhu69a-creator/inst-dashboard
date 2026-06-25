@@ -209,10 +209,19 @@ high:
   stock.dailyOHLC?.close ??
   0,
     volume: liveVolume,
-            dpvt:
-              stock.dailyPivot
-                ?.pivot || 0,
 
+dvol:
+  liveVolume,
+
+wvol:
+  stock.totalVolumeWeekly || 0,
+
+mvol:
+  stock.totalVolumeMonthly || 0,
+
+dpvt:
+  stock.dailyPivot
+    ?.pivot || 0,
             wpvt:
               stock.weeklyPivot
                 ?.pivot || 0,

@@ -343,6 +343,23 @@ totalDeliveryMonthly:
 
 deliveryPctMonthly:
   data.deliveryPctMonthly,
+  rollingWeekVol:
+  data.totalVolumeWeekly,
+
+rollingWeekDel:
+  data.totalDeliveryWeekly,
+
+rollingWeekPct:
+  data.deliveryPctWeekly,
+
+rollingMonthVol:
+  data.totalVolumeMonthly,
+
+rollingMonthDel:
+  data.totalDeliveryMonthly,
+
+rollingMonthPct:
+  data.deliveryPctMonthly,
           // EXISTING DATA
 
           dailyVWAP:

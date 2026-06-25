@@ -15,17 +15,16 @@ type Row = {
 
   volume:number;
 
-  dpvt:number;
-  wpvt:number;
-  mpvt:number;
+dvol:number;
+wvol:number;
+mvol:number;
 
-  oneWeekLow:number;
-  oneWeekHigh:number;
+dpvt:number;
+wpvt:number;
+mpvt:number;
 
-  dailyVWAP:number;
-  weeklyVWAP:number;
-  monthlyVWAP:number;
-
+oneWeekLow:number;
+oneWeekHigh:number;
   deliveryPctDaily:number;
 
   score:number;
@@ -55,8 +54,14 @@ export default function WatchlistPage() {
 
   const [search,setSearch] =
     useState("");
+const [selectedFilters,setSelectedFilters] =
+  useState<string[]>([]);
 
-  const [loading,setLoading] =
+const [runFilters,setRunFilters] =
+  useState<string[]>([]);
+
+const [scannerType,setScannerType] =
+  useState("Buy Zone");  const [loading,setLoading] =
     useState(true);
 
   const [time,setTime] =
@@ -127,16 +132,96 @@ export default function WatchlistPage() {
 
   }
 
-  const filtered =
-    rows.filter(
-      r =>
-        r.symbol
-          .toLowerCase()
-          .includes(
-            search.toLowerCase()
-          )
-    );
+ const filtered =
+  rows.filter((r) => {
 
+    const searchMatch =
+      r.symbol
+        .toLowerCase()
+        .includes(search.toLowerCase());
+
+    if (!searchMatch) return false;
+
+    // ===== DROPDOWN FILTER =====
+    let typeMatch = true;
+
+    switch (scannerType) {
+
+      case "Buy Zone":
+        typeMatch =
+          r.verdict === "STRONG BUY" ||
+          r.verdict === "BUY ON DIP";
+        break;
+
+      case "Pullback":
+        typeMatch =
+          r.cmp > r.dpvt &&
+          r.cmp < r.oneWeekHigh;
+        break;
+
+      case "Breakout":
+        typeMatch =
+          r.cmp >= r.oneWeekHigh;
+        break;
+
+      case "Momentum":
+        typeMatch =
+          r.score >= 80;
+        break;
+
+      default:
+        typeMatch = true;
+    }
+
+    if (!typeMatch) return false;
+
+    // ===== RUN BUTTON FILTER =====
+    if (runFilters.length === 0) return true;
+
+    return runFilters.every((f) => {
+
+      switch (f) {
+
+        case "BZ":
+          return (
+            r.verdict === "STRONG BUY" ||
+            r.verdict === "BUY ON DIP"
+          );
+
+        case "DP":
+          return r.cmp > r.dpvt;
+
+        case "WP":
+          return r.cmp > r.wpvt;
+
+        case "MP":
+          return r.cmp > r.mpvt;
+
+        case "DV":
+          return r.dvol > 0;
+
+        case "WW":
+          return r.wvol > 0;
+
+        case "MV":
+          return r.mvol > 0;
+
+        case "DC":
+          return r.deliveryPctDaily >= 50;
+
+        case "WC":
+          return r.cmp >= r.oneWeekLow;
+
+        case "MC":
+          return r.cmp >= r.oneWeekHigh;
+
+        default:
+          return true;
+      }
+
+    });
+
+  });
   const counts =
     rows.reduce(
       (a,r) => {
@@ -158,19 +243,19 @@ export default function WatchlistPage() {
       }
     );
 
-  const cmpColor=(r:Row)=>{
+const cmpColor=(r:Row)=>
+  r.cmp >= r.dpvt
+    ? "text-green-400 font-bold"
+    : "text-red-400 font-bold";
 
- const p=prev[r.symbol];
+const pivotColor=(
+  cmp:number,
+  pivot:number
+)=>
+  cmp >= pivot
+    ? "text-green-400"
+    : "text-red-400";
 
- return p===undefined
-  ?"text-white"
-  :r.cmp>p
-  ?"text-green-400 bg-green-950/40"
-  :r.cmp<p
-  ?"text-red-400 bg-red-950/40"
-  :"text-white";
-
-};
   if (loading) {
 
     return (
@@ -214,39 +299,120 @@ export default function WatchlistPage() {
           {" "}
 
           A:{counts.A}
-
+{" | "}
+RESULTS:{filtered.length}
         </div>
 
-        <div className="text-green-400">
-
-          LIVE {time}
-
-        </div>
+        
 
       </div>
+<div className="flex items-center gap-1 mb-1 flex-wrap">
 
-      <input
-        value={search}
-        onChange={(e)=>
-          setSearch(
-            e.target.value
-          )
+  {[
+    "BZ",
+    "DP",
+    "WP",
+    "MP",
+    "DV",
+    "WW",
+    "MV",
+    "DC",
+    "WC",
+    "MC",
+  ].map((f) => (
+
+    <button
+      key={f}
+      onClick={() => {
+
+        setSelectedFilters((prev) =>
+          prev.includes(f)
+            ? prev.filter(x => x !== f)
+            : [...prev, f]
+        );
+
+      }}
+      className={`
+        px-2
+        py-0.5
+        text-[10px]
+        rounded
+        ${
+          selectedFilters.includes(f)
+            ? "bg-green-700 text-white"
+            : "bg-zinc-900 text-zinc-400"
         }
-        placeholder="Search..."
-        className="
-          w-full
-          bg-black
-          border-b
-          border-zinc-800
-          text-[10px]
-          px-1
-          py-1
-          mb-1
-          outline-none
-        "
-      />
+      `}
+    >
+      {f}
+    </button>
 
-      <div className="overflow-auto">
+  ))}
+
+  <select
+    value={scannerType}
+    onChange={(e)=>
+      setScannerType(
+        e.target.value
+      )
+    }
+    className="
+      ml-auto
+      bg-zinc-900
+      border
+      border-zinc-700
+      text-[10px]
+      px-2
+      py-1
+      rounded
+    "
+  >
+    <option>Buy Zone</option>
+    <option>Pullback</option>
+    <option>Breakout</option>
+    <option>Momentum</option>
+  </select>
+
+  <button
+   onClick={() => {
+  setRunFilters([...selectedFilters]);
+}}
+    className="
+      bg-cyan-700
+      px-3
+      py-1
+      rounded
+      text-[10px]
+      font-bold
+    "
+  >
+    RUN
+  </button>
+<input
+  value={search}
+  onChange={(e)=>
+    setSearch(
+      e.target.value
+    )
+  }
+  placeholder="Search..."
+  className="
+    w-[160px]
+    bg-black
+    border
+    border-zinc-800
+    text-[10px]
+    px-2
+    py-1
+    rounded
+    outline-none
+  "
+/>
+</div>   
+
+    <div
+  className="overflow-x-auto"
+>
 
         <table className="w-full table-fixed text-[10px]">
 
@@ -256,42 +422,43 @@ export default function WatchlistPage() {
 
               <th className="w-[28px] text-zinc-600">#</th>
 
-              <th className="w-[75px] text-left text-cyan-300">SYM</th>
+              <th className="w-[75px] text-left text-cyan-300 sticky left-0 bg-black z-20">
+  SYM
+</th>
 
-              <th className="w-[48px] text-green-400">CMP</th>
-
-              <th className="w-[50px] text-white">O</th>
-
-              <th className="w-[50px] text-green-400">H</th>
-
-              <th className="w-[50px] text-red-400">L</th>
-
-              <th className="w-[50px] text-yellow-400">PC</th>
-
-              <th className="w-[48px] text-blue-400">DP</th>
-
-              <th className="w-[48px] text-blue-400">WP</th>
-
-              <th className="w-[48px] text-blue-400">MP</th>
-
-              <th className="w-[55px] text-orange-400">SWL</th>
-
-              <th className="w-[55px] text-orange-400">SWH</th>
-
-              <th className="w-[48px] text-purple-400">DV</th>
-
-              <th className="w-[48px] text-purple-400">WV</th>
-
-              <th className="w-[48px] text-purple-400">MV</th>
-
-              <th className="w-[48px] text-yellow-400">VOL</th>
-
-              <th className="w-[45px] text-yellow-400">DEL</th>
-
-              <th className="w-[40px] text-cyan-400">SC</th>
+              <th className="w-[42px] text-green-400 sticky left-[75px] bg-black z-20">
+  CMP
+</th>
+<th className="w-[40px] text-cyan-400">SC</th>
 
               <th className="w-[40px] text-white">VD</th>
 
+              <th className="w-[42px] text-white">O</th>
+
+              <th className="w-[42px] text-green-400">H</th>
+
+              <th className="w-[42px] text-red-400">L</th>
+
+              <th className="w-[42px] text-yellow-400">PC</th>
+
+              <th className="w-[42px] text-blue-400">DP</th>
+
+              <th className="w-[42px] text-blue-400">WP</th>
+<th className="w-[42px] text-blue-400">MP</th>
+              
+
+              <th className="w-[42px] text-orange-400">SWL</th>
+
+              <th className="w-[42px] text-orange-400">SWH</th>
+
+              <th className="w-[42px] text-purple-400">DVOL</th>
+
+<th className="w-[42px] text-purple-400">WVOL</th>
+
+<th className="w-[42px] text-purple-400">MVOL</th>
+
+<th className="w-[42px] text-yellow-400">DDEL</th>
+              
             </tr>
 
           </thead>
@@ -309,67 +476,33 @@ export default function WatchlistPage() {
  hover:bg-cyan-950/20
  cursor-pointer
  transition-all
-"
-                  onClick={() => {
+"onClick={() => {
 
-                    localStorage.setItem(
-                      "selectedStock",
-                      r.symbol
-                    );
+  localStorage.setItem(
+    "selectedStock",
+    r.symbol
+  );
 
-                    window.location.href =
-                      "/";
+  window.open(
+    "/",
+    "_blank"
+  );
 
-                  }}
+}}
                 >
 
                   <td className="text-center text-zinc-500">
                     {i+1}
                   </td>
 
-                  <td className="text-left text-cyan-200 font-bold">
+                 <td className="text-left text-cyan-200 font-bold sticky left-0 bg-black z-10">
   {r.symbol}
 </td>
-                  <td
- className={`text-center font-bold transition-all duration-300 ${cmpColor(r)}`}
+     <td
+ className={`text-center sticky left-[75px] bg-black z-10 ${cmpColor(r)}`}
 >
  {r.cmp?.toFixed(2)}
 </td>
-
-                  <td className="text-center">
-  {r.open?.toFixed(2)}
-</td>
-
-<td className="text-center text-green-400">
-  {r.high?.toFixed(2)}
-</td>
-
-<td className="text-center text-red-400">
-  {r.low?.toFixed(2)}
-</td>
-
-<td className="text-center text-yellow-400">
-  {r.close?.toFixed(2)}
-</td>
-                  <td className="text-center">{r.dpvt?.toFixed(0)}</td>
-                  <td className="text-center">{r.wpvt?.toFixed(0)}</td>
-                  <td className="text-center">{r.mpvt?.toFixed(0)}</td>
-
-                  <td className="text-center">{r.oneWeekLow?.toFixed(0)}</td>
-                  <td className="text-center">{r.oneWeekHigh?.toFixed(0)}</td>
-
-                  <td className="text-center">{r.dailyVWAP?.toFixed(0)}</td>
-                  <td className="text-center">{r.weeklyVWAP?.toFixed(0)}</td>
-                  <td className="text-center">{r.monthlyVWAP?.toFixed(0)}</td>
-
-                  <td className="text-center">
-                    {(r.volume/1000000).toFixed(1)}
-                  </td>
-
-                  <td className="text-center">
-                    {r.deliveryPctDaily?.toFixed(0)}
-                  </td>
-
                   <td
  className={`text-center font-bold ${scoreColor(r.score)}`}
 >
@@ -389,6 +522,59 @@ export default function WatchlistPage() {
  }`}
 >
  {V[r.verdict]?.[0]}
+</td>
+
+
+                  <td className="text-center">
+  {r.open?.toFixed(2)}
+</td>
+
+<td className="text-center text-green-400">
+  {r.high?.toFixed(2)}
+</td>
+
+<td className="text-center text-red-400">
+  {r.low?.toFixed(2)}
+</td>
+
+<td className="text-center text-yellow-400">
+  {r.close?.toFixed(2)}
+</td>
+                 <td
+ className={`text-center ${pivotColor(r.cmp,r.dpvt)}`}
+>
+ {r.dpvt?.toFixed(0)}
+</td>
+
+<td
+ className={`text-center ${pivotColor(r.cmp,r.wpvt)}`}
+>
+ {r.wpvt?.toFixed(0)}
+</td>
+
+<td
+ className={`text-center ${pivotColor(r.cmp,r.mpvt)}`}
+>
+ {r.mpvt?.toFixed(0)}
+</td>
+
+                  <td className="text-center">{r.oneWeekLow?.toFixed(0)}</td>
+                  <td className="text-center">{r.oneWeekHigh?.toFixed(0)}</td>
+
+                  <td className="text-center">
+  {(r.dvol/1000000).toFixed(1)}
+</td>
+
+<td className="text-center">
+  {(r.wvol/1000000).toFixed(1)}
+</td>
+
+<td className="text-center">
+  {(r.mvol/1000000).toFixed(1)}
+</td>
+
+<td className="text-center">
+  {r.deliveryPctDaily?.toFixed(0)}
 </td>
                 </tr>
 

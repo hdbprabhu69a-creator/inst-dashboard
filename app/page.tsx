@@ -74,23 +74,44 @@ export default function Home() {
                 <SearchBox />
 
                 <Link
-                  href="/heatmap"
-                  className="
-                    px-2
-                    py-0.5
-                    h-6
-                    rounded-md
-                    bg-cyan-600
-                    hover:bg-cyan-500
-                    text-white
-                    text-[11px]
-                    font-medium
-                    flex
-                    items-center
-                  "
-                >
-                  HM
-                </Link>
+  href="/watchlist"
+  target="_blank"
+  className="
+    px-2
+    py-0.5
+    h-6
+    rounded-md
+    bg-cyan-600
+    hover:bg-cyan-500
+    text-white
+    text-[11px]
+    font-medium
+    flex
+    items-center
+  "
+>
+  WATCHLIST
+</Link>
+
+<Link
+  href="/institutional-desk"
+  target="_blank"
+  className="
+    px-2
+    py-0.5
+    h-6
+    rounded-md
+    bg-amber-600
+    hover:bg-amber-500
+    text-white
+    text-[11px]
+    font-medium
+    flex
+    items-center
+  "
+>
+  INST
+</Link>
 
                 <Link
                   href="/scanner"

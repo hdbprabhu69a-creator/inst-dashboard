@@ -1,58 +1,40 @@
 "use client";
 
-import {
-  useSelectedStock,
-} from "@/src/context/SelectedStockContext";
+import { useSelectedStock } from "@/src/context/SelectedStockContext";
+import { useDeliveryHistory } from "@/hooks/useDeliveryHistory";
 
-function toMillion(
-  value: number = 0
-) {
-  return (
-    value / 1000000
-  ).toFixed(2);
+function toMillion(value: number = 0) {
+  return (value / 1000000).toFixed(2);
 }
 
 export default function VolumeTable() {
 
   const {
-    marketStructure,
-    marketStructureLoading,
+    selectedStock,
   } = useSelectedStock();
 
-  if (
-    marketStructureLoading
-  ) {
+  const {
+    data,
+    loading,
+  } = useDeliveryHistory(
+    selectedStock
+  );
 
+  if (loading) {
     return (
-
       <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-1 text-xs text-zinc-500">
-
         Loading Volume...
-
       </div>
-
     );
-
   }
 
-  if (
-    !marketStructure
-  ) {
-
+  if (!data) {
     return (
-
       <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-1 text-xs text-red-400">
-
         No Volume Data
-
       </div>
-
     );
-
   }
-
-  const ms =
-    marketStructure as any;
 
   return (
 
@@ -93,25 +75,15 @@ export default function VolumeTable() {
             </td>
 
             <td className="text-right text-yellow-400">
-
-              {toMillion(
-                ms.totalVolumeDaily || 0
-              )}
-
+              {toMillion(data.dailyVol)}
             </td>
 
             <td className="text-right text-orange-300">
-
-              {toMillion(
-                ms.totalDeliveryDaily || 0
-              )}
-
+              {toMillion(data.dailyDel)}
             </td>
 
             <td className="text-right text-green-400">
-
-              {ms.deliveryPctDaily?.toFixed(1) || "-"}
-
+              {data.dailyPct.toFixed(1)}
             </td>
 
           </tr>
@@ -123,25 +95,15 @@ export default function VolumeTable() {
             </td>
 
             <td className="text-right text-yellow-400">
-
-              {toMillion(
-                ms.totalVolumeWeekly || 0
-              )}
-
+              {toMillion(data.weeklyVol)}
             </td>
 
             <td className="text-right text-orange-300">
-
-              {toMillion(
-                ms.totalDeliveryWeekly || 0
-              )}
-
+              {toMillion(data.weeklyDel)}
             </td>
 
             <td className="text-right text-green-400">
-
-              {ms.deliveryPctWeekly?.toFixed(1) || "-"}
-
+              {data.weeklyPct.toFixed(1)}
             </td>
 
           </tr>
@@ -153,25 +115,15 @@ export default function VolumeTable() {
             </td>
 
             <td className="text-right text-yellow-400">
-
-              {toMillion(
-                ms.totalVolumeMonthly || 0
-              )}
-
+              {toMillion(data.monthlyVol)}
             </td>
 
             <td className="text-right text-orange-300">
-
-              {toMillion(
-                ms.totalDeliveryMonthly || 0
-              )}
-
+              {toMillion(data.monthlyDel)}
             </td>
 
             <td className="text-right text-green-400">
-
-              {ms.deliveryPctMonthly?.toFixed(1) || "-"}
-
+              {data.monthlyPct.toFixed(1)}
             </td>
 
           </tr>
