@@ -1,0 +1,21 @@
+}: Props) {
+
+  const chartRef =
+    useRef<HTMLDivElement>(null);
+    const chartInstance =
+  useRef<any>(null);
+
+const candleSeries =
+  useRef<any>(null);
+
+const { crosshair, setCrosshair } = useCrosshair();
+
+const pattern =
+  useMemo<PatternResult | null>(
+    () =>
+      analyzePattern(
+        data
+      ),
+    [data]
+  );
+    const lastPrice =

@@ -1,0 +1,106 @@
+"use client";
+
+import PatternOverlay from "./PatternOverlay";
+import PatternRenderer from "./PatternRenderer";
+import PatternInfoCard from "./PatternInfoCard";
+import PatternLegend from "./PatternLegend";
+import PatternToolbar from "./PatternToolbar";
+import PriceLabelGroup from "./PriceLabelGroup";
+import SwingOverlay from "./SwingOverlay";
+import { patternToScreen } from "./coordinateEngine";
+
+import {
+IChartApi,
+} from "lightweight-charts";
+
+import {
+PatternResult,
+} from "@/lib/pattern/types";
+
+type Props={
+
+chart:IChartApi;
+
+pattern:PatternResult|null;
+
+};
+
+export default function ChartOverlay({
+
+chart,
+
+pattern,
+
+}:Props){
+
+if(!pattern)
+return null;
+
+const screenPoints =
+  patternToScreen(
+    chart,
+    (chart as any).__candleSeries,
+    pattern
+  );
+return(
+
+<>
+
+<PatternOverlay
+
+chart={chart}
+
+pattern={pattern}
+
+/>
+
+<PatternInfoCard
+
+pattern={pattern.pattern}
+
+confidence={pattern.confidence}
+
+breakout={pattern.breakout}
+
+target={pattern.target}
+
+stop={pattern.stoploss}
+
+/>
+
+<PatternRenderer
+
+breakout={pattern.breakout}
+
+target={pattern.target}
+
+stop={pattern.stoploss}
+
+/>
+
+<PatternLegend/>
+
+<PatternToolbar/>
+
+<SwingOverlay
+  markers={screenPoints}
+/>
+
+<PriceLabelGroup
+
+breakout={pattern.breakout}
+
+target={pattern.target}
+
+stop={pattern.stoploss}
+
+/>
+
+</>
+
+);
+
+}
+
+
+

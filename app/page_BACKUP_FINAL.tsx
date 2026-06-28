@@ -1,10 +1,6 @@
-﻿"use client";
+"use client";
 
 import { useEffect } from "react";
-import { LiveMarketStream } from "@/lib/data/liveMarketStream";
-import { liveUIBridge } from "@/lib/data/liveUIBridge";
-import { db } from "@/lib/firebase";
-import { doc, getDoc } from "firebase/firestore";
 
 import { kite } from "@/lib/kite";
 
@@ -78,44 +74,23 @@ export default function Home() {
                 <SearchBox />
 
                 <Link
-  href="/watchlist"
-  target="_blank"
-  className="
-    px-2
-    py-0.5
-    h-6
-    rounded-md
-    bg-cyan-600
-    hover:bg-cyan-500
-    text-white
-    text-[11px]
-    font-medium
-    flex
-    items-center
-  "
->
-  WATCHLIST
-</Link>
-
-<Link
-  href="/institutional-desk"
-  target="_blank"
-  className="
-    px-2
-    py-0.5
-    h-6
-    rounded-md
-    bg-amber-600
-    hover:bg-amber-500
-    text-white
-    text-[11px]
-    font-medium
-    flex
-    items-center
-  "
->
-  INST
-</Link>
+                  href="/heatmap"
+                  className="
+                    px-2
+                    py-0.5
+                    h-6
+                    rounded-md
+                    bg-cyan-600
+                    hover:bg-cyan-500
+                    text-white
+                    text-[11px]
+                    font-medium
+                    flex
+                    items-center
+                  "
+                >
+                  HM
+                </Link>
 
                 <Link
                   href="/scanner"
@@ -167,80 +142,6 @@ export default function Home() {
 
               <BrokerConnectionManager />
 
-{typeof window !== "undefined" && (() => {
-
-  const startLive = async () => {
-
-    const snap = await getDoc(doc(db, "settings", "kite"));
-    const accessToken = snap.data()?.accessToken;
-
-    if (!accessToken) return;
-
-    const stream = new LiveMarketStream(
-      process.env.NEXT_PUBLIC_KITE_API_KEY!,
-      accessToken
-    );
-
-    const tokens = [256265];
-
-    stream.connect(tokens);
-
-    stream.on(256265, (tick: any) => {
-
-      liveUIBridge.emit({
-        symbol: "SBIN",
-        time: new Date().toISOString(),
-        open: tick.last_price,
-        high: tick.last_price,
-        low: tick.last_price,
-        close: tick.last_price
-      });
-
-    });
-
-  };
-
-  startLive();
-
-})()}
-
-{typeof window !== "undefined" && (() => {
-
-  const startLive = async () => {
-
-    const snap = await getDoc(doc(db, "settings", "kite"));
-    const accessToken = snap.data()?.accessToken;
-
-    if (!accessToken) return;
-
-    const stream = new LiveMarketStream(
-      process.env.NEXT_PUBLIC_KITE_API_KEY!,
-      accessToken
-    );
-
-    const tokens = [256265];
-
-    stream.connect(tokens);
-
-    stream.on(256265, (tick: any) => {
-
-      liveUIBridge.emit({
-        symbol: "SBIN",
-        time: new Date().toISOString(),
-        open: tick.last_price,
-        high: tick.last_price,
-        low: tick.last_price,
-        close: tick.last_price
-      });
-
-    });
-
-  };
-
-  startLive();
-
-})()}
-
             </div>
 
             <MarketSnapshot />
@@ -288,5 +189,3 @@ export default function Home() {
   );
 
 }
-
-

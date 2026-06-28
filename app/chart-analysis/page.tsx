@@ -1,0 +1,81 @@
+"use client";
+
+import { useState } from "react";
+
+import CandlestickChart from "@/lib/chart/CandlestickChart";
+import TimeframeSelector from "@/lib/chart/TimeframeSelector";
+import PatternPanel from "@/lib/chart/PatternPanel";
+
+import { useLiveChart } from "@/hooks/useLiveChart";
+
+import { PatternResult } from "@/lib/pattern/types";
+
+type Interval = "D" | "W" | "M";
+
+export default function ChartAnalysisPage() {
+  const [interval, setInterval] = useState<Interval>("D");
+  const [symbol, setSymbol] = useState("SBIN");
+
+  // ✅ LIVE ENGINE (REPLACES FETCH COMPLETELY)
+  const { data, pattern } = useLiveChart(symbol, interval);
+
+  return (
+    <div className="min-h-screen bg-black text-white p-6">
+
+      <div className="flex items-center justify-between mb-6">
+
+        <div>
+          <h1 className="text-3xl font-bold">
+            Technical Character Lab
+          </h1>
+
+          <p className="text-zinc-400">
+            Market Structure Intelligence Engine
+          </p>
+        </div>
+
+        <input
+          value={symbol}
+          onChange={(e) =>
+            setSymbol(e.target.value.toUpperCase())
+          }
+          className="bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-2"
+        />
+
+      </div>
+
+      <div className="mb-5">
+
+        <TimeframeSelector
+          interval={interval}
+          setInterval={setInterval}
+        />
+
+      </div>
+
+      <div className="grid grid-cols-12 gap-5">
+
+        <div className="col-span-9">
+
+          <CandlestickChart
+            data={data}
+            symbol={symbol}
+            interval={interval}
+            pattern={pattern}
+          />
+
+        </div>
+
+        <div className="col-span-3">
+
+          <PatternPanel
+            result={pattern as PatternResult}
+          />
+
+        </div>
+
+      </div>
+
+    </div>
+  );
+}

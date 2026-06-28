@@ -1,0 +1,41 @@
+      resize
+    );
+
+    chart.subscribeCrosshairMove(
+      param => {
+
+        if (
+          !param.point ||
+          !param.time
+        )
+          return;
+
+        const price =
+          param.seriesData.get(
+            candle
+          );
+
+        if (!price)
+          return;
+
+       setOhlc({
+
+  time:
+    String(param.time),
+
+  open:
+    (price as any).open,
+
+  high:
+    (price as any).high,
+
+  low:
+    (price as any).low,
+
+  close:
+    (price as any).close,
+
+});
+      }
+    );
+

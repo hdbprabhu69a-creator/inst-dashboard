@@ -1,0 +1,59 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { getMarketData } from "@/lib/market/getMarketData";
+import { analyzePattern } from "@/lib/pattern/patternEngine";
+
+export function useLiveChart(symbol: string, timeframe: string) {
+  const [data, setData] = useState<any[]>([]);
+  const [pattern, setPattern] = useState<any>(null);
+
+  // 🔒 lock history so it doesn't recompute from scratch
+  const historyRef = useRef<any[]>([]);
+
+  useEffect(() => {
+    if (!symbol || !timeframe) return;
+
+    const baseData = getMarketData(symbol, timeframe);
+
+    historyRef.current = baseData;
+    setData(baseData);
+
+    const detected = analyzePattern(baseData);
+    setPattern(detected);
+  }, [symbol, timeframe]);
+
+  // LIVE UPDATE ONLY LAST CANDLE
+  useEffect(() => {
+    if (!symbol || !timeframe) return;
+
+    const interval = setInterval(() => {
+      const latest = getMarketData(symbol, timeframe);
+
+      const prev = historyRef.current;
+
+      if (!latest || latest.length === 0) return;
+
+      const lastIndex = prev.length - 1;
+
+      // 🔥 ONLY UPDATE LAST CANDLE
+      const updated = [...prev];
+      updated[lastIndex] = latest[lastIndex];
+
+      historyRef.current = updated;
+
+      setData(updated);
+
+      // ❗ pattern updates ONLY on last candle change
+      const detected = analyzePattern(updated);
+      setPattern(detected);
+    }, 3000); // slower = stability
+
+    return () => clearInterval(interval);
+  }, [symbol, timeframe]);
+
+  return {
+    data,
+    pattern,
+  };
+}
