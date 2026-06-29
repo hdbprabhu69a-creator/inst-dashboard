@@ -18,7 +18,7 @@ import {
 } from "react";
 import { liveUIBridge } from "@/lib/data/liveUIBridge";
 import { subscribe } from "@/lib/live/liveEngine";
-import { subscribeOHLC } from "@/lib/live/ohlcEngine";
+import { subscribeOHLC, updateOHLC } from "@/lib/live/ohlcEngine";
 import { getCurrentSymbol } from "@/lib/live/symbolManager";
 import PatternOverlay from "@/lib/chart/PatternOverlay";
 import PatternInfoCard from "@/lib/chart/PatternInfoCard";
@@ -336,6 +336,8 @@ const [ohlc, setOhlc] =
 candleSeries.current =
   candle;
   liveTickUnsub.current = subscribe((tick:any)=>{
+  const last = chartData[chartData.length - 1];
+  if (!last) return;
   updateOHLC({
     symbol: getCurrentSymbol(),
     token: 0,
@@ -1120,6 +1122,7 @@ const unsubscribe = liveUIBridge.subscribe((tick: any) => {
   );
 
 }
+
 
 
 
