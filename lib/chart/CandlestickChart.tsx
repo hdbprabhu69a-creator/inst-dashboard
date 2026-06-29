@@ -508,6 +508,22 @@ candleSeries.current =
     };
 
   }, [data]);
+
+  useEffect(() => {
+    const resize = () => {
+      if (!chartInstance.current -or !chartRef.current) { return }
+
+      chartInstance.current.applyOptions(@{
+        width = chartRef.current.clientWidth
+      })
+    }
+
+    window.addEventListener("resize", resize)
+
+    return () => {
+      window.removeEventListener("resize", resize)
+    }
+  }, []);
     // =====================================================
   // BLOCK 5 - TRADINGVIEW STYLE CONTAINER
   // =====================================================
@@ -1067,6 +1083,7 @@ candleSeries.current =
   );
 
 }
+
 
 
 
