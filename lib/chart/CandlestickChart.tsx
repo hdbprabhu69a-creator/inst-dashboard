@@ -567,7 +567,7 @@ useEffect(() => {
     symbol,
     token: 779521,
     lastPrice: Number(
-  data.length -gt 0 ?
+  data.length > 0 ?
     data[data.length-1].close :
     0
 ),
@@ -1152,6 +1152,7 @@ useEffect(() => {
   );
 
 }
+
 
 
 
