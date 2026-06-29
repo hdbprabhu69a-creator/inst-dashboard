@@ -312,14 +312,27 @@ const [ohlc, setOhlc] =
         }
       );
 
-    candle.setData(data);
+    const chartData = [...data]
+      .sort(
+        (a, b) =>
+          new Date(a.time).getTime() -
+          new Date(b.time).getTime()
+      )
+      .filter(
+        (candle, index, arr) =>
+          index === 0 ||
+          new Date(candle.time).getTime() !==
+          new Date(arr[index - 1].time).getTime()
+      );
+
+    candle.setData(chartData);
 candleSeries.current =
   candle;
   liveUIBridge.subscribe((tick: any) => {
   if (!candleSeries.current) return;
   if (!data || data.length === 0) return;
 
-  const last = data[data.length - 1];
+  const last = chartData[chartData.length - 1];
 
   candleSeries.current.update({
     time: last.time, // IMPORTANT: keep historical format
@@ -361,7 +374,7 @@ candleSeries.current =
 
     volume.setData(
 
-      data.map(
+      chartData.map(
         c => ({
 
           time:
@@ -1050,6 +1063,7 @@ candleSeries.current =
   );
 
 }
+
 
 
 
