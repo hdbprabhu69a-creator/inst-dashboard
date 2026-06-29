@@ -86,11 +86,9 @@ const pattern =
     [data]
   );
     const lastPrice =
-  (liveLastPrice > 0
-    ? liveLastPrice
-    : (data.length > 0
-        ? data[data.length-1].close
-        : 0));
+  data.length > 0
+    ? data[data.length - 1].close
+    : 0;
   
 
 const previousClose =
@@ -136,9 +134,7 @@ useEffect(() => {
   console.log("==================================");
   console.log("LIVE DATA", liveData);
 console.log("QUOTE", quote);
-  console.log("LAST PRICE", liveLastPrice);
-  console.log("TOKEN", liveToken);
-  console.log("==================================");
+      console.log("==================================");
 }, [liveData]);
 const [ohlc, setOhlc] =
   useState(() => {
@@ -1157,6 +1153,7 @@ useEffect(() => {
   );
 
 }
+
 
 
 
