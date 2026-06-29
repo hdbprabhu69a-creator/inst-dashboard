@@ -127,6 +127,14 @@ const lastVolume =
 // BLOCK 7 - LIVE OHLC
 // =====================================================
 
+
+useEffect(() => {
+  console.log("==================================");
+  console.log("LIVE DATA", liveData);
+  console.log("LAST PRICE", liveData?.last_price);
+  console.log("TOKEN", liveData?.instrument_token);
+  console.log("==================================");
+}, [liveData]);
 const [ohlc, setOhlc] =
   useState(() => {
 
@@ -1144,6 +1152,7 @@ useEffect(() => {
   );
 
 }
+
 
 
 
