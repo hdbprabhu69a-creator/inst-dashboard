@@ -49,10 +49,18 @@ type Candle = {
 
 type Props = {
   data: Candle[];
+  symbol: string;
+  interval: string;
+  pattern?: any;
+  liveData?: any;
 };
 
 export default function CandlestickChart({
   data,
+  symbol,
+  interval,
+  pattern: externalPattern,
+  liveData,
 }: Props) {
 
   const chartRef =
@@ -78,14 +86,8 @@ const pattern =
     [data]
   );
     const lastPrice =
-
-  data.length > 0
-
-    ? data[
-        data.length - 1
-      ].close
-
-    : 0;
+  liveData?.last_price ??
+  (data.length>0 ? data[data.length-1].close : 0);
 
 const previousClose =
 
@@ -720,7 +722,7 @@ const unsubscribe = liveUIBridge.subscribe((tick: any) => {
 
       <div className="text-white text-xl font-bold">
 
-        SBIN
+        {symbol}
 
       </div>
 
@@ -851,7 +853,7 @@ const unsubscribe = liveUIBridge.subscribe((tick: any) => {
     "
   >
 
-    SBIN
+    {symbol}
 
   </div>
 
@@ -1039,7 +1041,7 @@ const unsubscribe = liveUIBridge.subscribe((tick: any) => {
 
       <span className="ml-2 text-white">
 
-        SBIN
+        {symbol}
 
       </span>
 
@@ -1122,6 +1124,7 @@ const unsubscribe = liveUIBridge.subscribe((tick: any) => {
   );
 
 }
+
 
 
 
