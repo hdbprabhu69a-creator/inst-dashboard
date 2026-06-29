@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 
 import { getMarketData } from "@/lib/market/getMarketData";
 import { analyzePattern } from "@/lib/pattern/patternEngine";
+import { publishTick } from "@/lib/live/liveEngine";
+
 
 export function useLiveChart(
   symbol: string,
@@ -97,3 +99,4 @@ export function useLiveChart(
   };
 
 }
+
