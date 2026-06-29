@@ -563,17 +563,26 @@ const unsubscribe = liveUIBridge.subscribe((tick: any) => {
 useEffect(() => {
   if (!liveData) return;
 
+  const quote =
+    liveData?.quote?.["NSE:"+symbol] ??
+    liveData?.quote?.[symbol] ??
+    {};
+
   publishTick({
     symbol,
     token: 779521,
     lastPrice: Number(
-  data.length > 0 ?
-    data[data.length-1].close :
-    0
+  quote.last_price ??
+  quote.lastPrice ??
+  quote.ltp ??
+  data[data.length-1]?.close ??
+  0
 ),
     volume: Number(
-      liveData.volume ?? 0
-    ),
+  quote.volume ??
+  liveData?.volume ??
+  0
+),
     time: Date.now(),
   });
 
@@ -1152,6 +1161,7 @@ useEffect(() => {
   );
 
 }
+
 
 
 
