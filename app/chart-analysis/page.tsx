@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 
@@ -7,6 +7,7 @@ import TimeframeSelector from "@/lib/chart/TimeframeSelector";
 import PatternPanel from "@/lib/chart/PatternPanel";
 
 import { useLiveChart } from "@/hooks/useLiveChart";
+import { useKiteData } from "@/hooks/useKiteData";
 
 import { PatternResult } from "@/lib/pattern/types";
 
@@ -16,8 +17,10 @@ export default function ChartAnalysisPage() {
   const [interval, setInterval] = useState<Interval>("D");
   const [symbol, setSymbol] = useState("SBIN");
 
-  // ✅ LIVE ENGINE (REPLACES FETCH COMPLETELY)
+  // âœ… LIVE ENGINE (REPLACES FETCH COMPLETELY)
   const { data, pattern } = useLiveChart(symbol, interval);
+
+const { data: liveData } = useKiteData(symbol);
 
   return (
     <div className="min-h-screen bg-black text-white p-6">
@@ -62,6 +65,7 @@ export default function ChartAnalysisPage() {
             symbol={symbol}
             interval={interval}
             pattern={pattern}
+            liveData={liveData}
           />
 
         </div>
