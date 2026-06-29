@@ -17,6 +17,9 @@ import {
   useState,
 } from "react";
 import { liveUIBridge } from "@/lib/data/liveUIBridge";
+import { subscribe } from "@/lib/live/liveEngine";
+import { subscribeOHLC } from "@/lib/live/ohlcEngine";
+import { getCurrentSymbol } from "@/lib/live/symbolManager";
 import PatternOverlay from "@/lib/chart/PatternOverlay";
 import PatternInfoCard from "@/lib/chart/PatternInfoCard";
 import PatternToolbar from "@/lib/chart/PatternToolbar";
@@ -56,6 +59,10 @@ export default function CandlestickChart({
     useRef<HTMLDivElement>(null);
     const chartInstance =
   useRef<any>(null);
+
+const liveTickUnsub = useRef<null | (() => void)>(null);
+
+const ohlcUnsub = useRef<null | (() => void)>(null);
 
 const candleSeries =
   useRef<any>(null);
@@ -1083,6 +1090,7 @@ candleSeries.current =
   );
 
 }
+
 
 
 
