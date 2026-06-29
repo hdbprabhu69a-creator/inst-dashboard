@@ -17,7 +17,7 @@ import {
   useState,
 } from "react";
 import { liveUIBridge } from "@/lib/data/liveUIBridge";
-import { subscribe } from "@/lib/live/liveEngine";
+import { subscribe, publishTick } from "@/lib/live/liveEngine";
 import { subscribeOHLC, updateOHLC } from "@/lib/live/ohlcEngine";
 import { getCurrentSymbol } from "@/lib/live/symbolManager";
 import PatternOverlay from "@/lib/chart/PatternOverlay";
@@ -550,6 +550,26 @@ const unsubscribe = liveUIBridge.subscribe((tick: any) => {
 
   }, [data]);
 
+
+useEffect(() => {
+  if (!liveData) return;
+
+  publishTick({
+    symbol,
+    token: liveData.instrument_token ?? 0,
+    lastPrice: Number(
+      liveData.last_price ??
+      liveData.lastPrice ??
+      liveData.ltp ??
+      0
+    ),
+    volume: Number(
+      liveData.volume ?? 0
+    ),
+    time: Date.now(),
+  });
+
+}, [liveData, symbol]);
   useEffect(() => {
     const resize = () => {
       if (!chartInstance.current || !chartRef.current) { return }
@@ -1124,6 +1144,7 @@ const unsubscribe = liveUIBridge.subscribe((tick: any) => {
   );
 
 }
+
 
 
 
