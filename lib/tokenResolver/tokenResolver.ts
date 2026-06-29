@@ -1,5 +1,4 @@
-﻿import { loadInstrumentCsv } from "./csvLoader";
-import {
+﻿import {
     cacheAll,
     getBySymbol,
     getByToken,
@@ -9,8 +8,11 @@ import { InstrumentInfo } from "./types";
 
 let loaded = false;
 
-export function reload(csvPath: string): void {
-    const instruments = loadInstrumentCsv(csvPath);
+export function reload(_csvPath: string): void {
+    console.warn("reload() is server-only.");
+}
+
+export function loadInstruments(instruments: InstrumentInfo[]): void {
     cacheAll(instruments);
     loaded = true;
 }
