@@ -335,7 +335,27 @@ const [ohlc, setOhlc] =
     candle.setData(chartData);
 candleSeries.current =
   candle;
-  const unsubscribe = liveUIBridge.subscribe((tick: any) => {
+  liveTickUnsub.current = subscribe((tick:any)=>{
+  candleSeries.current?.update({
+    time:last.time,
+    open:last.open,
+    high:Math.max(last.high,tick.lastPrice),
+    low:Math.min(last.low,tick.lastPrice),
+    close:tick.lastPrice,
+  });
+});
+
+ohlcUnsub.current = subscribeOHLC((v)=>{
+  setOhlc({
+    time:String(v.time),
+    open:v.open,
+    high:v.high,
+    low:v.low,
+    close:v.close,
+  });
+});
+
+const unsubscribe = liveUIBridge.subscribe((tick: any) => {
   if (!candleSeries.current) return;
   if (!data || data.length === 0) return;
 
@@ -508,6 +528,8 @@ candleSeries.current =
         resize
       );
 
+      liveTickUnsub.current?.();
+      ohlcUnsub.current?.();
       unsubscribe?.();
 
       chart.remove();
@@ -1090,6 +1112,7 @@ candleSeries.current =
   );
 
 }
+
 
 
 
