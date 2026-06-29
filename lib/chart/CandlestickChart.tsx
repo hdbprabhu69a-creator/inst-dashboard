@@ -336,6 +336,14 @@ const [ohlc, setOhlc] =
 candleSeries.current =
   candle;
   liveTickUnsub.current = subscribe((tick:any)=>{
+  updateOHLC({
+    symbol: getCurrentSymbol(),
+    token: 0,
+    lastPrice: tick.lastPrice,
+    volume: tick.volume ?? 0,
+    time: tick.time,
+  });
+
   candleSeries.current?.update({
     time:last.time,
     open:last.open,
@@ -1112,6 +1120,7 @@ const unsubscribe = liveUIBridge.subscribe((tick: any) => {
   );
 
 }
+
 
 
 
