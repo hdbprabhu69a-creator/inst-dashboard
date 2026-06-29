@@ -133,7 +133,7 @@ const lastVolume =
 useEffect(() => {
   console.log("==================================");
   console.log("LIVE DATA", liveData);
-console.log("QUOTE", quote);
+console.log("QUOTE", liveData?.quote?.[`NSE:${symbol}`]);
       console.log("==================================");
 }, [liveData]);
 const [ohlc, setOhlc] =
@@ -1153,6 +1153,7 @@ useEffect(() => {
   );
 
 }
+
 
 
 
