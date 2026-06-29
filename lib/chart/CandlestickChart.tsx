@@ -567,11 +567,10 @@ useEffect(() => {
     symbol,
     token: 779521,
     lastPrice: Number(
-      liveLastPrice ??
-      liveData.lastPrice ??
-      liveData.ltp ??
-      0
-    ),
+  data.length -gt 0 ?
+    data[data.length-1].close :
+    0
+),
     volume: Number(
       liveData.volume ?? 0
     ),
@@ -1153,6 +1152,7 @@ useEffect(() => {
   );
 
 }
+
 
 
 
