@@ -83,3 +83,4 @@ const { data: liveData } = useKiteData(symbol);
     </div>
   );
 }
+
