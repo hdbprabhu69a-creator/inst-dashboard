@@ -328,11 +328,13 @@ const [ohlc, setOhlc] =
     candle.setData(chartData);
 candleSeries.current =
   candle;
-  liveUIBridge.subscribe((tick: any) => {
+  const unsubscribe = liveUIBridge.subscribe((tick: any) => {
   if (!candleSeries.current) return;
   if (!data || data.length === 0) return;
 
   const last = chartData[chartData.length - 1];
+
+  if (!last) return;
 
   candleSeries.current.update({
     time: last.time, // IMPORTANT: keep historical format
@@ -498,6 +500,8 @@ candleSeries.current =
         "resize",
         resize
       );
+
+      unsubscribe?.();
 
       chart.remove();
 
@@ -1063,6 +1067,7 @@ candleSeries.current =
   );
 
 }
+
 
 
 
