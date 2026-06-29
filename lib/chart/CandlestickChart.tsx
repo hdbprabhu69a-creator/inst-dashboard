@@ -563,6 +563,13 @@ const unsubscribe = liveUIBridge.subscribe((tick: any) => {
 useEffect(() => {
   if (!liveData) return;
 
+console.log("========== LIVE025 DEBUG ==========");
+console.log("liveData =", liveData);
+console.log("quote =", liveData?.quote);
+console.log("NSE Symbol =", liveData?.quote?.["NSE:"+symbol]);
+console.log("Plain Symbol =", liveData?.quote?.[symbol]);
+console.log("==================================");
+
   const quote =
     liveData?.quote?.["NSE:"+symbol] ??
     liveData?.quote?.[symbol] ??
@@ -1161,6 +1168,7 @@ useEffect(() => {
   );
 
 }
+
 
 
 
