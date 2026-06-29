@@ -91,7 +91,7 @@ const pattern =
     : (data.length > 0
         ? data[data.length-1].close
         : 0));
-  (data.length>0 ? data[data.length-1].close : 0);
+  
 
 const previousClose =
 
@@ -135,8 +135,8 @@ const lastVolume =
 useEffect(() => {
   console.log("==================================");
   console.log("LIVE DATA", liveData);
-  console.log("LAST PRICE", liveData?.last_price);
-  console.log("TOKEN", liveData?.instrument_token);
+  console.log("LAST PRICE", liveLastPrice);
+  console.log("TOKEN", liveToken);
   console.log("==================================");
 }, [liveData]);
 const [ohlc, setOhlc] =
@@ -568,9 +568,9 @@ useEffect(() => {
 
   publishTick({
     symbol,
-    token: liveData.instrument_token ?? 0,
+    token: liveToken,
     lastPrice: Number(
-      liveData.last_price ??
+      liveLastPrice ??
       liveData.lastPrice ??
       liveData.ltp ??
       0
@@ -1156,6 +1156,7 @@ useEffect(() => {
   );
 
 }
+
 
 
 
