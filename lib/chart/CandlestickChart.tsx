@@ -511,10 +511,10 @@ candleSeries.current =
 
   useEffect(() => {
     const resize = () => {
-      if (!chartInstance.current -or !chartRef.current) { return }
+      if (!chartInstance.current || !chartRef.current) { return }
 
-      chartInstance.current.applyOptions(@{
-        width = chartRef.current.clientWidth
+      chartInstance.current.applyOptions({
+        width: chartRef.current.clientWidth,
       })
     }
 
@@ -1083,6 +1083,7 @@ candleSeries.current =
   );
 
 }
+
 
 
 
