@@ -86,7 +86,7 @@ const pattern =
     [data]
   );
     const lastPrice =
-  liveData?.last_price ??
+  liveLastPrice ?:
   (data.length>0 ? data[data.length-1].close : 0);
 
 const previousClose =
@@ -1152,6 +1152,7 @@ useEffect(() => {
   );
 
 }
+
 
 
 
