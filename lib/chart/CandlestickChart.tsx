@@ -135,6 +135,7 @@ const lastVolume =
 useEffect(() => {
   console.log("==================================");
   console.log("LIVE DATA", liveData);
+console.log("QUOTE", quote);
   console.log("LAST PRICE", liveLastPrice);
   console.log("TOKEN", liveToken);
   console.log("==================================");
@@ -1156,6 +1157,7 @@ useEffect(() => {
   );
 
 }
+
 
 
 
