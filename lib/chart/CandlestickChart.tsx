@@ -565,7 +565,7 @@ useEffect(() => {
 
   publishTick({
     symbol,
-    token: liveToken,
+    token: 779521,
     lastPrice: Number(
       liveLastPrice ??
       liveData.lastPrice ??
@@ -1153,6 +1153,7 @@ useEffect(() => {
   );
 
 }
+
 
 
 
