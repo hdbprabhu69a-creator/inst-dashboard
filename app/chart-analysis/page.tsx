@@ -31,6 +31,7 @@ const { data: liveData } = useKiteData(activeSymbol);
     <div className="min-h-screen bg-black text-white p-6">
 
       <div className="flex items-center justify-between mb-6">
+  <StockSearch value={symbol} onChange={setSymbol} />
 
         
 
@@ -56,6 +57,7 @@ const { data: liveData } = useKiteData(activeSymbol);
     </div>
   );
 }
+
 
 
 

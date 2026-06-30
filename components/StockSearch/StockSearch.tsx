@@ -3,9 +3,14 @@
 import { useMemo, useState } from "react";
 import { useUniverse } from "@/hooks/useUniverse";
 
-export default function StockSearch() {
+type Props = {
+  value: string;
+  onChange: (symbol: string) => void;
+};
+
+export default function StockSearch({ value, onChange }: Props) {
   const { stocks, loading } = useUniverse();
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(value);
 
   const filtered = useMemo(() => {
     const q = query.toLowerCase();
@@ -26,10 +31,18 @@ export default function StockSearch() {
       {!loading && (
         <div className="mt-2 max-h-72 overflow-auto rounded border">
           {filtered.map(s=>(
-            <div key={s.symbol} className="px-3 py-2 border-b">
+            <button
+              type="button"
+              key={s.symbol}
+              onClick={()=>{
+                setQuery(s.symbol);
+                onChange(s.symbol);
+              }}
+              className="block w-full text-left px-3 py-2 border-b hover:bg-zinc-800"
+            >
               <div className="font-semibold">{s.symbol}</div>
               <div className="text-sm">{s.name}</div>
-            </div>
+            </button>
           ))}
         </div>
       )}
