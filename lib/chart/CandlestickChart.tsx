@@ -29,7 +29,6 @@ import ChartOverlay from "@/lib/chart/ChartOverlay";
 import CrosshairInfo from "@/lib/chart/CrosshairInfo";
 import { useCrosshair } from "@/lib/chart/useCrosshair";
 
-
 import {
   analyzePattern,
 } from "@/lib/pattern/patternEngine";
@@ -89,7 +88,6 @@ const pattern =
   data.length > 0
     ? data[data.length - 1].close
     : 0;
-  
 
 const previousClose =
 
@@ -128,7 +126,6 @@ const lastVolume =
     : 0;    // =====================================================
 // BLOCK 7 -  OHLC
 // =====================================================
-
 
 useEffect(() => {
   console.log("==================================");
@@ -295,7 +292,6 @@ const [ohlc, setOhlc] =
 
   );
   chartInstance.current = chart;
-
 
           // =====================================================
     // BLOCK 3 - CANDLES + VOLUME (TradingView Style)
@@ -558,7 +554,6 @@ const unsubscribe = UIBridge.subscribe((tick: any) => {
     };
 
   }, [data]);
-
 
 useEffect(() => {
   if (!Data) return;
@@ -854,9 +849,7 @@ console.log("==================================");
   </div>
 
 </div>
-  
 
-       
      {/* ===================================================== */}
 {/* BLOCK 12 - PROFESSIONAL CHART AREA */}
 {/* ===================================================== */}
@@ -902,9 +895,7 @@ console.log("==================================");
   </div>
 
   {/* ===================================================== */}
-{
-
-  </div>
+</div>
 
 </div>
   {/*  */}
@@ -928,8 +919,6 @@ console.log("==================================");
   >
 
     <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-
-    
 
   </div>
 
@@ -1050,34 +1039,5 @@ console.log("==================================");
   );
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
