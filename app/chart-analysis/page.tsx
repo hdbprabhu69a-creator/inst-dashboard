@@ -7,6 +7,7 @@ import TimeframeSelector from "@/lib/chart/TimeframeSelector";
 import PatternPanel from "@/lib/chart/PatternPanel";
 
 import { useLiveChart } from "@/hooks/useLiveChart";
+import { useHistory } from "@/hooks/useHistory";
 import { useKiteData } from "@/hooks/useKiteData";
 
 import { PatternResult } from "@/lib/pattern/types";
@@ -19,6 +20,7 @@ export default function ChartAnalysisPage() {
 
   // âœ… LIVE ENGINE (REPLACES FETCH COMPLETELY)
   const { data, pattern } = useLiveChart(symbol, interval);
+const { candles } = useHistory(symbol);
 
 const { data: liveData } = useKiteData(symbol);
 
@@ -61,7 +63,7 @@ const { data: liveData } = useKiteData(symbol);
         <div className="col-span-9">
 
           <CandlestickChart
-            data={data}
+            data={candles.length ? candles : data}
             symbol={symbol}
             interval={interval}
             pattern={pattern}
@@ -83,4 +85,5 @@ const { data: liveData } = useKiteData(symbol);
     </div>
   );
 }
+
 
