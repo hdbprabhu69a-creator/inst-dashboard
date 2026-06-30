@@ -771,8 +771,6 @@ console.log("==================================");
 
       </div>
 
-    </div>
-
     <div
       className={
         change >= 0
@@ -798,8 +796,6 @@ console.log("==================================");
         ({changePercent.toFixed(2)}%)
 
       </div>
-
-    </div>
 
   </div>
 
@@ -846,11 +842,7 @@ console.log("==================================");
 
     </span>
 
-  </div>
-
-</div>
-
-     {/* ===================================================== */}
+  </div>/* ===================================================== */}
 {/* BLOCK 12 - PROFESSIONAL CHART AREA */}
 {/* ===================================================== */}
 
@@ -895,10 +887,7 @@ console.log("==================================");
   </div>
 
   {/* ===================================================== */}
-</div>
-
-</div>
-  {/*  */}
+</div>/*  */}
 
   <div
     className="
@@ -920,124 +909,13 @@ console.log("==================================");
 
     <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
 
-  </div>
-
-</div>      {/* ===================================================== */}
-{/* BLOCK 13 - PROFESSIONAL STATUS BAR */}
-{/* ===================================================== */}
-
-<div
-  className="
-    flex
-    items-center
-    justify-between
-    px-4
-    py-2
-    bg-[#131722]
-    border
-    border-zinc-800
-    rounded-b-xl
-    text-xs
-  "
->
-
-  <div
-    className="
-      flex
-      items-center
-      gap-6
-      text-zinc-400
-    "
-  >
-
-    <span>
-
-      Symbol
-
-      <span className="ml-2 text-white">
-
-        {symbol}
-
-      </span>
-
-    </span>
-
-    <span>
-
-      Exchange
-
-      <span className="ml-2 text-white">
-
-        NSE
-
-      </span>
-
-    </span>
-
-    <span>
-
-      Volume
-
-      <span className="ml-2 text-white">
-
-        {lastVolume.toLocaleString()}
-
-      </span>
-
-    </span>
-
-  </div>
-
-  <div
-    className="
-      flex
-      items-center
-      gap-5
-    "
-  >
-
-    <span className="text-zinc-500">
-
-      Institutional Engine
-
-    </span>
-
-    <span
-      className={
-        change >= 0
-          ? "text-green-400"
-          : "text-red-400"
-      }
-    >
-
-      ₹ {lastPrice.toFixed(2)}
-
-    </span>
-
-    <span
-      className={
-        change >= 0
-          ? "text-green-400"
-          : "text-red-400"
-      }
-    >
-
-      {change >= 0 ? "+" : ""}
-
-      {change.toFixed(2)}
-
-      ({changePercent.toFixed(2)}%)
-
-    </span>
-
-  </div>
-
-</div>
-</div>
+  </div>/* ===================================================== */}
+{</div>
     </div>
 
   );
 
 }
+
 
 
