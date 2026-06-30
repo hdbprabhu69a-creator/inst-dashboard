@@ -51,7 +51,7 @@ type Candle = {
 };
 
 type Props = {
-  liveData: Candle[];
+  data: Candle[];
   symbol: string;
   interval: string;
   pattern?: any;
@@ -59,7 +59,7 @@ type Props = {
 };
 
 export default function CandlestickChart({
-  liveData,
+  data,
   symbol,
   interval,
   pattern: externalPattern,
@@ -83,22 +83,20 @@ const { crosshair, setCrosshair } = useCrosshair();
 const pattern =
   useMemo<PatternResult | null>(
     () =>
-      analyzePattern(
-        liveData
-      ),
+      analyzePattern(data),
     [liveData]
   );
     const lastPrice =
-  liveData.length > 0
-    ? liveData[liveData.length - 1].close
+  data.length > 0
+    ? liveData[data.length - 1].close
     : 0;
 
 const previousClose =
 
-  liveData.length > 1
+  data.length > 1
 
     ? liveData[
-        liveData.length - 2
+        data.length - 2
       ].close
 
     : lastPrice;
@@ -121,10 +119,10 @@ const changePercent =
 
 const lastVolume =
 
-  liveData.length > 0
+  data.length > 0
 
     ? liveData[
-        liveData.length - 1
+        data.length - 1
       ].volume ?? 0
 
     : 0;    // =====================================================
@@ -136,11 +134,11 @@ useEffect(() => {
   console.log(" liveData", liveData);
 console.log("QUOTE", liveData?.quote?.[`NSE:${symbol}`]);
       console.log("==================================");
-}, [liveData]);
+}, [data]);
 const [ohlc, setOhlc] =
   useState(() => {
 
-    if (liveData.length === 0) {
+    if (data.length === 0) {
 
       return {
 
@@ -159,7 +157,7 @@ const [ohlc, setOhlc] =
     }
 
     const last =
-      liveData[liveData.length - 1];
+      liveData[data.length - 1];
 
     return {
 
@@ -188,7 +186,7 @@ const [ohlc, setOhlc] =
 
     if (
       !chartRef.current ||
-      liveData.length === 0
+      data.length === 0
     ) {
       return;
     }
@@ -330,7 +328,7 @@ const [ohlc, setOhlc] =
         }
       );
 
-   const chartData = [...liveData]
+   const chartData = [...data]
   .sort(
     (a, b) =>
       new Date(a.time).getTime() -
@@ -390,7 +388,7 @@ ohlcUnsub.current = subscribeOHLC((v) => {  setOhlc({
 
 const unsubscribe = liveUIBridge.subscribe((tick: any) => {
   if (!candleSeries.current) return;
-  if (!liveData || liveData.length === 0) return;
+  if (!liveData || data.length === 0) return;
 
   const last = chartData[chartData.length - 1];
 
@@ -500,7 +498,7 @@ chart.subscribeCrosshairMove((param) => {
 });
 
 // IMPORTANT: CLEAN CLOSE OF EFFECT
-}, [liveData]);// IMPORTANT CLOSE
+}, [data]);// IMPORTANT CLOSE
 
 
 return (
@@ -560,3 +558,4 @@ return (
   </div>
 );
 }
+
