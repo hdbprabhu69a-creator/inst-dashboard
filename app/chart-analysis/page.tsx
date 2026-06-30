@@ -41,7 +41,7 @@ const { data: liveData } = useKiteData(activeSymbol);
 
         <div className="w-full">
 
-          {activeSymbol && (
+          {activeSymbol.length > 0 && (
 <CandlestickChart
             data={candles.length ? candles : data}
             symbol={activeSymbol}
@@ -57,6 +57,7 @@ const { data: liveData } = useKiteData(activeSymbol);
     </div>
   );
 }
+
 
 
 
