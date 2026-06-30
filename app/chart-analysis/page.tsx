@@ -8,6 +8,7 @@ import PatternPanel from "@/lib/chart/PatternPanel";
 
 import { useLiveChart } from "@/hooks/useLiveChart";
 import { useHistory } from "@/hooks/useHistory";
+import { usePatternHistory } from "@/hooks/usePatternHistory";
 import { useKiteData } from "@/hooks/useKiteData";
 
 import { PatternResult } from "@/lib/pattern/types";
@@ -21,6 +22,7 @@ export default function ChartAnalysisPage() {
   // âœ… LIVE ENGINE (REPLACES FETCH COMPLETELY)
   const { data, pattern } = useLiveChart(symbol, interval);
 const { candles } = useHistory(symbol);
+const historyPattern = usePatternHistory(candles);
 
 const { data: liveData } = useKiteData(symbol);
 
@@ -66,7 +68,7 @@ const { data: liveData } = useKiteData(symbol);
             data={candles.length ? candles : data}
             symbol={symbol}
             interval={interval}
-            pattern={pattern}
+            pattern={historyPattern ?? pattern}
             liveData={liveData}
           />
 
@@ -85,5 +87,6 @@ const { data: liveData } = useKiteData(symbol);
     </div>
   );
 }
+
 
 
