@@ -17,14 +17,15 @@ type Interval = "D" | "W" | "M";
 
 export default function ChartAnalysisPage() {
   const [interval, setInterval] = useState<Interval>("D");
-  const [symbol, setSymbol] = useState("SBIN");
+  const [symbol, setSymbol] = useState<string>("");
 
   // âœ… LIVE ENGINE (REPLACES FETCH COMPLETELY)
-  const { data, pattern } = useLiveChart(symbol, interval);
-const { candles } = useHistory(symbol);
+  const activeSymbol = symbol.trim();
+const { data, pattern } = useLiveChart(activeSymbol, interval);
+const { candles } = useHistory(activeSymbol);
 const historyPattern = usePatternHistory(candles);
 
-const { data: liveData } = useKiteData(symbol);
+const { data: liveData } = useKiteData(activeSymbol);
 
   return (
     <div className="min-h-screen bg-black text-white p-6">
@@ -39,21 +40,23 @@ const { data: liveData } = useKiteData(symbol);
 
         <div className="w-full">
 
-          <CandlestickChart
+          {activeSymbol && (
+<CandlestickChart
             data={candles.length ? candles : data}
-            symbol={symbol}
+            symbol={activeSymbol}
             interval={interval}
             pattern={historyPattern ?? pattern}
             liveData={liveData}
           />
-
-        </div>
+)}
+</div>
 
         </div>
 
     </div>
   );
 }
+
 
 
 
