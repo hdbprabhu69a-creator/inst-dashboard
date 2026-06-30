@@ -1,6 +1,8 @@
 ﻿"use client";
 
-import { useState } from "react";`r`nimport StockSearch from "@/components/StockSearch/StockSearch";
+import { useState } from "react";
+
+import StockSearch from "@/components/StockSearch/StockSearch";
 
 import CandlestickChart from "@/lib/chart/CandlestickChart";
 import TimeframeSelector from "@/lib/chart/TimeframeSelector";
@@ -81,6 +83,7 @@ const { data: liveData } = useKiteData(symbol);
     </div>
   );
 }
+
 
 
 
