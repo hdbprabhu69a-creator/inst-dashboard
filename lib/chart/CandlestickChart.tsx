@@ -330,13 +330,11 @@ const [ohlc, setOhlc] =
       .sort(
         (a, b) =>
           new Date(a.time)getTime() -
-          new Date(b.time)getTime()
-      )filter(
+          new Date(b.time)getTime()) .filter(
         (candle, index, arr) =>
           index === 0 ||
           new Date(candle.time)getTime() !==
-          new Date(arr[index - 1].time)getTime()
-      );
+          new Date(arr[index - 1].time)getTime());
 
     candle.setData(chartData);
 candleSeries.current =
@@ -831,10 +829,10 @@ console.log("==================================");
 
     </span>
 
-  </div>/* ===================================================== */}
+  </div>}
 {/* BLOCK 12 - PROFESSIONAL CHART AREA */}
 
-</div>/*  */}
+</div>}
 
   <div
     className="
@@ -856,12 +854,13 @@ console.log("==================================");
 
     <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
 
-  </div>/* ===================================================== */}
+  </div>}
 {</div>
 
   );
 
 }
+
 
 
 
