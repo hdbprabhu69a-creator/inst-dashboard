@@ -333,7 +333,7 @@ const [ohlc, setOhlc] =
           new Date(b.time).getTime()) .filter(
         (candle, index, arr) =>
           index === 0 ||
-          new Date(candle.time)getTime() !==
+          new Date().getTime() !==
           new Date(arr[index - 1].time).getTime());
 
     candle.setData(chartData);
@@ -860,6 +860,7 @@ console.log("==================================");
   );
 
 }
+
 
 
 
