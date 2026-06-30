@@ -33,17 +33,7 @@ const { data: liveData } = useKiteData(symbol);
 
       <div className="flex items-center justify-between mb-6">
 
-        <div>
-          <h1 className="text-3xl font-bold">
-            Technical Character Lab
-          </h1>
-
-          <p className="text-zinc-400">
-            Market Structure Intelligence Engine
-          </p>
-        </div>
-
-        <StockSearch />`r`n<div className="text-right text-sm text-zinc-400"><div>Selected Symbol</div><div className="font-bold text-white">{symbol}</div></div>
+        
 
       </div>
 
@@ -83,6 +73,7 @@ const { data: liveData } = useKiteData(symbol);
     </div>
   );
 }
+
 
 
 
