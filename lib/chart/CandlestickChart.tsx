@@ -329,12 +329,12 @@ const [ohlc, setOhlc] =
     const chartData = [...data]
       .sort(
         (a, b) =>
-          new Date(a.time)getTime() -
-          new Date(b.time)getTime()) .filter(
+          new Date(a.time).getTime() -
+          new Date(b.time).getTime()) .filter(
         (candle, index, arr) =>
           index === 0 ||
           new Date(candle.time)getTime() !==
-          new Date(arr[index - 1].time)getTime());
+          new Date(arr[index - 1].time).getTime());
 
     candle.setData(chartData);
 candleSeries.current =
@@ -860,6 +860,7 @@ console.log("==================================");
   );
 
 }
+
 
 
 
