@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import StockSearch from "@/components/StockSearch/StockSearch";`r`nimport StockSearchPopup from "@/components/StockSearch/StockSearchPopup";
+import StockSearch from "@/components/StockSearch/StockSearch";`r`nimport StockSearchPopup from "@/components/StockSearch/StockSearchPopup";`r`nimport { setCurrentSymbol } from "@/lib/live/symbolManager";
 
 import CandlestickChart from "@/lib/chart/CandlestickChart";import PatternPanel from "@/lib/chart/PatternPanel";
 
@@ -57,6 +57,7 @@ const { data: liveData } = useKiteData(activeSymbol);
     </div>
   );
 }
+
 
 
 

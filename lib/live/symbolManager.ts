@@ -29,3 +29,4 @@ export function publishCurrentTick(lastPrice:number, volume:number=0){
 }
 
 export { getCurrentTick };
+
