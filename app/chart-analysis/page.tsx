@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState } from "react";
+import { useState } from "react";`r`nimport StockSearch from "@/components/StockSearch/StockSearch";
 
 import CandlestickChart from "@/lib/chart/CandlestickChart";
 import TimeframeSelector from "@/lib/chart/TimeframeSelector";
@@ -41,13 +41,7 @@ const { data: liveData } = useKiteData(symbol);
           </p>
         </div>
 
-        <input
-          value={symbol}
-          onChange={(e) =>
-            setSymbol(e.target.value.toUpperCase())
-          }
-          className="bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-2"
-        />
+        <StockSearch />`r`n<div className="text-right text-sm text-zinc-400"><div>Selected Symbol</div><div className="font-bold text-white">{symbol}</div></div>
 
       </div>
 
@@ -87,6 +81,7 @@ const { data: liveData } = useKiteData(symbol);
     </div>
   );
 }
+
 
 
 
