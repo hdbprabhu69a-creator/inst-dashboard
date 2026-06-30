@@ -84,20 +84,18 @@ const pattern =
   useMemo<PatternResult | null>(
     () =>
       analyzePattern(data),
-    [liveData]
+    [data]
   );
     const lastPrice =
   data.length > 0
-    ? liveData[data.length - 1].close
+    ? data[data.length - 1].close
     : 0;
 
 const previousClose =
 
   data.length > 1
 
-    ? liveData[
-        data.length - 2
-      ].close
+    ? data[data.length - 2].close
 
     : lastPrice;
 
@@ -121,9 +119,7 @@ const lastVolume =
 
   data.length > 0
 
-    ? liveData[
-        data.length - 1
-      ].volume ?? 0
+    ? data[data.length - 1].volume ?? 0
 
     : 0;    // =====================================================
 // BLOCK 7 -  OHLC
@@ -156,8 +152,7 @@ const [ohlc, setOhlc] =
 
     }
 
-    const last =
-      liveData[data.length - 1];
+    const last = data[data.length - 1];
 
     return {
 
@@ -558,4 +553,5 @@ return (
   </div>
 );
 }
+
 
