@@ -1,4 +1,5 @@
-﻿import { LiveTick } from "./liveTypes";
+﻿import { setLiveCandle } from "@/lib/liveChart/liveCandleStore";
+import { LiveTick } from "./liveTypes";
 
 const subscribers = new Set<(tick: LiveTick) => void>();
 const latest = new Map<string, LiveTick>();
@@ -15,4 +16,16 @@ export function subscribe(fn: (tick: LiveTick) => void): () => void {
 
 export function getCurrentTick(symbol: string): LiveTick | undefined {
   return latest.get(symbol);
+}
+
+export function forwardLiveCandle(candle:any){
+    setLiveCandle({
+        symbol:candle.symbol,
+        open:candle.open,
+        high:candle.high,
+        low:candle.low,
+        close:candle.close,
+        volume:candle.volume ?? 0,
+        time:candle.time ?? Date.now()
+    });
 }
