@@ -4,9 +4,7 @@ import { useState } from "react";
 
 import StockSearch from "@/components/StockSearch/StockSearch";
 
-import CandlestickChart from "@/lib/chart/CandlestickChart";
-import TimeframeSelector from "@/lib/chart/TimeframeSelector";
-import PatternPanel from "@/lib/chart/PatternPanel";
+import CandlestickChart from "@/lib/chart/CandlestickChart";import PatternPanel from "@/lib/chart/PatternPanel";
 
 import { useLiveChart } from "@/hooks/useLiveChart";
 import { useHistory } from "@/hooks/useHistory";
@@ -37,18 +35,9 @@ const { data: liveData } = useKiteData(symbol);
 
       </div>
 
-      <div className="mb-5">
+      <div className="w-full">
 
-        <TimeframeSelector
-          interval={interval}
-          setInterval={setInterval}
-        />
-
-      </div>
-
-      <div className="grid grid-cols-12 gap-5">
-
-        <div className="col-span-9">
+        <div className="w-full">
 
           <CandlestickChart
             data={candles.length ? candles : data}
@@ -60,19 +49,12 @@ const { data: liveData } = useKiteData(symbol);
 
         </div>
 
-        <div className="col-span-3">
-
-          <PatternPanel
-            result={pattern as PatternResult}
-          />
-
         </div>
-
-      </div>
 
     </div>
   );
 }
+
 
 
 
