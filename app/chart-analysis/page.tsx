@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import StockSearch from "@/components/StockSearch/StockSearch";
+import StockSearch from "@/components/StockSearch/StockSearch";`r`nimport StockSearchPopup from "@/components/StockSearch/StockSearchPopup";
 
 import CandlestickChart from "@/lib/chart/CandlestickChart";import PatternPanel from "@/lib/chart/PatternPanel";
 
@@ -17,7 +17,7 @@ type Interval = "D" | "W" | "M";
 
 export default function ChartAnalysisPage() {
   const [interval, setInterval] = useState<Interval>("D");
-  const [symbol, setSymbol] = useState<string>("");
+  const [symbol, setSymbol] = useState<string>("");`r`nconst [searchOpen,setSearchOpen]=useState(false);
 
   // âœ… LIVE ENGINE (REPLACES FETCH COMPLETELY)
   const activeSymbol = symbol.trim();
@@ -57,6 +57,7 @@ const { data: liveData } = useKiteData(activeSymbol);
     </div>
   );
 }
+
 
 
 
