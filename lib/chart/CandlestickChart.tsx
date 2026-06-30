@@ -16,10 +16,10 @@ import {
   useRef,
   useState,
 } from "react";
-import { liveUIBridge } from "@/lib/data/liveUIBridge";
-import { subscribe, publishTick } from "@/lib/live/liveEngine";
-import { subscribeOHLC, updateOHLC } from "@/lib/live/ohlcEngine";
-import { getCurrentSymbol } from "@/lib/live/symbolManager";
+import { UIBridge } from "@/lib/data/UIBridge";
+import { subscribe, publishTick } from "@/lib//Engine";
+import { subscribeOHLC, updateOHLC } from "@/lib//ohlcEngine";
+import { getCurrentSymbol } from "@/lib//symbolManager";
 import PatternOverlay from "@/lib/chart/PatternOverlay";
 import PatternInfoCard from "@/lib/chart/PatternInfoCard";
 import PatternToolbar from "@/lib/chart/PatternToolbar";
@@ -52,7 +52,7 @@ type Props = {
   symbol: string;
   interval: string;
   pattern?: any;
-  liveData?: any;
+  Data?: any;
 };
 
 export default function CandlestickChart({
@@ -60,7 +60,7 @@ export default function CandlestickChart({
   symbol,
   interval,
   pattern: externalPattern,
-  liveData,
+  Data,
 }: Props) {
 
   const chartRef =
@@ -68,7 +68,7 @@ export default function CandlestickChart({
     const chartInstance =
   useRef<any>(null);
 
-const liveTickUnsub = useRef<null | (() => void)>(null);
+const TickUnsub = useRef<null | (() => void)>(null);
 
 const ohlcUnsub = useRef<null | (() => void)>(null);
 
@@ -126,16 +126,16 @@ const lastVolume =
       ].volume ?? 0
 
     : 0;    // =====================================================
-// BLOCK 7 - LIVE OHLC
+// BLOCK 7 -  OHLC
 // =====================================================
 
 
 useEffect(() => {
   console.log("==================================");
-  console.log("LIVE DATA", liveData);
-console.log("QUOTE", liveData?.quote?.[`NSE:${symbol}`]);
+  console.log(" DATA", Data);
+console.log("QUOTE", Data?.quote?.[`NSE:${symbol}`]);
       console.log("==================================");
-}, [liveData]);
+}, [Data]);
 const [ohlc, setOhlc] =
   useState(() => {
 
@@ -346,7 +346,7 @@ const [ohlc, setOhlc] =
     candle.setData(chartData);
 candleSeries.current =
   candle;
-  liveTickUnsub.current = subscribe((tick:any)=>{
+  TickUnsub.current = subscribe((tick:any)=>{
   const last = chartData[chartData.length - 1];
   if (!last) return;
   updateOHLC({
@@ -376,7 +376,7 @@ ohlcUnsub.current = subscribeOHLC((v)=>{
   });
 });
 
-const unsubscribe = liveUIBridge.subscribe((tick: any) => {
+const unsubscribe = UIBridge.subscribe((tick: any) => {
   if (!candleSeries.current) return;
   if (!data || data.length === 0) return;
 
@@ -549,7 +549,7 @@ const unsubscribe = liveUIBridge.subscribe((tick: any) => {
         resize
       );
 
-      liveTickUnsub.current?.();
+      TickUnsub.current?.();
       ohlcUnsub.current?.();
       unsubscribe?.();
 
@@ -561,18 +561,18 @@ const unsubscribe = liveUIBridge.subscribe((tick: any) => {
 
 
 useEffect(() => {
-  if (!liveData) return;
+  if (!Data) return;
 
-console.log("========== LIVE025 DEBUG ==========");
-console.log("liveData =", liveData);
-console.log("quote =", liveData?.quote);
-console.log("NSE Symbol =", liveData?.quote?.["NSE:"+symbol]);
-console.log("Plain Symbol =", liveData?.quote?.[symbol]);
+console.log("========== 025 DEBUG ==========");
+console.log("Data =", Data);
+console.log("quote =", Data?.quote);
+console.log("NSE Symbol =", Data?.quote?.["NSE:"+symbol]);
+console.log("Plain Symbol =", Data?.quote?.[symbol]);
 console.log("==================================");
 
   const quote =
-    liveData?.quote?.["NSE:"+symbol] ??
-    liveData?.quote?.[symbol] ??
+    Data?.quote?.["NSE:"+symbol] ??
+    Data?.quote?.[symbol] ??
     {};
 
   publishTick({
@@ -587,13 +587,13 @@ console.log("==================================");
 ),
     volume: Number(
   quote.volume ??
-  liveData?.volume ??
+  Data?.volume ??
   0
 ),
     time: Date.now(),
   });
 
-}, [liveData, symbol]);
+}, [Data, symbol]);
   useEffect(() => {
     const resize = () => {
       if (!chartInstance.current || !chartRef.current) { return }
@@ -627,7 +627,7 @@ console.log("==================================");
 
   <div
     className="
-      w-14
+      w-10
       bg-[#131722]
       border
       border-zinc-800
@@ -751,7 +751,7 @@ console.log("==================================");
     flex
     items-center
     justify-between
-    h-14
+    h-9
     px-5
     bg-[#131722]
     border
@@ -764,7 +764,7 @@ console.log("==================================");
 
     <div>
 
-      <div className="text-white text-xl font-bold">
+      <div className="text-white text-base font-bold">
 
         {symbol}
 
@@ -786,7 +786,7 @@ console.log("==================================");
       }
     >
 
-      <div className="text-xl font-semibold">
+      <div className="text-base font-semibold">
 
         ₹ {lastPrice.toFixed(2)}
 
@@ -902,130 +902,12 @@ console.log("==================================");
   </div>
 
   {/* ===================================================== */}
-{/* BLOCK 14 - PROFESSIONAL PRICE PANEL */}
-{/* ===================================================== */}
-
-<div
-  className="
-    absolute
-    top-4
-    right-4
-    w-60
-    rounded-xl
-    border
-    border-zinc-700
-    bg-[#131722ee]
-    backdrop-blur-md
-    shadow-2xl
-    overflow-hidden
-  "
->
-
-  <div
-    className="
-      px-4
-      py-2
-      border-b
-      border-zinc-700
-      text-xs
-      text-zinc-500
-      font-semibold
-      tracking-wide
-    "
-  >
-
-    LIVE MARKET
-
-  </div>
-
-  <div className="p-4">
-
-    <div
-      className={
-        change >= 0
-          ? "text-3xl font-bold text-green-400"
-          : "text-3xl font-bold text-red-400"
-      }
-    >
-
-      ₹ {lastPrice.toFixed(2)}
-
-    </div>
-
-    <div
-      className={
-        change >= 0
-          ? "text-green-400 text-sm mt-1"
-          : "text-red-400 text-sm mt-1"
-      }
-    >
-
-      {change >= 0 ? "+" : ""}
-
-      {change.toFixed(2)}
-
-      &nbsp;
-
-      ({changePercent.toFixed(2)}%)
-
-    </div>
-
-    <div className="mt-5 space-y-2 text-sm">
-
-      <div className="flex justify-between">
-
-        <span className="text-zinc-500">Open</span>
-
-        <span>{ohlc.open.toFixed(2)}</span>
-
-      </div>
-
-      <div className="flex justify-between">
-
-        <span className="text-zinc-500">High</span>
-
-        <span className="text-green-400">
-
-          {ohlc.high.toFixed(2)}
-
-        </span>
-
-      </div>
-
-      <div className="flex justify-between">
-
-        <span className="text-zinc-500">Low</span>
-
-        <span className="text-red-400">
-
-          {ohlc.low.toFixed(2)}
-
-        </span>
-
-      </div>
-
-      <div className="flex justify-between">
-
-        <span className="text-zinc-500">Close</span>
-
-        <span>{ohlc.close.toFixed(2)}</span>
-
-      </div>
-
-      <div className="flex justify-between">
-
-        <span className="text-zinc-500">Volume</span>
-
-        <span>{lastVolume.toLocaleString()}</span>
-
-      </div>
-
-    </div>
+{
 
   </div>
 
 </div>
-  {/* Live */}
+  {/*  */}
 
   <div
     className="
@@ -1047,7 +929,7 @@ console.log("==================================");
 
     <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
 
-    LIVE
+    
 
   </div>
 
@@ -1168,6 +1050,7 @@ console.log("==================================");
   );
 
 }
+
 
 
 
