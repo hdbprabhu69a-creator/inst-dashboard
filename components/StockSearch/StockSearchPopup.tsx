@@ -1,11 +1,11 @@
 ﻿"use client";
 
-import { useMemo, useState } from "react";`r`nimport { useUniverse } from "@/hooks/useUniverse";`r`n`r`ntype Props = {
+import { useMemo, useState } from "react";`r`nimport { useUniverse } from "@/hooks/useUniverse";`r`n`r`ntype Props = {`r`n  onSelect:(symbol:string)=>void;
   open: boolean;
   onClose: () => void;
 };
 
-export default function StockSearchPopup({
+export default function StockSearchPopup({`r`n  onSelect,
   open,
   onClose,
 }: Props) {
@@ -29,7 +29,7 @@ export default function StockSearchPopup({
 
         <div className="p-6 text-center text-zinc-500">
 
-          {filtered.map(s=>(<div key={s.symbol} className="px-3 py-2 border-b border-zinc-800 cursor-pointer hover:bg-zinc-800"><div className="font-semibold">{s.symbol}</div><div className="text-xs text-zinc-400">{s.name}</div></div>))}
+          {filtered.map(s=>(<div key={s.symbol} className="px-3 py-2 border-b border-zinc-800 cursor-pointer hover:bg-zinc-800" onClick={()=>{onSelect(s.symbol);onClose();}}><div className="font-semibold">{s.symbol}</div><div className="text-xs text-zinc-400">{s.name}</div></div>))}
 
         </div>
 
@@ -38,4 +38,5 @@ export default function StockSearchPopup({
   );
 
 }
+
 
