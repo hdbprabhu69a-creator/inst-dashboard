@@ -20,273 +20,119 @@ type Candle = {
   volume: number;
 };
 
+async function delay(ms: number) {
+  return new Promise(res => setTimeout(res, ms));
+}
+
 async function getKite() {
 
   const tokenDoc =
-    await getDoc(
-      doc(
-        db,
-        "settings",
-        "kite"
-      )
-    );
-
-  if (!tokenDoc.exists()) {
-    throw new Error(
-      "Kite settings not found."
-    );
-  }
+    await getDoc(doc(db, "settings", "kite"));
 
   const accessToken =
     tokenDoc.data()?.accessToken;
 
-  if (!accessToken) {
-    throw new Error(
-      "Access token missing."
-    );
-  }
-
   const kite =
     new KiteConnect({
-      api_key:
-        process.env.KITE_API_KEY!,
+      api_key: process.env.KITE_API_KEY!,
     });
 
-  kite.setAccessToken(
-    accessToken
-  );
+  kite.setAccessToken(accessToken);
 
   return kite;
-
 }
 
-function normalize(
-  candles: any[]
-): Candle[] {
-
-  return candles.map(
-    (c) => ({
-
-      date:
-        String(c.date)
-          .substring(0, 10),
-
-      open:
-        Number(c.open),
-
-      high:
-        Number(c.high),
-
-      low:
-        Number(c.low),
-
-      close:
-        Number(c.close),
-
-      volume:
-        Number(
-          c.volume ?? 0
-        ),
-
-    })
-  );
-
+function normalize(candles: any[]): Candle[] {
+  return candles.map(c => ({
+    date: String(c.date).substring(0, 10),
+    open: Number(c.open),
+    high: Number(c.high),
+    low: Number(c.low),
+    close: Number(c.close),
+    volume: Number(c.volume ?? 0),
+  }));
 }
 
 export async function GET() {
 
-  try {
+  const kite = await getKite();
 
-    const kite =
-      await getKite();
+  const snapshot = await getDocs(collection(db, "universe"));
 
-    const snapshot =
-      await getDocs(
-        collection(
-          db,
-          "universe"
-        )
-      );
+  let totalStocks = 0;
+  let totalCandles = 0;
 
-    let totalStocks = 0;
-    let totalCandles = 0;
+  for (const stockDoc of snapshot.docs) {
 
-    for (
-      const stockDoc
-      of snapshot.docs
-    ) {
+    const stock = stockDoc.data();
 
-      const stock =
-        stockDoc.data();
+    if (!stock.instrumentToken) continue;
 
-      if (
-        !stock.instrumentToken
-      ) {
+    console.log("FETCHING:", stock.symbol);
 
-        console.log(
-          "SKIPPED:",
-          stock.symbol
-        );
+    const from = new Date();
+    from.setFullYear(from.getFullYear() - 2);
 
-        continue;
+    const to = new Date();
 
-      }
-
-      console.log(
-        "================================="
-      );
-
-      console.log(
-        "FETCHING:",
-        stock.symbol
-      );
-
-      const from =
-        new Date();
-
-      from.setFullYear(
-        from.getFullYear() - 2
-      );
-
-      const to =
-        new Date();
-
-      const raw =
-        await kite.getHistoricalData(
-          Number(
-            stock.instrumentToken
-          ),
-          "day",
-          from,
-          to,
-          false,
-          false
-        );
-
-      const candles =
-        normalize(raw);
-
-      totalStocks++;
-      totalCandles +=
-        candles.length;
-
-      // PART 4 STARTS HERE
-
-
-      const batch =
-        writeBatch(db);
-
-      for (
-        const candle
-        of candles
-      ) {
-
-        const ref =
-          doc(
-            db,
-            "universe",
-            stockDoc.id,
-            "history",
-            candle.date
-          );
-
-        batch.set(
-
-          ref,
-
-          {
-
-            date:
-              candle.date,
-
-            open:
-              candle.open,
-
-            high:
-              candle.high,
-
-            low:
-              candle.low,
-
-            close:
-              candle.close,
-
-            volume:
-              candle.volume,
-
-            instrumentToken:
-              stock.instrumentToken,
-
-            symbol:
-              stock.symbol,
-
-            updatedAt:
-              new Date()
-                .toISOString(),
-
-          },
-
-          {
-
-            merge: true,
-
-          }
-
-        );
-
-      }
-
-      await batch.commit();
-
-      console.log(
-
-        "POPULATED:",
-
-        stock.symbol,
-
-        candles.length,
-
-        "candles"
-
-      );
-
-    }
-
-    return NextResponse.json({
-
-      success: true,
-
-      totalStocks,
-
-      totalCandles,
-
-    });
-
-  }
-
-  catch (error: any) {
-
-    console.error(error);
-
-    return NextResponse.json(
-
-      {
-
-        success: false,
-
-        error:
-          error.message,
-
-      },
-
-      {
-
-        status: 500,
-
-      }
-
+    const raw = await kite.getHistoricalData(
+      Number(stock.instrumentToken),
+      "day",
+      from,
+      to,
+      false,
+      false
     );
 
+    const candles = normalize(raw);
+
+    const batch = writeBatch(db);
+    let ops = 0;
+
+    for (const c of candles) {
+
+      const ref = doc(
+        db,
+        "universe",
+        stockDoc.id,
+        "history",
+        c.date
+      );
+
+      batch.set(ref, {
+        ...c,
+        symbol: stock.symbol,
+        instrumentToken: stock.instrumentToken,
+        updatedAt: new Date().toISOString(),
+      }, { merge: true });
+
+      ops++;
+
+      // ?? SAFE LIMIT (Firestore batch max ~500)
+      if (ops === 400) {
+        await batch.commit();
+        ops = 0;
+      }
+    }
+
+    if (ops > 0) {
+      await batch.commit();
+    }
+
+    totalStocks++;
+    totalCandles += candles.length;
+
+    console.log("DONE:", stock.symbol, candles.length);
+
+    // ?? THROTTLE (CRITICAL FIX)
+    await delay(250);
+
   }
+
+  return NextResponse.json({
+    success: true,
+    totalStocks,
+    totalCandles
+  });
 
 }
