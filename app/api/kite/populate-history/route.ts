@@ -172,3 +172,121 @@ export async function GET() {
 
       // PART 4 STARTS HERE
 
+
+      const batch =
+        writeBatch(db);
+
+      for (
+        const candle
+        of candles
+      ) {
+
+        const ref =
+          doc(
+            db,
+            "universe",
+            stockDoc.id,
+            "history",
+            candle.date
+          );
+
+        batch.set(
+
+          ref,
+
+          {
+
+            date:
+              candle.date,
+
+            open:
+              candle.open,
+
+            high:
+              candle.high,
+
+            low:
+              candle.low,
+
+            close:
+              candle.close,
+
+            volume:
+              candle.volume,
+
+            instrumentToken:
+              stock.instrumentToken,
+
+            symbol:
+              stock.symbol,
+
+            updatedAt:
+              new Date()
+                .toISOString(),
+
+          },
+
+          {
+
+            merge: true,
+
+          }
+
+        );
+
+      }
+
+      await batch.commit();
+
+      console.log(
+
+        "POPULATED:",
+
+        stock.symbol,
+
+        candles.length,
+
+        "candles"
+
+      );
+
+    }
+
+    return NextResponse.json({
+
+      success: true,
+
+      totalStocks,
+
+      totalCandles,
+
+    });
+
+  }
+
+  catch (error: any) {
+
+    console.error(error);
+
+    return NextResponse.json(
+
+      {
+
+        success: false,
+
+        error:
+          error.message,
+
+      },
+
+      {
+
+        status: 500,
+
+      }
+
+    );
+
+  }
+
+}
