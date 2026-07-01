@@ -1,32 +1,85 @@
-﻿import { publishTick, getCurrentTick } from "./liveEngine";
+﻿import { subscribe } from "./liveEngine";
 import { resolveToken } from "../tokenResolver";
 
-let currentSymbol = "SBIN";
+type Tick = {
+  symbol: string;
+  lastPrice: number;
+  time?: number;
+};
 
-export function setCurrentSymbol(symbol:string){
-  currentSymbol = symbol.toUpperCase();
+class SymbolManager {
+  // 🔥 allow flexible token types (Kite / API / number mapping)
+  private symbolMap: Map<string, number | string> = new Map();
+
+  // latest tick per symbol
+  private tickCache: Map<string, Tick> = new Map();
+
+  constructor() {
+    this.init();
+  }
+
+  // -----------------------------------
+  // SUBSCRIBE TO GLOBAL TICK STREAM
+  // -----------------------------------
+  init() {
+    subscribe((tick: Tick) => {
+      if (!tick?.symbol) return;
+
+      const price = Number(tick.lastPrice);
+      if (!Number.isFinite(price) || price <= 0) return;
+
+      this.tickCache.set(tick.symbol, tick);
+    });
+  }
+
+  // -----------------------------------
+  // TOKEN RESOLVER (SAFE NORMALIZED)
+  // -----------------------------------
+  async resolve(symbol: string) {
+    if (this.symbolMap.has(symbol)) {
+      return this.symbolMap.get(symbol);
+    }
+
+    const tokenRaw = await resolveToken(symbol);
+
+    if (!tokenRaw) return null;
+
+    // 🔥 normalize possible API shapes
+    const token =
+      typeof tokenRaw === "object"
+        ? (tokenRaw as any).instrument_token ??
+          (tokenRaw as any).token ??
+          null
+        : tokenRaw;
+
+    if (!token) return null;
+
+    this.symbolMap.set(symbol, token);
+
+    return token;
+  }
+
+  // -----------------------------------
+  // GET LATEST TICK (FOR UI / CHART)
+  // -----------------------------------
+  getCurrentTick(symbol: string) {
+    return this.tickCache.get(symbol) || null;
+  }
+
+  // -----------------------------------
+  // GET ALL LIVE TICKS
+  // -----------------------------------
+  getAllTicks() {
+    return Array.from(this.tickCache.values());
+  }
+
+  // -----------------------------------
+  // CLEAR CACHE (RESET STATE)
+  // -----------------------------------
+  clear() {
+    this.symbolMap.clear();
+    this.tickCache.clear();
+  }
 }
 
-export function getCurrentSymbol(){
-  return currentSymbol;
-}
-
-export function getCurrentInstrument(){
-  return resolveToken(currentSymbol);
-}
-
-export function publishCurrentTick(lastPrice:number, volume:number=0){
-  const info = resolveToken(currentSymbol);
-  if(!info) return;
-
-  publishTick({
-    symbol: info.symbol,
-    token: info.token,
-    lastPrice,
-    volume,
-    time: Date.now()
-  });
-}
-
-export { getCurrentTick };
-
+export const symbolManager = new SymbolManager();

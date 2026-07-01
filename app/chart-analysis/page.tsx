@@ -2,71 +2,77 @@
 
 import { useState } from "react";
 
-import StockSearch from "@/components/StockSearch/StockSearch";`r`nimport StockSearchPopup from "@/components/StockSearch/StockSearchPopup";`r`nimport { setCurrentSymbol } from "@/lib/live/symbolManager";
+import StockSearch from "@/components/StockSearch/StockSearch";
+import StockSearchPopup from "@/components/StockSearch/StockSearchPopup";
 
-import CandlestickChart from "@/lib/chart/CandlestickChart";import PatternPanel from "@/lib/chart/PatternPanel";
+import { setCurrentSymbol } from "@/lib/live/symbolManager";
+
+import CandlestickChart from "@/lib/chart/CandlestickChart";
 
 import { useLiveChart } from "@/hooks/useLiveChart";
 import { useHistory } from "@/hooks/useHistory";
 import { usePatternHistory } from "@/hooks/usePatternHistory";
 import { useKiteData } from "@/hooks/useKiteData";
 
-import { PatternResult } from "@/lib/pattern/types";
-
 type Interval = "D" | "W" | "M";
 
 export default function ChartAnalysisPage() {
-  const [interval, setInterval] = useState<Interval>("D");
-  const [symbol, setSymbol] = useState<string>("");`r`nconst [searchOpen,setSearchOpen]=useState(false);
+  const [interval] = useState<Interval>("D");
 
-  // âœ… LIVE ENGINE (REPLACES FETCH COMPLETELY)
+  const [symbol, setSymbol] = useState<string>("");
+
+  const [searchOpen, setSearchOpen] = useState(false);
+
   const activeSymbol = symbol.trim();
-const { data, pattern } = useLiveChart(activeSymbol, interval);
-const { candles } = useHistory(activeSymbol);
-const historyPattern = usePatternHistory(candles);
 
-const { data: liveData } = useKiteData(activeSymbol);
+  const { data, pattern } =
+    useLiveChart(activeSymbol, interval);
+
+  const { candles } =
+    useHistory(activeSymbol);
+
+  const historyPattern =
+    usePatternHistory(candles);
+
+  const { data: liveData } =
+    useKiteData(activeSymbol);
 
   return (
     <div className="min-h-screen bg-black text-white p-6">
 
-      <div className="flex items-center justify-between mb-6">
-  <StockSearch value={symbol} onChange={setSymbol} />
+      <div className="relative mb-6">
 
-        
+        <StockSearch
+          value={symbol}
+          onClick={() => setSearchOpen(true)}
+        />
+
+        <StockSearchPopup
+          open={searchOpen}
+          onClose={() => setSearchOpen(false)}
+          onSelect={(s) => {
+            setCurrentSymbol(s);
+            setSymbol(s);
+          }}
+        />
 
       </div>
 
       <div className="w-full">
 
-        <div className="w-full">
+        {activeSymbol.length > 0 && (
 
-          {activeSymbol.length > 0 && (
-<CandlestickChart
-            data={candles.length ? candles : data}
-            symbol={activeSymbol}
-            interval={interval}
-            pattern={historyPattern ?? pattern}
-            liveData={liveData}
-          />
-)}
-</div>
+          <CandlestickChart
+  data={data}
+  symbol={activeSymbol}
+  interval={interval}
+  pattern={pattern}
+  liveData={liveData}
+/>
+        )}
 
-        </div>
+      </div>
 
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

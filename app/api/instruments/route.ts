@@ -4,31 +4,82 @@ import path from "path";
 
 export async function GET(req: NextRequest) {
   try {
-    const symbol = req.nextUrl.searchParams.get("symbol")?.toUpperCase();
+    const symbol = req.nextUrl.searchParams
+      .get("symbol")
+      ?.trim()
+      .toUpperCase();
 
     if (!symbol) {
       return NextResponse.json(
-        { success: false, error: "Missing symbol" },
-        { status: 400 }
+        {
+          success: false,
+          error: "Missing symbol",
+        },
+        {
+          status: 400,
+        }
       );
     }
 
+    const csvPath = path.join(
+      process.cwd(),
+      "data",
+      "zerodha-instruments.csv"
+    );
+
     const csv = fs.readFileSync(
-      path.join(process.cwd(), "data", "instruments.csv"),
+      csvPath,
       "utf8"
     );
 
-    const lines = csv.split(/\r?\n/);
+    const lines = csv
+      .split(/\r?\n/)
+      .filter(Boolean);
+
+    if (lines.length < 2) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Empty instrument file",
+        },
+        {
+          status: 500,
+        }
+      );
+    }
 
     const headers = lines[0].split(",");
 
-    const tokenIndex = headers.indexOf("instrument_token");
-    const symbolIndex = headers.indexOf("tradingsymbol");
+    const tokenIndex =
+      headers.indexOf("instrument_token");
+
+    const symbolIndex =
+      headers.indexOf("tradingsymbol");
+
+    if (
+      tokenIndex === -1 ||
+      symbolIndex === -1
+    ) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Invalid CSV format",
+        },
+        {
+          status: 500,
+        }
+      );
+    }
 
     for (let i = 1; i < lines.length; i++) {
       const cols = lines[i].split(",");
 
-      if (cols[symbolIndex]?.toUpperCase() === symbol) {
+      const tradingSymbol =
+        (cols[symbolIndex] || "")
+          .trim()
+          .toUpperCase();
+
+      if (tradingSymbol === symbol) {
         return NextResponse.json({
           success: true,
           token: Number(cols[tokenIndex]),
@@ -37,15 +88,27 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json(
-      { success: false, error: "Symbol not found" },
-      { status: 404 }
+      {
+        success: false,
+        error: `Symbol '${symbol}' not found`,
+      },
+      {
+        status: 404,
+      }
     );
 
   } catch (err: any) {
 
+    console.error(err);
+
     return NextResponse.json(
-      { success: false, error: err.message },
-      { status: 500 }
+      {
+        success: false,
+        error: err.message,
+      },
+      {
+        status: 500,
+      }
     );
 
   }

@@ -1,31 +1,98 @@
-﻿import { setLiveCandle } from "@/lib/liveChart/liveCandleStore";
-import { LiveTick } from "./liveTypes";
+﻿type Tick = {
+  symbol?: string;
+  lastPrice: number;
+  time?: number;
+};
 
-const subscribers = new Set<(tick: LiveTick) => void>();
-const latest = new Map<string, LiveTick>();
+type Listener = (tick: Tick) => void;
 
-export function publishTick(tick: LiveTick): void {
-  latest.set(tick.symbol, tick);
-  subscribers.forEach(fn => fn(tick));
+class LiveEngine {
+  private listeners: Set<Listener> = new Set();
+  private ws: WebSocket | null = null;
+
+  // 🔥 per-symbol last tick cache (prevents duplicates)
+  private lastTickMap: Map<string, Tick> = new Map();
+
+  connect(url: string) {
+    if (this.ws) return;
+
+    this.ws = new WebSocket(url);
+
+    this.ws.onopen = () => {
+      console.log("LiveEngine connected");
+    };
+
+    this.ws.onmessage = (event) => {
+      try {
+        const raw = JSON.parse(event.data);
+
+        const tick: Tick = {
+          symbol: raw.symbol,
+          lastPrice: Number(raw.lastPrice),
+          time: raw.time ? Number(raw.time) : Date.now(),
+        };
+
+        // ❌ reject invalid ticks
+        if (!tick.symbol || !Number.isFinite(tick.lastPrice)) return;
+        if (tick.lastPrice <= 0) return;
+
+        // 🔥 prevent duplicate spam ticks
+        const last = this.lastTickMap.get(tick.symbol);
+        if (last && last.lastPrice === tick.lastPrice) return;
+
+        this.lastTickMap.set(tick.symbol, tick);
+
+        this.emit(tick);
+      } catch (e) {
+        // ignore broken payloads
+      }
+    };
+
+    this.ws.onerror = () => {
+      console.log("LiveEngine error");
+    };
+
+    this.ws.onclose = () => {
+      console.log("LiveEngine closed");
+      this.ws = null;
+
+      // auto reconnect (safe backoff)
+      setTimeout(() => this.reconnect(url), 2000);
+    };
+  }
+
+  reconnect(url: string) {
+    if (this.ws) return;
+    this.connect(url);
+  }
+
+  subscribe(listener: Listener) {
+    this.listeners.add(listener);
+
+    return () => {
+      this.listeners.delete(listener);
+    };
+  }
+
+  private emit(tick: Tick) {
+    for (const l of this.listeners) {
+      try {
+        l(tick);
+      } catch {}
+    }
+  }
+
+  disconnect() {
+    this.ws?.close();
+    this.ws = null;
+    this.listeners.clear();
+    this.lastTickMap.clear();
+  }
 }
 
-export function subscribe(fn: (tick: LiveTick) => void): () => void {
-  subscribers.add(fn);
-  return () => subscribers.delete(fn);
-}
+export const liveEngine = new LiveEngine();
 
-export function getCurrentTick(symbol: string): LiveTick | undefined {
-  return latest.get(symbol);
-}
-
-export function forwardLiveCandle(candle:any){
-    setLiveCandle({
-        symbol:candle.symbol,
-        open:candle.open,
-        high:candle.high,
-        low:candle.low,
-        close:candle.close,
-        volume:candle.volume ?? 0,
-        time:candle.time ?? Date.now()
-    });
+// convenience wrapper (your existing usage)
+export function subscribe(cb: (tick: any) => void) {
+  return liveEngine.subscribe(cb);
 }

@@ -1,13 +1,6 @@
 import { NextResponse } from "next/server";
 import { KiteConnect } from "kiteconnect";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
-
-/**
- * =========================
- * TYPES
- * =========================
- */
+import { adminDb } from "@/lib/firebase-admin";
 
 type Candle = {
   time: string;
@@ -18,14 +11,16 @@ type Candle = {
   volume: number;
 };
 
-/**
- * =========================
- * KITE CLIENT
- * =========================
- */
-
 async function getKite() {
-  const tokenDoc = await getDoc(doc(db, "settings", "kite"));
+  const tokenDoc = await adminDb
+    .collection("settings")
+    .doc("kite")
+    .get();
+
+  if (!tokenDoc.exists) {
+    throw new Error("settings/kite document not found");
+  }
+
   const accessToken = tokenDoc.data()?.accessToken;
 
   if (!accessToken) {
@@ -41,38 +36,26 @@ async function getKite() {
   return kite;
 }
 
-/**
- * =========================
- * FETCH DAILY DATA
- * =========================
- */
-
 async function fetchDaily(
   kite: any,
   instrumentToken: number,
   from: Date,
   to: Date
 ) {
-  const data = await kite.getHistoricalData(
-    instrumentToken,
-    "day",
-    from,
-    to,
-    false,
-    false
-  );
-
-  return data || [];
+    return (
+    await kite.getHistoricalData(
+      instrumentToken,
+      "day",
+      from,
+      to,
+      false,
+      false
+    )
+  ) ?? [];
 }
 
-/**
- * =========================
- * NORMALIZE
- * =========================
- */
-
 function normalize(data: any[]): Candle[] {
-  return data.map((c: any) => ({
+  return data.map((c) => ({
     time: String(c.date).substring(0, 10),
     open: Number(c.open),
     high: Number(c.high),
@@ -82,101 +65,104 @@ function normalize(data: any[]): Candle[] {
   }));
 }
 
-/**
- * =========================
- * WEEKLY AGGREGATION
- * =========================
- */
-
 function toWeekly(candles: Candle[]): Candle[] {
   const weeks: Record<string, Candle> = {};
 
   for (const c of candles) {
-    const date = new Date(c.time);
-    const weekKey = `${date.getFullYear()}-W${Math.ceil(date.getDate() / 7)}`;
+    const d = new Date(c.time);
 
-    if (!weeks[weekKey]) {
-      weeks[weekKey] = {
-        time: weekKey,
-        open: c.open,
-        high: c.high,
-        low: c.low,
-        close: c.close,
-        volume: c.volume,
+    const key =
+      `${d.getFullYear()}-W${Math.ceil(d.getDate() / 7)}`;
+
+    if (!weeks[key]) {
+      weeks[key] = {
+        ...c,
+        time: key,
       };
     } else {
-      const w = weeks[weekKey];
-      w.high = Math.max(w.high, c.high);
-      w.low = Math.min(w.low, c.low);
-      w.close = c.close;
-      w.volume += c.volume;
+      weeks[key].high = Math.max(
+        weeks[key].high,
+        c.high
+      );
+
+      weeks[key].low = Math.min(
+        weeks[key].low,
+        c.low
+      );
+
+      weeks[key].close = c.close;
+
+      weeks[key].volume += c.volume;
     }
   }
 
   return Object.values(weeks);
 }
 
-/**
- * =========================
- * MONTHLY AGGREGATION
- * =========================
- */
-
 function toMonthly(candles: Candle[]): Candle[] {
   const months: Record<string, Candle> = {};
 
   for (const c of candles) {
-    const date = new Date(c.time);
-    const monthKey = `${date.getFullYear()}-${date.getMonth() + 1}`;
+    const d = new Date(c.time);
 
-    if (!months[monthKey]) {
-      months[monthKey] = {
-        time: monthKey,
-        open: c.open,
-        high: c.high,
-        low: c.low,
-        close: c.close,
-        volume: c.volume,
+    const key =
+      `${d.getFullYear()}-${d.getMonth() + 1}`;
+
+    if (!months[key]) {
+      months[key] = {
+        ...c,
+        time: key,
       };
     } else {
-      const m = months[monthKey];
-      m.high = Math.max(m.high, c.high);
-      m.low = Math.min(m.low, c.low);
-      m.close = c.close;
-      m.volume += c.volume;
+      months[key].high = Math.max(
+        months[key].high,
+        c.high
+      );
+
+      months[key].low = Math.min(
+        months[key].low,
+        c.low
+      );
+
+      months[key].close = c.close;
+
+      months[key].volume += c.volume;
     }
   }
 
   return Object.values(months);
 }
 
-/**
- * =========================
- * ROUTE
- * =========================
- */
-
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
 
     const token = searchParams.get("token");
-    const period = searchParams.get("period") || "D";
+
+    const period =
+      searchParams.get("period") ?? "D";
 
     if (!token) {
       return NextResponse.json(
-        { success: false, error: "Missing token" },
-        { status: 400 }
+        {
+          success: false,
+          error: "Missing token",
+        },
+        {
+          status: 400,
+        }
       );
     }
 
     const kite = await getKite();
 
     const to = new Date();
+
     const from = new Date();
 
-    // default 2 years back for safety
-    from.setFullYear(from.getFullYear() - 2);
+    from.setFullYear(
+      from.getFullYear() - 2
+    );
 
     const raw = await fetchDaily(
       kite,
@@ -187,14 +173,19 @@ export async function GET(req: Request) {
 
     const candles = normalize(raw);
 
-    let result: Candle[] = candles;
+    let result = candles;
 
-    if (period === "W") {
-      result = toWeekly(candles);
-    }
+    switch (period) {
+      case "W":
+        result = toWeekly(candles);
+        break;
 
-    if (period === "M") {
-      result = toMonthly(candles);
+      case "M":
+        result = toMonthly(candles);
+        break;
+
+      default:
+        result = candles;
     }
 
     return NextResponse.json({
@@ -204,12 +195,22 @@ export async function GET(req: Request) {
     });
 
   } catch (error: any) {
+
+    console.error(
+      "HISTORY API ERROR:",
+      error
+    );
+
     return NextResponse.json(
       {
         success: false,
-        error: error.message,
+        error:
+          error?.message ??
+          "Unknown error",
       },
-      { status: 500 }
+      {
+        status: 500,
+      }
     );
   }
 }

@@ -1,51 +1,54 @@
 ﻿"use client";
 
-import { useMemo, useState } from "react";
-import { useUniverse } from "@/hooks/useUniverse";
-
 type Props = {
   value: string;
-  onChange: (symbol: string) => void;
+  onClick: () => void;
 };
 
-export default function StockSearch({ value, onChange }: Props) {
-  const { stocks, loading } = useUniverse();
-  const [query, setQuery] = useState(value);
-
-  const filtered = useMemo(() => {
-    const q = query.toLowerCase();
-    return stocks.filter(s =>
-      s.symbol.toLowerCase().includes(q) ||
-      (s.name ?? "").toLowerCase().includes(q)
-    ).slice(0,20);
-  }, [stocks, query]);
-
+export default function StockSearch({
+  value,
+  onClick,
+}: Props) {
   return (
-    <div className="w-full max-w-md">
-      <input
-        value={query}
-        onChange={(e)=>setQuery(e.target.value)}
-        placeholder="Search symbol or company..."
-        className="w-full rounded border px-3 py-2"
-      />
-      {!loading && (
-        <div className="mt-2 max-h-72 overflow-auto rounded border">
-          {filtered.map(s=>(
-            <button
-              type="button"
-              key={s.symbol}
-              onClick={()=>{
-                setQuery(s.symbol);
-                onChange(s.symbol);
-              }}
-              className="block w-full text-left px-3 py-2 border-b hover:bg-zinc-800"
-            >
-              <div className="font-semibold">{s.symbol}</div>
-              <div className="text-sm">{s.name}</div>
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
+    <button
+      type="button"
+      onClick={onClick}
+      className="
+        flex
+        items-center
+        gap-2
+        h-11
+        px-4
+        rounded-md
+        bg-[#131722]
+        border
+        border-[#2A2E39]
+        hover:border-[#4A90E2]
+        transition-colors
+        text-white
+        min-w-[170px]
+      "
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+      >
+        <circle cx="11" cy="11" r="7" />
+        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+      </svg>
+
+      <span className="font-semibold">
+        {value || "Select Stock"}
+      </span>
+
+      <span className="ml-auto text-xs text-zinc-400">
+        ▼
+      </span>
+    </button>
   );
 }

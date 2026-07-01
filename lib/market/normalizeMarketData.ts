@@ -17,12 +17,25 @@ export function normalizeMarketData(data: RawCandle[]) {
       const low = Number(c.low);
       const close = Number(c.close);
 
-      return {
-        time:
-          typeof c.time === "string"
-            ? new Date(c.time).getTime() / 1000
-            : c.time, // KEEP REAL TIME
+      // 🔥 FIX 1: SAFE TIME NORMALIZATION
+      let time: number;
 
+      if (typeof c.time === "string") {
+        time = Math.floor(new Date(c.time).getTime() / 1000);
+      } else {
+        time = c.time;
+      }
+
+      // 🔥 FIX 2: detect milliseconds → convert to seconds
+      if (time > 100000000000) {
+        time = Math.floor(time / 1000);
+      }
+
+      // 🔥 FIX 3: invalid time guard
+      if (!Number.isFinite(time) || time <= 0) return null;
+
+      return {
+        time,
         open,
         high,
         low,
@@ -30,12 +43,10 @@ export function normalizeMarketData(data: RawCandle[]) {
         volume: Number(c.volume ?? 0),
       };
     })
-    .filter(
-      (c) =>
-        !isNaN(c.open) &&
-        !isNaN(c.high) &&
-        !isNaN(c.low) &&
-        !isNaN(c.close)
-    )
+
+    // 🔥 FIX 4: remove nulls safely
+    .filter((c) => c !== null)
+
+    // 🔥 FIX 5: strict sorting (TV order correctness)
     .sort((a, b) => a.time - b.time);
 }

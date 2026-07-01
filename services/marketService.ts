@@ -1,60 +1,38 @@
-import {
-  KiteApiResponse,
-} from "@/types/market";
+import { KiteApiResponse } from "@/types/market";
+import { getSharedMarketData } from "@/lib/market/marketStore";
 
 export async function fetchMarketData(
   symbol: string
 ): Promise<KiteApiResponse> {
-
-  const cleanSymbol =
-    symbol?.trim();
+  const cleanSymbol = symbol?.trim();
 
   if (
     !cleanSymbol ||
     cleanSymbol === "undefined" ||
     cleanSymbol === "null"
   ) {
-
-    throw new Error(
-      "Invalid symbol"
-    );
-
+    throw new Error("Invalid symbol");
   }
 
-  const response =
-    await fetch(
-      `/api/kite?symbol=${encodeURIComponent(
-        cleanSymbol
-      )}`
+  return getSharedMarketData(async () => {
+    const response = await fetch(
+      `/api/kite?symbol=${encodeURIComponent(cleanSymbol)}`
     );
 
-  if (!response.ok) {
+    if (!response.ok) {
+      let errorMessage = `HTTP ${response.status}`;
 
-    let errorMessage =
-      `HTTP ${response.status}`;
+      try {
+        const errorData = await response.json();
+        errorMessage =
+          errorData?.error ||
+          errorData?.message ||
+          errorMessage;
+      } catch {}
 
-    try {
-
-      const errorData =
-        await response.json();
-
-      errorMessage =
-        errorData?.error ||
-        errorData?.message ||
-        errorMessage;
-
-    } catch {
-
-      // Ignore JSON parse errors
-
+      throw new Error(errorMessage);
     }
 
-    throw new Error(
-      errorMessage
-    );
-
-  }
-
-  return await response.json();
-
+    return await response.json();
+  });
 }
