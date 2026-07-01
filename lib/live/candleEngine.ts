@@ -28,53 +28,92 @@ class CandleEngineV2 {
     this.intervalSeconds = seconds;
   }
 
-  // ✅ FIXED SUBSCRIBE API (matches UI)
-  subscribe(symbol: string, interval: string, cb: Listener) {
-    // convert interval
-    this.intervalSeconds = this.parseInterval(interval);
+  // -----------------------------------
+  // SUBSCRIBE
+  // -----------------------------------
+  subscribe(
+    symbol: string,
+    interval: string,
+    cb: Listener
+  ) {
+    this.intervalSeconds =
+      this.parseInterval(interval);
 
     if (!this.listeners.has(symbol)) {
-      this.listeners.set(symbol, new Set());
+      this.listeners.set(
+        symbol,
+        new Set()
+      );
     }
 
-    this.listeners.get(symbol)!.add(cb);
+    this.listeners
+      .get(symbol)!
+      .add(cb);
 
-    // send initial state
-    const existing = this.activeCandles.get(symbol) || [];
-    cb(existing);
+    const existing =
+      this.activeCandles.get(symbol) ?? [];
+
+    cb([...existing]);
 
     return () => {
-      this.listeners.get(symbol)?.delete(cb);
+      this.listeners
+        .get(symbol)
+        ?.delete(cb);
     };
   }
 
-  // ✅ MAIN TICK ENTRY (called from liveEngine)
+  // -----------------------------------
+  // PROCESS LIVE TICK
+  // -----------------------------------
   processTick(tick: Tick) {
-    if (!tick?.symbol) return;
+    if (!tick.symbol) return;
 
-    const price = Number(tick.lastPrice);
-    if (!Number.isFinite(price) || price <= 0) return;
+    const price = Number(
+      tick.lastPrice
+    );
 
-    const time = tick.time
+    if (
+      !Number.isFinite(price) ||
+      price <= 0
+    ) {
+      return;
+    }
+
+    const ts = tick.time
       ? Math.floor(tick.time / 1000)
       : Math.floor(Date.now() / 1000);
 
     const bucket =
-      Math.floor(time / this.intervalSeconds) * this.intervalSeconds;
+      Math.floor(
+        ts / this.intervalSeconds
+      ) * this.intervalSeconds;
 
-    let candles = this.activeCandles.get(tick.symbol);
+    let candles =
+      this.activeCandles.get(
+        tick.symbol
+      );
 
     if (!candles) {
       candles = [];
-      this.activeCandles.set(tick.symbol, candles);
+      this.activeCandles.set(
+        tick.symbol,
+        candles
+      );
     }
 
-    let lastCandle = candles[candles.length - 1];
-    const lastBucket = this.lastBucket.get(tick.symbol);
+    let candle =
+      candles[candles.length - 1];
 
-    // 🔥 NEW CANDLE
-    if (!lastCandle || lastBucket !== bucket) {
-      const newCandle: Candle = {
+    const lastBucket =
+      this.lastBucket.get(
+        tick.symbol
+      );
+
+    if (
+      !candle ||
+      lastBucket !== bucket
+    ) {
+      candle = {
         time: bucket,
         open: price,
         high: price,
@@ -83,54 +122,103 @@ class CandleEngineV2 {
         volume: 0,
       };
 
-      candles.push(newCandle);
-      this.lastBucket.set(tick.symbol, bucket);
-      lastCandle = newCandle;
+      candles.push(candle);
+
+      this.lastBucket.set(
+        tick.symbol,
+        bucket
+      );
     }
 
-    // 🔥 UPDATE CANDLE
-    lastCandle.high = Math.max(lastCandle.high, price);
-    lastCandle.low = Math.min(lastCandle.low, price);
-    lastCandle.close = price;
-    lastCandle.volume += 1;
+    candle.high = Math.max(
+      candle.high,
+      price
+    );
 
-    this.emit(tick.symbol, candles);
+    candle.low = Math.min(
+      candle.low,
+      price
+    );
+
+    candle.close = price;
+
+    candle.volume++;
+
+    this.emit(
+      tick.symbol,
+      candles
+    );
   }
 
-  private emit(symbol: string, candles: Candle[]) {
-    const subs = this.listeners.get(symbol);
-    if (!subs) return;
+  // -----------------------------------
+  // EMIT
+  // -----------------------------------
+  private emit(
+    symbol: string,
+    candles: Candle[]
+  ) {
+    const listeners =
+      this.listeners.get(symbol);
 
-    const snapshot = [...candles];
+    if (!listeners) return;
 
-    for (const cb of subs) {
+    const snapshot =
+      candles.map((c) => ({ ...c }));
+
+    for (const cb of listeners) {
       try {
         cb(snapshot);
-      } catch {}
+      } catch (err) {
+        console.error(err);
+      }
     }
   }
 
-  private parseInterval(interval: string): number {
+  // -----------------------------------
+  // INTERVAL PARSER
+  // -----------------------------------
+  private parseInterval(
+    interval: string
+  ) {
     switch (interval) {
       case "D":
         return 86400;
+
       case "W":
         return 604800;
+
       case "M":
         return 2592000;
+
       default:
         return 60;
     }
   }
 
+  // -----------------------------------
+  // GETTERS
+  // -----------------------------------
   getCandles(symbol: string) {
-    return this.activeCandles.get(symbol) || [];
+    return (
+      this.activeCandles.get(
+        symbol
+      ) ?? []
+    );
   }
 
+  // -----------------------------------
+  // RESET
+  // -----------------------------------
   reset(symbol?: string) {
     if (symbol) {
-      this.activeCandles.delete(symbol);
-      this.lastBucket.delete(symbol);
+      this.activeCandles.delete(
+        symbol
+      );
+
+      this.lastBucket.delete(
+        symbol
+      );
+
       return;
     }
 
@@ -139,4 +227,20 @@ class CandleEngineV2 {
   }
 }
 
-export const candleEngine = new CandleEngineV2();
+export const candleEngine =
+  new CandleEngineV2();
+
+// ----------------------------------------------------
+// BACKWARD COMPATIBILITY EXPORT
+// ----------------------------------------------------
+export function subscribeCandles(
+  symbol: string,
+  interval: string,
+  cb: (candles: Candle[]) => void
+) {
+  return candleEngine.subscribe(
+    symbol,
+    interval,
+    cb
+  );
+}

@@ -2,17 +2,20 @@
 import { resolveToken } from "../tokenResolver";
 
 type Tick = {
-  symbol: string;
+  symbol?: string;
   lastPrice: number;
   time?: number;
 };
 
 class SymbolManager {
-  // 🔥 allow flexible token types (Kite / API / number mapping)
+  // allow flexible token types (Kite / API / number mapping)
   private symbolMap: Map<string, number | string> = new Map();
 
   // latest tick per symbol
   private tickCache: Map<string, Tick> = new Map();
+
+  // current selected symbol
+  private currentSymbol = "";
 
   constructor() {
     this.init();
@@ -21,11 +24,12 @@ class SymbolManager {
   // -----------------------------------
   // SUBSCRIBE TO GLOBAL TICK STREAM
   // -----------------------------------
-  init() {
-    subscribe((tick: Tick) => {
-      if (!tick?.symbol) return;
+  private init() {
+    subscribe((tick) => {
+      if (!tick.symbol) return;
 
       const price = Number(tick.lastPrice);
+
       if (!Number.isFinite(price) || price <= 0) return;
 
       this.tickCache.set(tick.symbol, tick);
@@ -33,18 +37,28 @@ class SymbolManager {
   }
 
   // -----------------------------------
-  // TOKEN RESOLVER (SAFE NORMALIZED)
+  // CURRENT SYMBOL
+  // -----------------------------------
+  setCurrentSymbol(symbol: string) {
+    this.currentSymbol = symbol.trim().toUpperCase();
+  }
+
+  getCurrentSymbol() {
+    return this.currentSymbol;
+  }
+
+  // -----------------------------------
+  // TOKEN RESOLUTION
   // -----------------------------------
   async resolve(symbol: string) {
     if (this.symbolMap.has(symbol)) {
-      return this.symbolMap.get(symbol);
+      return this.symbolMap.get(symbol)!;
     }
 
     const tokenRaw = await resolveToken(symbol);
 
     if (!tokenRaw) return null;
 
-    // 🔥 normalize possible API shapes
     const token =
       typeof tokenRaw === "object"
         ? (tokenRaw as any).instrument_token ??
@@ -60,26 +74,43 @@ class SymbolManager {
   }
 
   // -----------------------------------
-  // GET LATEST TICK (FOR UI / CHART)
+  // LIVE TICKS
   // -----------------------------------
   getCurrentTick(symbol: string) {
-    return this.tickCache.get(symbol) || null;
+    return this.tickCache.get(symbol) ?? null;
   }
 
-  // -----------------------------------
-  // GET ALL LIVE TICKS
-  // -----------------------------------
   getAllTicks() {
-    return Array.from(this.tickCache.values());
+    return [...this.tickCache.values()];
   }
 
   // -----------------------------------
-  // CLEAR CACHE (RESET STATE)
+  // RESET
   // -----------------------------------
   clear() {
     this.symbolMap.clear();
     this.tickCache.clear();
+    this.currentSymbol = "";
   }
 }
 
 export const symbolManager = new SymbolManager();
+
+// -----------------------------------
+// BACKWARD COMPATIBILITY EXPORTS
+// -----------------------------------
+export function setCurrentSymbol(symbol: string) {
+  symbolManager.setCurrentSymbol(symbol);
+}
+
+export function getCurrentSymbol() {
+  return symbolManager.getCurrentSymbol();
+}
+
+export async function resolveSymbol(symbol: string) {
+  return symbolManager.resolve(symbol);
+}
+
+export function getCurrentTick(symbol: string) {
+  return symbolManager.getCurrentTick(symbol);
+}

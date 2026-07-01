@@ -3,1201 +3,437 @@ import { Workbook } from "exceljs";
 import {
   collection,
   getDocs,
+  
 } from "firebase/firestore";
 
 import { db } from "@/lib/firebase";
 
 export async function GET() {
 
-  const response =
-    await fetch(
-      "http://localhost:3000/api/market-structure-csv",
+  try {
+
+    const workbook =
+      new Workbook();
+
+    workbook.creator =
+      "Institutional Dashboard";
+
+    workbook.created =
+      new Date();
+
+    //
+    // SUMMARY SHEET
+    //
+
+    const summarySheet =
+      workbook.addWorksheet(
+        "Summary"
+      );
+
+    summarySheet.columns = [
+
       {
-        cache: "no-store",
-      }
+        header: "Symbol",
+        key: "symbol",
+        width: 18,
+      },
+
+      {
+        header: "Candles",
+        key: "candles",
+        width: 12,
+      },
+
+      {
+        header: "First Date",
+        key: "firstDate",
+        width: 18,
+      },
+
+      {
+        header: "Last Date",
+        key: "lastDate",
+        width: 18,
+      },
+
+    ];
+
+    //
+    // LOAD UNIVERSE
+    //
+
+    const universeSnapshot =
+      await getDocs(
+        collection(
+          db,
+          "universe"
+        )
+      );
+
+    console.log(
+      "================================="
     );
 
-  const result =
-    await response.json();
+    console.log(
+      "TOTAL STOCKS:",
+      universeSnapshot.size
+    );
 
-  if (
-    !result.success ||
-    !result.rows?.length
-  ) {
+    console.log(
+      "================================="
+    );
 
-    return Response.json({
-      success: false,
-      error: "No data found",
-    });
+    //
+    // LOOP THROUGH ALL STOCKS
+    //
 
-  }
+    for (
+      const stockDoc
+      of universeSnapshot.docs
+    ) {
 
-  const workbook =
-    new Workbook();
-    const deliveryHistorySnapshot =
+      const stock =
+        stockDoc.data();
+
+      const symbol =
+        stock.symbol ??
+        stockDoc.id;
+
+      console.log(
+        "EXPORTING:",
+        symbol
+      );
+
+      //
+      // LOAD HISTORY
+      //
+
+      const historySnapshot =
   await getDocs(
     collection(
       db,
-      "delivery_history"
+      "universe",
+      stockDoc.id,
+      "history"
     )
   );
+      //
+      // CREATE SHEET
+      //
 
-const deliveryHistoryRows =
-  deliveryHistorySnapshot.docs.map(
-    (doc) => doc.data()
-  );
+      const safeSheetName =
+  String(symbol)
+    .replace(/[\\/*?:[\]]/g, "_")
+    .substring(0, 31);
 
-  //
-  // DAILY SHEET
-  //
-
-  const dailySheet =
-    workbook.addWorksheet(
-      "Daily"
-    );
-
-  dailySheet.columns = [
-
-    {
-      header: "Symbol",
-      key: "symbol",
-      width: 18,
-    },
-
-    {
-      header: "CMP",
-      key: "cmp",
-      width: 15,
-    },
-
-    {
-      header: "Open",
-      key: "dailyOpen",
-      width: 15,
-    },
-
-    {
-      header: "High",
-      key: "dailyHigh",
-      width: 15,
-    },
-
-    {
-      header: "Low",
-      key: "dailyLow",
-      width: 15,
-    },
-
-    {
-      header: "Close",
-      key: "dailyClose",
-      width: 15,
-    },
-
-    {
-      header: "Volume",
-      key: "dailyVolume",
-      width: 18,
-    },
-
-    {
-      header: "VWAP",
-      key: "dailyVWAP_Audit",
-      width: 15,
-    },
-
-    {
-      header: "Pivot",
-      key: "dailyPVT",
-      width: 15,
-    },
-
-    {
-      header: "CPR TC",
-      key: "dailyCPR_TC",
-      width: 15,
-    },
-
-    {
-      header: "CPR BC",
-      key: "dailyCPR_BC",
-      width: 15,
-    },
-
-    {
-      header: "R1",
-      key: "dailyR1",
-      width: 15,
-    },
-
-    {
-      header: "S1",
-      key: "dailyS1",
-      width: 15,
-    },
-
-  ];
-
-  dailySheet.addRows(
-    result.rows
-  );
-
-  //
-  // WEEKLY SHEET
-  //
-
-  const weeklySheet =
-    workbook.addWorksheet(
-      "Weekly"
-    );
-
-  weeklySheet.columns = [
-
-    {
-      header: "Symbol",
-      key: "symbol",
-      width: 18,
-    },
-
-    {
-      header: "CMP",
-      key: "cmp",
-      width: 15,
-    },
-
-    {
-      header: "High",
-      key: "weeklyHigh",
-      width: 15,
-    },
-
-    {
-      header: "Low",
-      key: "weeklyLow",
-      width: 15,
-    },
-
-    {
-      header: "Close",
-      key: "weeklyClose",
-      width: 15,
-    },
-
-    {
-      header: "Volume",
-      key: "weeklyVolume",
-      width: 18,
-    },
-
-    {
-      header: "VWAP",
-      key: "weeklyVWAP_Audit",
-      width: 15,
-    },
-
-    {
-      header: "Pivot",
-      key: "weeklyPVT",
-      width: 15,
-    },
-
-    {
-      header: "CPR TC",
-      key: "weeklyCPR_TC",
-      width: 15,
-    },
-
-    {
-      header: "CPR BC",
-      key: "weeklyCPR_BC",
-      width: 15,
-    },
-
-    {
-      header: "R1",
-      key: "weeklyR1",
-      width: 15,
-    },
-
-    {
-      header: "S1",
-      key: "weeklyS1",
-      width: 15,
-    },
-
-  ];
-
-  weeklySheet.addRows(
-    result.rows
-  );
-
-  //
-  // MONTHLY SHEET
-  //
-
-  const monthlySheet =
-    workbook.addWorksheet(
-      "Monthly"
-    );
-    const deliverySheet =
+const sheet =
   workbook.addWorksheet(
-    "Delivery"
+    safeSheetName
   );
-  deliverySheet.columns = [
-
-  {
-    header: "Symbol",
-    key: "symbol",
-    width: 18,
-  },
-
-  {
-    header: "D Vol",
-    key: "totalVolumeDaily",
-    width: 18,
-  },
-
-  {
-    header: "D Del",
-    key: "totalDeliveryDaily",
-    width: 18,
-  },
-
-  {
-    header: "D Del %",
-    key: "deliveryPctDaily",
-    width: 15,
-  },
-
-  {
-    header: "W Vol",
-    key: "totalVolumeWeekly",
-    width: 18,
-  },
-
-  {
-    header: "W Del",
-    key: "totalDeliveryWeekly",
-    width: 18,
-  },
-
-  {
-    header: "W Del %",
-    key: "deliveryPctWeekly",
-    width: 15,
-  },
-
-  {
-    header: "M Vol",
-    key: "totalVolumeMonthly",
-    width: 18,
-  },
-
-  {
-    header: "M Del",
-    key: "totalDeliveryMonthly",
-    width: 18,
-  },
-
-  {
-    header: "M Del %",
-    key: "deliveryPctMonthly",
-    width: 15,
-  },
-
-];
-deliverySheet.addRows(
-  result.rows
-);
-    const swingSheet =
-  workbook.addWorksheet(
-    "Swing"
-  );
-  swingSheet.columns = [
-
-  {
-    header: "Symbol",
-    key: "symbol",
-    width: 18,
-  },
-
-  {
-    header: "1W High",
-    key: "oneWeekHigh",
-    width: 15,
-  },
-
-  {
-    header: "1W Low",
-    key: "oneWeekLow",
-    width: 15,
-  },
-
-  {
-    header: "1W Range",
-    key: "oneWeekRange",
-    width: 15,
-  },
-
-  {
-    header: "1W High Date",
-    key: "oneWeekHighDate",
-    width: 22,
-  },
-
-  {
-    header: "1W Low Date",
-    key: "oneWeekLowDate",
-    width: 22,
-  },
-
-  {
-    header: "2W High",
-    key: "twoWeekHigh",
-    width: 15,
-  },
-
-  {
-    header: "2W Low",
-    key: "twoWeekLow",
-    width: 15,
-  },
-
-  {
-    header: "2W Range",
-    key: "twoWeekRange",
-    width: 15,
-  },
-
-  {
-    header: "2W High Date",
-    key: "twoWeekHighDate",
-    width: 22,
-  },
-
-  {
-    header: "2W Low Date",
-    key: "twoWeekLowDate",
-    width: 22,
-  },
-
-  {
-    header: "1M High",
-    key: "oneMonthHigh",
-    width: 15,
-  },
-
-  {
-    header: "1M Low",
-    key: "oneMonthLow",
-    width: 15,
-  },
-
-  {
-    header: "1M Range",
-    key: "oneMonthRange",
-    width: 15,
-  },
-
-  {
-    header: "1M High Date",
-    key: "oneMonthHighDate",
-    width: 22,
-  },
-
-  {
-    header: "1M Low Date",
-    key: "oneMonthLowDate",
-    width: 22,
-  },
-
-  {
-    header: "3M High",
-    key: "threeMonthHigh",
-    width: 15,
-  },
-
-  {
-    header: "3M Low",
-    key: "threeMonthLow",
-    width: 15,
-  },
-
-  {
-    header: "3M Range",
-    key: "threeMonthRange",
-    width: 15,
-  },
-
-  {
-    header: "3M High Date",
-    key: "threeMonthHighDate",
-    width: 22,
-  },
-
-  {
-    header: "3M Low Date",
-    key: "threeMonthLowDate",
-    width: 22,
-  },
-
-  {
-    header: "6M High",
-    key: "sixMonthHigh",
-    width: 15,
-  },
-
-  {
-    header: "6M Low",
-    key: "sixMonthLow",
-    width: 15,
-  },
-
-  {
-    header: "6M Range",
-    key: "sixMonthRange",
-    width: 15,
-  },
-
-  {
-    header: "6M High Date",
-    key: "sixMonthHighDate",
-    width: 22,
-  },
-
-  {
-    header: "6M Low Date",
-    key: "sixMonthLowDate",
-    width: 22,
-  },
-
-  {
-    header: "1Y High",
-    key: "oneYearHigh",
-    width: 15,
-  },
-
-  {
-    header: "1Y Low",
-    key: "oneYearLow",
-    width: 15,
-  },
-
-  {
-    header: "1Y Range",
-    key: "oneYearRange",
-    width: 15,
-  },
-
-  {
-    header: "1Y High Date",
-    key: "oneYearHighDate",
-    width: 22,
-  },
-
-  {
-    header: "1Y Low Date",
-    key: "oneYearLowDate",
-    width: 22,
-  },
-
-];
-swingSheet.addRows(
-  result.rows
-);
-const fibSheet =
-  workbook.addWorksheet(
-    "Fib"
-  );
-  const deliveryHistorySheet =
-  workbook.addWorksheet(
-    "Delivery_History"
-  );
-  const deliverySummarySheet =
-  workbook.addWorksheet(
-    "Delivery_Summary"
-  );
-
-deliverySummarySheet.columns = [
-
-  {
-    header: "Symbol",
-    key: "symbol",
-    width: 18,
-  },
-
-  {
-    header: "D Vol",
-    key: "dVol",
-    width: 14,
-  },
-
-  {
-    header: "D Del",
-    key: "dDel",
-    width: 14,
-  },
-
-  {
-    header: "D Del%",
-    key: "dPct",
-    width: 12,
-  },
-
-  {
-    header: "W Vol",
-    key: "wVol",
-    width: 14,
-  },
-
-  {
-    header: "W Del",
-    key: "wDel",
-    width: 14,
-  },
-
-  {
-    header: "W Del%",
-    key: "wPct",
-    width: 12,
-  },
-
-  {
-    header: "M Vol",
-    key: "mVol",
-    width: 14,
-  },
-
-  {
-    header: "M Del",
-    key: "mDel",
-    width: 14,
-  },
-
-  {
-    header: "M Del%",
-    key: "mPct",
-    width: 12,
-  },
-
-];
-deliverySummarySheet.addRows(
-
-  result.rows.map(
-    (r: any) => ({
-
-      symbol:
-        r.symbol,
-
-      dVol:
-        r.totalVolumeDaily,
-
-      dDel:
-        r.totalDeliveryDaily,
-
-      dPct:
-        r.deliveryPctDaily,
-
-      wVol:
-        r.rollingWeekVol,
-
-      wDel:
-        r.rollingWeekDel,
-
-      wPct:
-        r.rollingWeekPct,
-
-      mVol:
-        r.rollingMonthVol,
-
-      mDel:
-        r.rollingMonthDel,
-
-      mPct:
-        r.rollingMonthPct,
+      sheet.columns = [
+
+        {
+          header: "Date",
+          key: "date",
+          width: 15,
+        },
+
+        {
+          header: "Open",
+          key: "open",
+          width: 15,
+        },
+
+        {
+          header: "High",
+          key: "high",
+          width: 15,
+        },
+
+        {
+          header: "Low",
+          key: "low",
+          width: 15,
+        },
+
+        {
+          header: "Close",
+          key: "close",
+          width: 15,
+        },
+
+        {
+          header: "Volume",
+          key: "volume",
+          width: 18,
+        },
+
+      ];
+
+      //
+      // WRITE HISTORY
+      //
+
+      const historyRows =
+  historySnapshot.docs
+    .map((doc) => {
+
+      const c = doc.data();
+
+      return {
+
+        date: c.date,
+
+        open: Number(c.open ?? 0),
+
+        high: Number(c.high ?? 0),
+
+        low: Number(c.low ?? 0),
+
+        close: Number(c.close ?? 0),
+
+        volume: Number(c.volume ?? 0),
+
+      };
 
     })
-  )
-
-);
-
-deliveryHistorySheet.columns = [
-
-  {
-    header: "Symbol",
-    key: "symbol",
-    width: 18,
-  },
-
-  {
-    header: "Date",
-    key: "date",
-    width: 15,
-  },
-
-  {
-    header: "Volume",
-    key: "volume",
-    width: 18,
-  },
-
-  {
-    header: "Delivery Qty",
-    key: "deliveryQty",
-    width: 18,
-  },
-
-  {
-    header: "Delivery %",
-    key: "deliveryPct",
-    width: 15,
-  },
-
-];
-
-deliveryHistorySheet.addRows(
-  deliveryHistoryRows
-);
-fibSheet.columns = [
-
-  {
-    header: "Symbol",
-    key: "symbol",
-    width: 18,
-  },
-
-  {
-    header: "1W Fib 23.6",
-    key: "oneWeekFib236",
-    width: 15,
-  },
-
-  {
-    header: "1W Fib 38.2",
-    key: "oneWeekFib382",
-    width: 15,
-  },
-
-  {
-    header: "1W Fib 50",
-    key: "oneWeekFib50",
-    width: 15,
-  },
-
-  {
-    header: "1W Fib 61.8",
-    key: "oneWeekFib618",
-    width: 15,
-  },
-
-  {
-    header: "1W Fib 78.6",
-    key: "oneWeekFib786",
-    width: 15,
-  },
-
-  {
-    header: "2W Fib 23.6",
-    key: "twoWeekFib236",
-    width: 15,
-  },
-
-  {
-    header: "2W Fib 38.2",
-    key: "twoWeekFib382",
-    width: 15,
-  },
-
-  {
-    header: "2W Fib 50",
-    key: "twoWeekFib50",
-    width: 15,
-  },
-
-  {
-    header: "2W Fib 61.8",
-    key: "twoWeekFib618",
-    width: 15,
-  },
-
-  {
-    header: "2W Fib 78.6",
-    key: "twoWeekFib786",
-    width: 15,
-  },
-
-  {
-    header: "1M Fib 23.6",
-    key: "oneMonthFib236",
-    width: 15,
-  },
-
-  {
-    header: "1M Fib 38.2",
-    key: "oneMonthFib382",
-    width: 15,
-  },
-
-  {
-    header: "1M Fib 50",
-    key: "oneMonthFib50",
-    width: 15,
-  },
-
-  {
-    header: "1M Fib 61.8",
-    key: "oneMonthFib618",
-    width: 15,
-  },
-
-  {
-    header: "1M Fib 78.6",
-    key: "oneMonthFib786",
-    width: 15,
-  },
-
-  {
-    header: "3M Fib 23.6",
-    key: "threeMonthFib236",
-    width: 15,
-  },
-
-  {
-    header: "3M Fib 38.2",
-    key: "threeMonthFib382",
-    width: 15,
-  },
-
-  {
-    header: "3M Fib 50",
-    key: "threeMonthFib50",
-    width: 15,
-  },
-
-  {
-    header: "3M Fib 61.8",
-    key: "threeMonthFib618",
-    width: 15,
-  },
-
-  {
-    header: "3M Fib 78.6",
-    key: "threeMonthFib786",
-    width: 15,
-  },
-
-  {
-    header: "6M Fib 23.6",
-    key: "sixMonthFib236",
-    width: 15,
-  },
-
-  {
-    header: "6M Fib 38.2",
-    key: "sixMonthFib382",
-    width: 15,
-  },
-
-  {
-    header: "6M Fib 50",
-    key: "sixMonthFib50",
-    width: 15,
-  },
-
-  {
-    header: "6M Fib 61.8",
-    key: "sixMonthFib618",
-    width: 15,
-  },
-
-  {
-    header: "6M Fib 78.6",
-    key: "sixMonthFib786",
-    width: 15,
-  },
-
-  {
-    header: "1Y Fib 23.6",
-    key: "oneYearFib236",
-    width: 15,
-  },
-
-  {
-    header: "1Y Fib 38.2",
-    key: "oneYearFib382",
-    width: 15,
-  },
-
-  {
-    header: "1Y Fib 50",
-    key: "oneYearFib50",
-    width: 15,
-  },
-
-  {
-    header: "1Y Fib 61.8",
-    key: "oneYearFib618",
-    width: 15,
-  },
-
-  {
-    header: "1Y Fib 78.6",
-    key: "oneYearFib786",
-    width: 15,
-  },
-
-];
-fibSheet.addRows(
-  result.rows
-);
-
-fibSheet.columns = [
-
-  {
-    header: "Symbol",
-    key: "symbol",
-    width: 18,
-  },
-
-  {
-    header: "1W Fib236",
-    key: "oneWeekFib236",
-    width: 15,
-  },
-
-  {
-    header: "1W Fib382",
-    key: "oneWeekFib382",
-    width: 15,
-  },
-
-  {
-    header: "1W Fib50",
-    key: "oneWeekFib50",
-    width: 15,
-  },
-
-  {
-    header: "1W Fib618",
-    key: "oneWeekFib618",
-    width: 15,
-  },
-
-  {
-    header: "1W Fib786",
-    key: "oneWeekFib786",
-    width: 15,
-  },
-
-  {
-    header: "2W Fib236",
-    key: "twoWeekFib236",
-    width: 15,
-  },
-
-  {
-    header: "2W Fib382",
-    key: "twoWeekFib382",
-    width: 15,
-  },
-
-  {
-    header: "2W Fib50",
-    key: "twoWeekFib50",
-    width: 15,
-  },
-
-  {
-    header: "2W Fib618",
-    key: "twoWeekFib618",
-    width: 15,
-  },
-
-  {
-    header: "2W Fib786",
-    key: "twoWeekFib786",
-    width: 15,
-  },
-
-  {
-    header: "1M Fib236",
-    key: "oneMonthFib236",
-    width: 15,
-  },
-
-  {
-    header: "1M Fib382",
-    key: "oneMonthFib382",
-    width: 15,
-  },
-
-  {
-    header: "1M Fib50",
-    key: "oneMonthFib50",
-    width: 15,
-  },
-
-  {
-    header: "1M Fib618",
-    key: "oneMonthFib618",
-    width: 15,
-  },
-
-  {
-    header: "1M Fib786",
-    key: "oneMonthFib786",
-    width: 15,
-  },
-
-  {
-    header: "3M Fib236",
-    key: "threeMonthFib236",
-    width: 15,
-  },
-
-  {
-    header: "3M Fib382",
-    key: "threeMonthFib382",
-    width: 15,
-  },
-
-  {
-    header: "3M Fib50",
-    key: "threeMonthFib50",
-    width: 15,
-  },
-
-  {
-    header: "3M Fib618",
-    key: "threeMonthFib618",
-    width: 15,
-  },
-
-  {
-    header: "3M Fib786",
-    key: "threeMonthFib786",
-    width: 15,
-  },
-
-  {
-    header: "6M Fib236",
-    key: "sixMonthFib236",
-    width: 15,
-  },
-
-  {
-    header: "6M Fib382",
-    key: "sixMonthFib382",
-    width: 15,
-  },
-
-  {
-    header: "6M Fib50",
-    key: "sixMonthFib50",
-    width: 15,
-  },
-
-  {
-    header: "6M Fib618",
-    key: "sixMonthFib618",
-    width: 15,
-  },
-
-  {
-    header: "6M Fib786",
-    key: "sixMonthFib786",
-    width: 15,
-  },
-
-  {
-    header: "1Y Fib236",
-    key: "oneYearFib236",
-    width: 15,
-  },
-
-  {
-    header: "1Y Fib382",
-    key: "oneYearFib382",
-    width: 15,
-  },
-
-  {
-    header: "1Y Fib50",
-    key: "oneYearFib50",
-    width: 15,
-  },
-
-  {
-    header: "1Y Fib618",
-    key: "oneYearFib618",
-    width: 15,
-  },
-
-  {
-    header: "1Y Fib786",
-    key: "oneYearFib786",
-    width: 15,
-  },
-
-];
-
-
-  monthlySheet.columns = [
-
-    {
-      header: "Symbol",
-      key: "symbol",
-      width: 18,
-    },
-
-    {
-      header: "CMP",
-      key: "cmp",
-      width: 15,
-    },
-
-    {
-      header: "High",
-      key: "monthlyHigh",
-      width: 15,
-    },
-
-    {
-      header: "Low",
-      key: "monthlyLow",
-      width: 15,
-    },
-
-    {
-      header: "Close",
-      key: "monthlyClose",
-      width: 15,
-    },
-
-    {
-      header: "Volume",
-      key: "monthlyVolume",
-      width: 18,
-    },
-
-    {
-      header: "VWAP",
-      key: "monthlyVWAP_Audit",
-      width: 15,
-    },
-
-    {
-      header: "Pivot",
-      key: "monthlyPVT",
-      width: 15,
-    },
-
-    {
-      header: "CPR TC",
-      key: "monthlyCPR_TC",
-      width: 15,
-    },
-
-    {
-      header: "CPR BC",
-      key: "monthlyCPR_BC",
-      width: 15,
-    },
-
-    {
-      header: "R1",
-      key: "monthlyR1",
-      width: 15,
-    },
-
-    {
-      header: "S1",
-      key: "monthlyS1",
-      width: 15,
-    },
-
-  ];
-
-  monthlySheet.addRows(
-    result.rows
-  );
-
-  //
-  // HEADER STYLING
-  //
-
-  const sheets = [
-  dailySheet,
-  weeklySheet,
-  monthlySheet,
-  deliverySheet,
-  deliverySummarySheet,
-  swingSheet,
-  fibSheet,
-  deliveryHistorySheet,
-];
-
-  sheets.forEach(
-    (sheet) => {
+    .sort(
+      (a, b) =>
+        String(a.date).localeCompare(
+          String(b.date)
+        )
+    );
+      sheet.addRows(
+        historyRows
+      );
+
+      //
+      // HEADER STYLE
+      //
 
       sheet.views = [
+
         {
           state: "frozen",
           ySplit: 1,
         },
+
       ];
 
       sheet.autoFilter = {
+
         from: "A1",
+
         to: {
+
           row: 1,
-          column:
-            sheet.columns.length,
+
+          column: 6,
+
         },
+
       };
 
       sheet.getRow(1).eachCell(
         (cell) => {
 
           cell.font = {
+
             bold: true,
+
             color: {
+
               argb: "FFFFFF",
+
             },
+
           };
 
           cell.fill = {
+
             type: "pattern",
+
             pattern: "solid",
+
             fgColor: {
+
               argb: "1F4E78",
+
             },
+
           };
 
         }
       );
 
+      //
+      // SUMMARY ENTRY
+      //
+
+      summarySheet.addRow({
+
+        symbol,
+
+        candles:
+          historyRows.length,
+
+        firstDate:
+          historyRows.length
+            ? historyRows[0].date
+            : "",
+
+        lastDate:
+          historyRows.length
+            ? historyRows[
+                historyRows.length - 1
+              ].date
+            : "",
+
+      });
+
     }
-  );
+    //
+    // SUMMARY SHEET FORMAT
+    //
 
-  const buffer =
-    await workbook.xlsx.writeBuffer();
+    summarySheet.views = [
+      {
+        state: "frozen",
+        ySplit: 1,
+      },
+    ];
 
-  return new Response(
-    Buffer.from(buffer),
-    {
+    summarySheet.autoFilter = {
+      from: "A1",
+      to: {
+        row: 1,
+        column: 4,
+      },
+    };
 
-      headers: {
+    summarySheet.getRow(1).eachCell(
+      (cell) => {
 
-        "Content-Type":
-          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        cell.font = {
+          bold: true,
+          color: {
+            argb: "FFFFFF",
+          },
+        };
 
-        "Content-Disposition":
-          'attachment; filename="INST_Dashboard_Audit.xlsx"',
+        cell.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: {
+            argb: "1F4E78",
+          },
+        };
+
+      }
+    );
+
+    //
+    // AUTO WIDTH SAFETY
+    //
+
+    workbook.eachSheet(
+      (sheet) => {
+
+        sheet.columns.forEach(
+          (column) => {
+
+            if (
+              !column.width ||
+              column.width < 15
+            ) {
+              column.width = 15;
+            }
+
+          }
+        );
+
+      }
+    );
+
+    console.log(
+      "================================="
+    );
+
+    console.log(
+      "EXCEL EXPORT COMPLETE"
+    );
+
+    console.log(
+      "WORKSHEETS:",
+      workbook.worksheets.length
+    );
+
+    console.log(
+      "================================="
+    );
+
+        //
+    // GENERATE EXCEL
+    //
+
+    const buffer =
+      await workbook.xlsx.writeBuffer();
+
+    return new Response(
+      Buffer.from(buffer),
+      {
+
+        headers: {
+
+          "Content-Type":
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+
+          "Content-Disposition":
+            'attachment; filename="Institutional_History.xlsx"',
+
+          "Cache-Control":
+            "no-store",
+
+        },
+
+      }
+    );
+
+  } catch (error: any) {
+
+    console.error(
+      "================================="
+    );
+
+    console.error(
+      "HISTORY EXPORT ERROR"
+    );
+
+    console.error(
+      error
+    );
+
+    console.error(
+      "================================="
+    );
+
+    return Response.json(
+      {
+
+        success: false,
+
+        error:
+          error?.message ??
+          "Unknown Error",
 
       },
+      {
 
-    }
-  );
+        status: 500,
 
-}
+      }
+    );
+
+  }
+
+}     
