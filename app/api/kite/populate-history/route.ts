@@ -92,3 +92,83 @@ function normalize(
   );
 
 }
+
+export async function GET() {
+
+  try {
+
+    const kite =
+      await getKite();
+
+    const snapshot =
+      await getDocs(
+        collection(
+          db,
+          "universe"
+        )
+      );
+
+    let totalStocks = 0;
+    let totalCandles = 0;
+
+    for (
+      const stockDoc
+      of snapshot.docs
+    ) {
+
+      const stock =
+        stockDoc.data();
+
+      if (
+        !stock.instrumentToken
+      ) {
+
+        console.log(
+          "SKIPPED:",
+          stock.symbol
+        );
+
+        continue;
+
+      }
+
+      console.log(
+        "================================="
+      );
+
+      console.log(
+        "FETCHING:",
+        stock.symbol
+      );
+
+      const from =
+        new Date();
+
+      from.setFullYear(
+        from.getFullYear() - 2
+      );
+
+      const to =
+        new Date();
+
+      const raw =
+        await kite.getHistoricalData(
+          Number(
+            stock.instrumentToken
+          ),
+          "day",
+          from,
+          to,
+          false,
+          false
+        );
+
+      const candles =
+        normalize(raw);
+
+      totalStocks++;
+      totalCandles +=
+        candles.length;
+
+      // PART 4 STARTS HERE
+
