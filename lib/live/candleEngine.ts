@@ -13,38 +13,44 @@ export type Candle = {
   volume: number;
 };
 
-type Listener = (candle: Candle) => void;
+type Listener = (candles: Candle[]) => void;
 
 class CandleEngineV2 {
   private listeners: Map<string, Set<Listener>> = new Map();
 
-  // symbol → current forming candle
-  private activeCandles: Map<string, Candle> = new Map();
-
-  // symbol → last candle timestamp bucket
+  private activeCandles: Map<string, Candle[]> = new Map();
   private lastBucket: Map<string, number> = new Map();
 
-  // interval in seconds (default 1m)
-  private interval: number = 60;
+  // default 1 minute
+  private intervalSeconds = 60;
 
   setInterval(seconds: number) {
-    this.interval = seconds;
+    this.intervalSeconds = seconds;
   }
 
-  subscribe(symbol: string, cb: Listener) {
+  // ✅ FIXED SUBSCRIBE API (matches UI)
+  subscribe(symbol: string, interval: string, cb: Listener) {
+    // convert interval
+    this.intervalSeconds = this.parseInterval(interval);
+
     if (!this.listeners.has(symbol)) {
       this.listeners.set(symbol, new Set());
     }
 
     this.listeners.get(symbol)!.add(cb);
 
+    // send initial state
+    const existing = this.activeCandles.get(symbol) || [];
+    cb(existing);
+
     return () => {
       this.listeners.get(symbol)?.delete(cb);
     };
   }
 
+  // ✅ MAIN TICK ENTRY (called from liveEngine)
   processTick(tick: Tick) {
-    if (!tick.symbol) return;
+    if (!tick?.symbol) return;
 
     const price = Number(tick.lastPrice);
     if (!Number.isFinite(price) || price <= 0) return;
@@ -53,15 +59,22 @@ class CandleEngineV2 {
       ? Math.floor(tick.time / 1000)
       : Math.floor(Date.now() / 1000);
 
-    const bucket = Math.floor(time / this.interval) * this.interval;
+    const bucket =
+      Math.floor(time / this.intervalSeconds) * this.intervalSeconds;
 
+    let candles = this.activeCandles.get(tick.symbol);
+
+    if (!candles) {
+      candles = [];
+      this.activeCandles.set(tick.symbol, candles);
+    }
+
+    let lastCandle = candles[candles.length - 1];
     const lastBucket = this.lastBucket.get(tick.symbol);
 
-    let candle = this.activeCandles.get(tick.symbol);
-
-    // 🔥 NEW CANDLE START
-    if (!candle || lastBucket !== bucket) {
-      candle = {
+    // 🔥 NEW CANDLE
+    if (!lastCandle || lastBucket !== bucket) {
+      const newCandle: Candle = {
         time: bucket,
         open: price,
         high: price,
@@ -70,32 +83,48 @@ class CandleEngineV2 {
         volume: 0,
       };
 
-      this.activeCandles.set(tick.symbol, candle);
+      candles.push(newCandle);
       this.lastBucket.set(tick.symbol, bucket);
+      lastCandle = newCandle;
     }
 
-    // 🔥 UPDATE EXISTING CANDLE (NO REPAINT)
-    candle.high = Math.max(candle.high, price);
-    candle.low = Math.min(candle.low, price);
-    candle.close = price;
-    candle.volume += 1;
+    // 🔥 UPDATE CANDLE
+    lastCandle.high = Math.max(lastCandle.high, price);
+    lastCandle.low = Math.min(lastCandle.low, price);
+    lastCandle.close = price;
+    lastCandle.volume += 1;
 
-    this.emit(tick.symbol, candle);
+    this.emit(tick.symbol, candles);
   }
 
-  private emit(symbol: string, candle: Candle) {
+  private emit(symbol: string, candles: Candle[]) {
     const subs = this.listeners.get(symbol);
     if (!subs) return;
 
+    const snapshot = [...candles];
+
     for (const cb of subs) {
       try {
-        cb({ ...candle });
+        cb(snapshot);
       } catch {}
     }
   }
 
-  getActiveCandle(symbol: string) {
-    return this.activeCandles.get(symbol) || null;
+  private parseInterval(interval: string): number {
+    switch (interval) {
+      case "D":
+        return 86400;
+      case "W":
+        return 604800;
+      case "M":
+        return 2592000;
+      default:
+        return 60;
+    }
+  }
+
+  getCandles(symbol: string) {
+    return this.activeCandles.get(symbol) || [];
   }
 
   reset(symbol?: string) {
@@ -110,4 +139,4 @@ class CandleEngineV2 {
   }
 }
 
-export const candleEngineV2 = new CandleEngineV2();
+export const candleEngine = new CandleEngineV2();
