@@ -11,7 +11,7 @@ import {
   writeBatch,
 } from "firebase/firestore";
 
-import { db } from "@/lib/firebase";
+import { adminDb } from "@/lib/firebase-admin";
 
 type Candle = {
   date: string;
@@ -29,7 +29,7 @@ async function delay(ms: number) {
 async function getKite() {
 
   const tokenDoc =
-    await getDoc(doc(db, "settings", "kite"));
+    await adminDb.collection("settings").doc("kite").get();
 
   const accessToken =
     tokenDoc.data()?.accessToken;
@@ -183,3 +183,4 @@ const sortedCandles = [...candles].sort(
     return NextResponse.json({ success:false, error:String(error?.message ?? error), stack:error?.stack }, { status:500 });
   }
 }
+
