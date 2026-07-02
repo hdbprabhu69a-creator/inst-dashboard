@@ -13,9 +13,9 @@ export function buildRenderPlan(pattern: PatternResult | null): RenderPlan | nul
     stoploss: pattern.stoploss,
   } as any);
 
-  if (!pattern || !pattern.lines || pattern.lines.length === 0) return null;
+  if (!pattern || pattern.trendLines.length === 0) return null;
 
-const last = pattern.lines.at(-1);
+const last = pattern.trendLines.at(-1);
 
   return {
 
@@ -30,8 +30,8 @@ const last = pattern.lines.at(-1);
 
     markers: [
       {
-        time: last?.end?.time,
-        price: last?.end?.price,
+        time: last?.end.time,
+        price: last?.end.price,
         color:
           signal.action === "BUY" ? "#22c55e" :
           signal.action === "SELL" ? "#ef4444" :
@@ -43,5 +43,6 @@ const last = pattern.lines.at(-1);
   };
 
 }
+
 
 
