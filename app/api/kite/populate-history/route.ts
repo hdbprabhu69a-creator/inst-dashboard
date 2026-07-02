@@ -88,7 +88,7 @@ export async function GET() {
 
     const candles = normalize(raw);
 
-    const batch = writeBatch(db);
+    let batch = writeBatch(db);
     let ops = 0;
 
     for (const c of candles) {
@@ -138,4 +138,5 @@ export async function GET() {
   });
 
 }
+
 
