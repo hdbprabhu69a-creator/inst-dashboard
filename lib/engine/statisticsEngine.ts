@@ -1,4 +1,9 @@
-﻿import { performanceEngine } from "./performanceEngine";
+import { performanceEngine } from "./performanceEngine";
+
+type Trade = {
+  result: "WIN" | "LOSS";
+  pnl: number;
+};
 
 class StatisticsEngine {
 
@@ -10,14 +15,14 @@ class StatisticsEngine {
 
     const trades = this.getTrades();
 
-    const wins = trades.filter(t => t.result === "WIN");
-    const losses = trades.filter(t => t.result === "LOSS");
+    const wins = trades.filter((t: Trade) => t.result === "WIN");
+    const losses = trades.filter((t: Trade) => t.result === "LOSS");
 
     const avgWin =
-      wins.reduce((a, b) => a + b.pnl, 0) / (wins.length || 1);
+      wins.reduce((a: number, b: Trade) => a + b.pnl, 0) / (wins.length || 1);
 
     const avgLoss =
-      losses.reduce((a, b) => a + b.pnl, 0) / (losses.length || 1);
+      losses.reduce((a: number, b: Trade) => a + b.pnl, 0) / (losses.length || 1);
 
     const winRate = wins.length / (trades.length || 1);
 
@@ -30,9 +35,9 @@ class StatisticsEngine {
 
     const trades = this.getTrades();
     const mean =
-      trades.reduce((a, b) => a + b.pnl, 0) / (trades.length || 1);
+      trades.reduce((a: number, b: Trade) => a + b.pnl, 0) / (trades.length || 1);
 
-    return trades.reduce((acc, t) => {
+    return trades.reduce((acc: number, t: Trade) => {
       return acc + Math.pow(t.pnl - mean, 2);
     }, 0) / (trades.length || 1);
 
@@ -50,3 +55,4 @@ class StatisticsEngine {
 }
 
 export const statisticsEngine = new StatisticsEngine();
+
