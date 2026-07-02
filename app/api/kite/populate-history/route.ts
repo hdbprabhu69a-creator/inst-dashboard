@@ -56,6 +56,7 @@ function normalize(candles: any[]): Candle[] {
 }
 
 export async function GET() {
+  try {
 
   const kite = await getKite();
 
@@ -178,4 +179,9 @@ const sortedCandles = [...candles].sort(
 
 
 
-
+  } catch (error: any) {
+    console.error("POPULATE HISTORY ERROR");
+    console.error(error);
+    return NextResponse.json({ success:false, error:String(error?.message ?? error), stack:error?.stack }, { status:500 });
+  }
+}
