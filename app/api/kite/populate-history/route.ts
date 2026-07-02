@@ -112,11 +112,7 @@ const sortedCandles = [...candles].sort(
   (a, b) => a.date.localeCompare(b.date)
 );
 
-for ($i = 1; $i -lt $sortedCandles.Count; $i++) {
-  if ($sortedCandles[$i].date -le $sortedCandles[$i-1].date) {
-    $missingSequence++
-  }
-}
+
 
     let batch = writeBatch(db);
     let ops = 0;
@@ -181,6 +177,7 @@ for ($i = 1; $i -lt $sortedCandles.Count; $i++) {
   });
 
 }
+
 
 
 
