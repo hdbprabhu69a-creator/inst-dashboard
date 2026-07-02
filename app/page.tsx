@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect } from "react";
 import { LiveMarketStream } from "@/lib/data/liveMarketStream";
@@ -59,6 +59,41 @@ export default function Home() {
 
   }, []);
 
+
+  useEffect(() => {
+
+    const startLive = async () => {
+
+      const snap = await getDoc(doc(db, "settings", "kite"));
+      const accessToken = snap.data()?.accessToken;
+
+      if (!accessToken) return;
+
+      const stream = new LiveMarketStream(
+        process.env.NEXT_PUBLIC_KITE_API_KEY!,
+        accessToken
+      );
+
+      stream.connect([256265]);
+
+      stream.on(256265, (tick:any) => {
+
+        liveUIBridge.emit({
+          symbol: "SBIN",
+          time: new Date().toISOString(),
+          open: tick.last_price,
+          high: tick.last_price,
+          low: tick.last_price,
+          close: tick.last_price,
+        });
+
+      });
+
+    };
+
+    startLive();
+
+  }, []);
   console.log(kite);
 
   return (
@@ -167,79 +202,9 @@ export default function Home() {
 
               <BrokerConnectionManager />
 
-{typeof window !== "undefined" && (() => {
 
-  const startLive = async () => {
 
-    const snap = await getDoc(doc(db, "settings", "kite"));
-    const accessToken = snap.data()?.accessToken;
 
-    if (!accessToken) return;
-
-    const stream = new LiveMarketStream(
-      process.env.NEXT_PUBLIC_KITE_API_KEY!,
-      accessToken
-    );
-
-    const tokens = [256265];
-
-    stream.connect(tokens);
-
-    stream.on(256265, (tick: any) => {
-
-      liveUIBridge.emit({
-        symbol: "SBIN",
-        time: new Date().toISOString(),
-        open: tick.last_price,
-        high: tick.last_price,
-        low: tick.last_price,
-        close: tick.last_price
-      });
-
-    });
-
-  };
-
-  startLive();
-
-})()}
-
-{typeof window !== "undefined" && (() => {
-
-  const startLive = async () => {
-
-    const snap = await getDoc(doc(db, "settings", "kite"));
-    const accessToken = snap.data()?.accessToken;
-
-    if (!accessToken) return;
-
-    const stream = new LiveMarketStream(
-      process.env.NEXT_PUBLIC_KITE_API_KEY!,
-      accessToken
-    );
-
-    const tokens = [256265];
-
-    stream.connect(tokens);
-
-    stream.on(256265, (tick: any) => {
-
-      liveUIBridge.emit({
-        symbol: "SBIN",
-        time: new Date().toISOString(),
-        open: tick.last_price,
-        high: tick.last_price,
-        low: tick.last_price,
-        close: tick.last_price
-      });
-
-    });
-
-  };
-
-  startLive();
-
-})()}
 
             </div>
 
@@ -288,5 +253,6 @@ export default function Home() {
   );
 
 }
+
 
 
