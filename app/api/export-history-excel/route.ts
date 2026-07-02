@@ -3,7 +3,9 @@ import ExcelJS from "exceljs";
 import {
   createHistoryWorkbook,
   createSummarySheet,
-  createStockSheet
+  createStockSheet,
+  sortHistoryDescending,
+  firestoreIdToExcelDate
 } from "@/lib/export/historyWorkbook";
 import { collection,getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -56,8 +58,9 @@ stock.id,
 )
 );
 
-const rows=[...history.docs]
-.sort((a,b)=>b.id.localeCompare(a.id));
+const rows=sortHistoryDescending(
+history.docs
+);
 
 for(const r of rows){
 
@@ -67,7 +70,9 @@ const c=r.data();
 
 ws.addRow({
 
-date:excelDate(r.id),
+date:firestoreIdToExcelDate(
+r.id
+),
 
 open:c.open,
 
@@ -93,9 +98,17 @@ token:s.instrumentToken,
 
 count:rows.length,
 
-latest:rows.length?excelDate(rows[0].id):"",
+latest:rows.length
+?firestoreIdToExcelDate(
+rows[0].id
+)
+:"",
 
-earliest:rows.length?excelDate(rows[rows.length-1].id):""
+earliest:rows.length
+?firestoreIdToExcelDate(
+rows[rows.length-1].id
+)
+:""
 
 });
 
@@ -113,6 +126,7 @@ headers:{
 });
 
 }
+
 
 
 
