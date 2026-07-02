@@ -152,9 +152,11 @@ export async function GET() {
     }
 
     totalStocks++;
-    totalCandles += candles.length;
+    totalCandles += inserted;
 
-    console.log("DONE:", stock.symbol, candles.length);
+    console.log(
+  `${stock.symbol} | Inserted: ${inserted} | Skipped: ${skipped}`
+);
 
     // ?? THROTTLE (CRITICAL FIX)
     await delay(250);
@@ -168,6 +170,7 @@ export async function GET() {
   });
 
 }
+
 
 
 
