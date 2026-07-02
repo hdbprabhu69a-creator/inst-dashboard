@@ -5,6 +5,8 @@ import {
   ColorType,
   CrosshairMode,
   LineStyle,
+  CandlestickSeries,
+  HistogramSeries,
 } from "lightweight-charts";
 
 import { useEffect, useRef, useState } from "react";
@@ -97,7 +99,7 @@ export default function CandlestickChart({
 
     chartInstance.current = chart;
 
-    const candle = chart.addCandlestickSeries({
+    const candle = chart.addSeries(CandlestickSeries, {
       upColor: "#26a69a",
       downColor: "#ef5350",
       borderVisible: false,
@@ -105,7 +107,7 @@ export default function CandlestickChart({
       wickDownColor: "#ef5350",
     });
 
-    const volume = chart.addHistogramSeries({
+    const volume = chart.addSeries(HistogramSeries, {
       priceScaleId: "volume",
     });
 
