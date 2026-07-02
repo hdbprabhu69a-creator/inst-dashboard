@@ -31,12 +31,7 @@ async function delay(ms: number) {
 }
 
 async function getKite() {
-
-  const tokenDoc =
-    await adminDb.collection("settings").doc("kite").get();
-
-  const accessToken =
-    tokenDoc.data()?.accessToken;
+  const accessToken = await getCachedAccessToken();
 
   const kite =
     new KiteConnect({
@@ -201,6 +196,7 @@ console.log("================================");
     return NextResponse.json({ success:false, error:String(error?.message ?? error), stack:error?.stack }, { status:500 });
   }
 }
+
 
 
 
