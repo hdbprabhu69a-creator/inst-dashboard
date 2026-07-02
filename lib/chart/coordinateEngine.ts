@@ -121,9 +121,9 @@ const ts=
 
 this.chart.timeScale();
 
-const ps=
+const ps:any=
 
-this.chart.priceScale("right");
+this.series;
 
 return points.map(p=>{
 
