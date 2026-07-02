@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import SDKPatternRenderer from "./SDKPatternRenderer";
 
@@ -7,14 +7,14 @@ import {
 } from "lightweight-charts";
 
 import {
-  PatternDrawing,
-} from "./render/PatternDrawing";
+  RenderPlan,
+} from "./render/RenderPlan";
 
 type Props = {
 
   chart: IChartApi;
 
-  drawing: PatternDrawing | null;
+  plan: RenderPlan | null;
 
 };
 
@@ -22,11 +22,11 @@ export default function SDKChartOverlay({
 
   chart,
 
-  drawing,
+  plan,
 
 }: Props) {
 
-  if (!drawing)
+  if (!plan)
     return null;
 
   return (
@@ -35,7 +35,7 @@ export default function SDKChartOverlay({
 
       <SDKPatternRenderer
         chart={chart}
-        drawing={drawing}
+        plan={plan}
       />
 
     </>
@@ -43,4 +43,3 @@ export default function SDKChartOverlay({
   );
 
 }
-
