@@ -13,6 +13,7 @@ import {
 
 import { adminDb } from "@/lib/firebase-admin";
 import { db } from "@/lib/firebase";
+import { getCachedAccessToken } from "@/lib/kite/tokenCache";
 
 type Candle = {
   date: string;
@@ -196,6 +197,7 @@ const sortedCandles = [...candles].sort(
     return NextResponse.json({ success:false, error:String(error?.message ?? error), stack:error?.stack }, { status:500 });
   }
 }
+
 
 
 
