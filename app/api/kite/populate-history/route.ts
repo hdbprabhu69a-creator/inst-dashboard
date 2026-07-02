@@ -76,7 +76,8 @@ const from = new Date();
 
     const to = new Date();
 
-    const raw = await kite.getHistoricalData(
+    console.log("FETCHING:", stock.symbol, stock.instrumentToken);
+const raw = await kite.getHistoricalData(
       Number(stock.instrumentToken),
       "day",
       from,
@@ -184,5 +185,6 @@ const sortedCandles = [...candles].sort(
     return NextResponse.json({ success:false, error:String(error?.message ?? error), stack:error?.stack }, { status:500 });
   }
 }
+
 
 
