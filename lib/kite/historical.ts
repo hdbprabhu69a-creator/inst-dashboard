@@ -18,6 +18,10 @@ export async function getHistoricalCandles(
     `&to=${encodeURIComponent(toStr)}`;
 
   console.log("HIST URL:", url);
+  console.log("AUTH HEADER:", `token ${apiKey}:********`);
+  console.log("API KEY:", apiKey);
+  console.log("FROM:", fromStr);
+  console.log("TO:", toStr);
 
   const res = await fetch(url, {
     headers: {
@@ -36,4 +40,5 @@ export async function getHistoricalCandles(
 
   return json.data.candles;
 }
+
 
