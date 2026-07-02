@@ -60,6 +60,7 @@ function normalize(candles: any[]): Candle[] {
 }
 
 export async function GET() {
+  const startedAt = Date.now();
   try {
 
   const kite = await getKite();
@@ -161,6 +162,7 @@ const sortedCandles = [...candles].sort(
 
   }
 
+  console.log(`IMPORT FINISHED IN ${((Date.now()-startedAt)/1000).toFixed(2)}s`);
   return NextResponse.json({
     success: true,
     totalStocks,
@@ -181,9 +183,11 @@ const sortedCandles = [...candles].sort(
     console.error("STATUS:", error?.status);
     console.error("CODE:", error?.code);
     console.error("STACK:", error?.stack);
-    return NextResponse.json({ success:false, error:String(error?.message ?? error), stack:error?.stack }, { status:500 });
+    console.log(`IMPORT FINISHED IN ${((Date.now()-startedAt)/1000).toFixed(2)}s`);
+  return NextResponse.json({ success:false, error:String(error?.message ?? error), stack:error?.stack }, { status:500 });
   }
 }
+
 
 
 
