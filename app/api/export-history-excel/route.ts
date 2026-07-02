@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import ExcelJS from "exceljs";
 import {
   createHistoryWorkbook,
-  createSummarySheet
+  createSummarySheet,
+  createStockSheet
 } from "@/lib/export/historyWorkbook";
 import { collection,getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -41,27 +42,10 @@ for(const stock of stocks){
 
 const s=stock.data();
 
-const ws=wb.addWorksheet(
-String(s.symbol).substring(0,31)
+const ws=createStockSheet(
+wb,
+String(s.symbol)
 );
-
-ws.columns=[
-{header:"Date",key:"date",width:15},
-{header:"Open",key:"open",width:12},
-{header:"High",key:"high",width:12},
-{header:"Low",key:"low",width:12},
-{header:"Close",key:"close",width:12},
-{header:"Volume",key:"volume",width:18},
-{header:"Instrument Token",key:"token",width:18}
-];
-
-ws.getRow(1).font={bold:true};
-
-ws.views=[{state:"frozen",ySplit:1}];
-
-ws.autoFilter="A1:G1";
-
-ws.getColumn("date").numFmt="dd-mm-yyyy";
 
 const history=await getDocs(
 collection(
@@ -129,6 +113,7 @@ headers:{
 });
 
 }
+
 
 
 
