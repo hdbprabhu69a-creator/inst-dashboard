@@ -112,6 +112,11 @@ export async function GET() {
 
     for (const c of candles) {
 
+      if (existingDates.has(c.date)) {
+        skipped++;
+        continue;
+      }
+
       const ref = doc(
         db,
         "universe",
@@ -119,6 +124,8 @@ export async function GET() {
         "history",
         c.date
       );
+
+      inserted++;
 
       batch.set(ref, {
         ...c,
@@ -157,6 +164,7 @@ export async function GET() {
   });
 
 }
+
 
 
 
