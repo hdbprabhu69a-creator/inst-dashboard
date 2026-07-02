@@ -117,11 +117,6 @@ const sortedCandles = [...candles].sort(
 
     for (const c of candles) {
 
-      if (existingDates.has(c.date)) {
-        skipped++;
-        continue;
-      }
-
       const ref = doc(
         db,
         "universe",
@@ -186,6 +181,7 @@ const sortedCandles = [...candles].sort(
     return NextResponse.json({ success:false, error:String(error?.message ?? error), stack:error?.stack }, { status:500 });
   }
 }
+
 
 
 
