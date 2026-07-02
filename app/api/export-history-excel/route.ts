@@ -91,7 +91,7 @@ for(const r of rows){
 
 const c=r.data();
 
-const c=r;
+
 
 ws.addRow({
 
@@ -141,6 +141,7 @@ headers:{
 });
 
 }
+
 
 
 
