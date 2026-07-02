@@ -105,8 +105,6 @@ console.log(
       "FILES FOUND:"
     );
 
-    files.forEach(
-      (file) =>
 if (
       files.length === 0
     ) {
