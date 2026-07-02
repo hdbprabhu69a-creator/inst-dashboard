@@ -174,3 +174,4 @@ export function patternToScreen(
     series
   ).toScreen(pattern);
 }
+
