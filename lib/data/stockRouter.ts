@@ -2,7 +2,7 @@ import { learningEngine } from "@/lib/engine/learningEngine";
 import { analyzeAllPatterns } from "@/lib/pattern/patternEngine";
 import { getLivePattern } from "@/lib/pattern/livePatternEngine";
 import { detectMarketRegime } from "@/lib/pattern/marketRegime";
-import { institutionalScore } from "@/lib/institutionalScore";
+import { scorePattern } from "@/lib/pattern/patternScore";
 import { institutionalFilter } from "@/lib/pattern/institutionalFilter";
 import { predictNextMove } from "@/lib/pattern/predictionEngine";
 import { scannerStore } from "./scannerStore";
@@ -50,7 +50,7 @@ export class StockRouter {
 
 const scored = filtered.map(p => ({
       ...p,
-      score: institutionalScore(p, regime)
+      ...scorePattern(p)
     }));
 
     const live = getLivePattern(scored as any);
@@ -69,5 +69,6 @@ const scored = filtered.map(p => ({
     console.log("LIVE:", symbol, live.pattern, prediction);
   }
 }
+
 
 
