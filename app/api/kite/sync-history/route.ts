@@ -24,8 +24,7 @@ export async function GET() {
         )
       );
 
-    const accessToken =
-      tokenDoc.data()?.accessToken;
+    const accessToken = await getCachedAccessToken();
 
     if (!accessToken) {
 
@@ -168,3 +167,4 @@ updatedStocks++;
   }
 
 }
+

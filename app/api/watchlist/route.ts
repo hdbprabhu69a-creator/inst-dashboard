@@ -1,5 +1,6 @@
 import { KiteConnect } from "kiteconnect";
 import { adminDb } from "@/lib/firebase-admin";
+import { getCachedAccessToken } from "@/lib/kite/tokenCache";
 import { NextResponse } from "next/server";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -130,8 +131,7 @@ const tokenDoc =
     .doc("kite")
     .get();
 
-const accessToken =
-  tokenDoc.data()?.accessToken;
+const accessToken = await getCachedAccessToken();
 
 const kite =
   new KiteConnect({

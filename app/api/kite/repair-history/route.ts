@@ -25,8 +25,7 @@ async function getKite() {
   const tokenDoc =
     await getDoc(doc(db, "settings", "kite"));
 
-  const accessToken =
-    tokenDoc.data()?.accessToken;
+  const accessToken = await getCachedAccessToken();
 
   const kite =
     new KiteConnect({
@@ -158,4 +157,5 @@ const from = new Date();
   }
 
 }
+
 

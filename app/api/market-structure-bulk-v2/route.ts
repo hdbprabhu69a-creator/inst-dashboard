@@ -143,8 +143,7 @@ if (
         )
       );
 
-    const accessToken =
-      tokenDoc.data()?.accessToken;
+    const accessToken = await getCachedAccessToken();
 
     if (!accessToken) {
 
@@ -658,3 +657,4 @@ await setDoc(
   }
 
 }
+

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { KiteConnect } from "kiteconnect";
 
 import { adminDb } from "@/lib/firebase-admin";
+import { getCachedAccessToken } from "@/lib/kite/tokenCache";
 
 export async function GET(
   request: Request
@@ -147,3 +148,4 @@ return NextResponse.json({
     );
   }
 }
+

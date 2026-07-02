@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { KiteConnect } from "kiteconnect";
 import { adminDb } from "@/lib/firebase-admin";
+import { getCachedAccessToken } from "@/lib/kite/tokenCache";
 
 type Candle = {
   time: string;
@@ -21,7 +22,7 @@ async function getKite() {
     throw new Error("settings/kite document not found");
   }
 
-  const accessToken = tokenDoc.data()?.accessToken;
+  const accessToken = await getCachedAccessToken();
 
   if (!accessToken) {
     throw new Error("No Access Token Found");
