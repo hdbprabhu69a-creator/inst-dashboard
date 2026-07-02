@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect } from "react";
 import { IChartApi, LineSeries } from "lightweight-charts";
@@ -28,7 +28,7 @@ export default function SDKPatternRenderer({
 
       const s = chart.addSeries(LineSeries, {
         color: line.color,
-        lineWidth: line.width,
+        lineWidth: line.width as any,
       });
 
       s.setData(line.points);
@@ -44,7 +44,7 @@ export default function SDKPatternRenderer({
 
       const marker = chart.addSeries(LineSeries, {
         color: m.color,
-        lineWidth: 0,
+        lineWidth: 1 as any,
       });
 
       marker.setData([
@@ -66,3 +66,4 @@ export default function SDKPatternRenderer({
 
   return null;
 }
+
