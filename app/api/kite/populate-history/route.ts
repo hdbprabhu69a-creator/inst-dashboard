@@ -69,6 +69,7 @@ export async function GET() {
   for (const stockDoc of snapshot.docs) {
 
     const stock = stockDoc.data();
+    console.log("DOC:", stockDoc.id);
 
     if (!stock.instrumentToken) continue;
 const from = new Date();
@@ -188,6 +189,7 @@ const sortedCandles = [...candles].sort(
     return NextResponse.json({ success:false, error:String(error?.message ?? error), stack:error?.stack }, { status:500 });
   }
 }
+
 
 
 
