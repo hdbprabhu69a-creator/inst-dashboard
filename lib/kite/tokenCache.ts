@@ -10,7 +10,7 @@ export async function getCachedAccessToken(): Promise<string> {
     cachedToken &&
     Date.now() - cachedAt < CACHE_MS
   ) {
-    return cachedToken;
+    return cachedToken!;
   }
 
   const doc = await adminDb
@@ -31,11 +31,12 @@ export async function getCachedAccessToken(): Promise<string> {
   cachedToken = token;
   cachedAt = Date.now();
 
-  return cachedToken;
+  return cachedToken!;
 }
 
 export function clearKiteTokenCache() {
   cachedToken = null;
   cachedAt = 0;
 }
+
 
