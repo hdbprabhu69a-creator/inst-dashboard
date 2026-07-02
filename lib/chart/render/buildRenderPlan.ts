@@ -1,8 +1,8 @@
-﻿import { PatternResult } from "@/lib/pattern/types";
+import { PatternResult } from "@/lib/pattern/types";
 import { RenderPlan } from "./RenderPlan";
 import { generateSignal } from "@/lib/pattern/signalEngine";
 
-export function buildRenderPlan(pattern: PatternResult): RenderPlan {
+export function buildRenderPlan(pattern: PatternResult | null): RenderPlan | null {
 
   const signal = generateSignal({
     ...pattern,
@@ -13,13 +13,13 @@ export function buildRenderPlan(pattern: PatternResult): RenderPlan {
     stoploss: pattern.stoploss,
   } as any);
 
-  if (!pattern?.lines || pattern.lines.length === 0) return null;
+  if (!pattern || !pattern.lines || pattern.lines.length === 0) return null;
 
-const last = pattern.lines[pattern.lines.length - 1];
+const last = pattern.lines.at(-1);
 
   return {
 
-    lines: pattern.trendLines.map(t => ({
+    lines: (pattern.trendLines ?? []).map((t:any) => ({
       points: [
         { time: t.start.time, value: t.start.price },
         { time: t.end.time, value: t.end.price }
@@ -43,4 +43,5 @@ const last = pattern.lines[pattern.lines.length - 1];
   };
 
 }
+
 
