@@ -85,22 +85,17 @@ stock.id,
 );
 
 const rows=[...history.docs]
-.map(d=>({
-id:d.id,
-...d.data()
-}))
-.sort((a,b)=>
-new Date(b.date).getTime()-
-new Date(a.date).getTime()
-);
+.sort((a,b)=>b.id.localeCompare(a.id));
 
 for(const r of rows){
+
+const c=r.data();
 
 const c=r;
 
 ws.addRow({
 
-date:new Date(c.date),
+date:excelDate(r.id),
 
 open:c.open,
 
@@ -126,9 +121,9 @@ token:s.instrumentToken,
 
 count:rows.length,
 
-latest:rows.length?new Date(rows[0].date):"",
+latest:rows.length?excelDate(rows[0].id):"",
 
-earliest:rows.length?new Date(rows[rows.length-1].date):""
+earliest:rows.length?excelDate(rows[rows.length-1].id):""
 
 });
 
@@ -146,5 +141,6 @@ headers:{
 });
 
 }
+
 
 
