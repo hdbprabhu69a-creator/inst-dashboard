@@ -67,6 +67,7 @@ export async function GET() {
   let skippedStocks = 0;
   let downloadedStocks = 0;
   let totalCandles = 0;
+  const failedStocks:{symbol:string;token:any;error:string}[] = [];
 
   let index = 0;
 for (const stockDoc of snapshot.docs) {
@@ -99,14 +100,21 @@ console.log(`[${index}/${snapshot.docs.length}] ${stockDoc.data().symbol}`);
 
 
  } catch(e:any){
+
 console.error("FAILED SYMBOL:", stock.symbol);
 console.error("FAILED TOKEN:", stock.instrumentToken);
-console.error("ERROR OBJECT:", JSON.stringify(e, Object.getOwnPropertyNames(e), 2));
-console.error("ERROR MESSAGE:", e?.message);
-console.error("ERROR STATUS:", e?.status);
-console.error("ERROR CODE:", e?.code);
-console.error("ERROR DATA:", e?.data);
-throw e;
+console.error("FAILED:", e.message);
+
+failedStocks.push({
+  symbol: stock.symbol,
+  token: stock.instrumentToken,
+  error: e.message
+});
+
+skippedStocks++;
+
+continue;
+
 }
     downloadedStocks++;
     const candles = normalize(raw);
@@ -195,6 +203,7 @@ console.log("================================");
     return NextResponse.json({ success:false, error:String(error?.message ?? error), stack:error?.stack }, { status:500 });
   }
 }
+
 
 
 
