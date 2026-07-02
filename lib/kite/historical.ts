@@ -9,8 +9,8 @@ export async function getHistoricalCandles(
   const apiKey = process.env.KITE_API_KEY!;
   const accessToken = await getCachedAccessToken();
 
-  const fromStr = from.toISOString().substring(0, 19);
-  const toStr = to.toISOString().substring(0, 19);
+  const fromStr = from.toISOString().substring(0,19).replace("T"," ");
+  const toStr = to.toISOString().substring(0,19).replace("T"," ");
 
   const url =
     `https://api.kite.trade/instruments/historical/${instrumentToken}/${interval}` +
@@ -36,3 +36,4 @@ export async function getHistoricalCandles(
 
   return json.data.candles;
 }
+
