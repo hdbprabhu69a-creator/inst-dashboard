@@ -10,6 +10,7 @@ import {
 } from "firebase/firestore";
 
 import { db } from "@/lib/firebase";
+import { getCachedAccessToken } from "@/lib/kite/tokenCache";
 
 import {
   calculatePivot,
@@ -390,4 +391,5 @@ export async function GET() {
   }
 
 }
+
 

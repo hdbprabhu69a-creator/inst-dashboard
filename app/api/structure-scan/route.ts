@@ -7,6 +7,7 @@ import {
 } from "firebase/firestore";
 
 import { db } from "@/lib/firebase";
+import { getCachedAccessToken } from "@/lib/kite/tokenCache";
 
 export async function GET(
   request: Request
@@ -151,4 +152,5 @@ export async function GET(
 
   }
 }
+
 

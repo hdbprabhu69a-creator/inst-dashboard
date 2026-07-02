@@ -10,6 +10,7 @@ import {
 } from "firebase/firestore";
 
 import { db } from "@/lib/firebase";
+import { getCachedAccessToken } from "@/lib/kite/tokenCache";
 
 type Candle = {
   date: string;
@@ -21,9 +22,6 @@ type Candle = {
 };
 
 async function getKite() {
-
-  const tokenDoc =
-    await getDoc(doc(db, "settings", "kite"));
 
   const accessToken = await getCachedAccessToken();
 
@@ -157,6 +155,7 @@ const from = new Date();
   }
 
 }
+
 
 
 
