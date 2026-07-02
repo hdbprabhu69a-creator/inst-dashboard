@@ -15,7 +15,7 @@ import {
 import { adminDb } from "@/lib/firebase-admin";
 import { db } from "@/lib/firebase";
 import { getCachedAccessToken } from "@/lib/kite/tokenCache";
-import { getDeltaFromDate, getToday } from "@/lib/history/deltaSync";
+
 
 type Candle = {
   date: string;
@@ -79,15 +79,9 @@ console.log(`[${index}/${snapshot.docs.length}] ${stockDoc.data().symbol}`);
       skippedStocks++;
       continue;
     }
-    const latestSnapshot = await getDocs(query(collection(db,"universe",stockDoc.id,"history"),orderBy("date","desc"),limit(1)));
-    const lastDate = latestSnapshot.empty ? undefined : latestSnapshot.docs[0].id;
-    const existingDates = new Set<string>();
-    const from = getDeltaFromDate(lastDate);
-    const to = getToday();
-    if (from > to) {
-      skippedStocks++;
-      continue;
-    }
+    const to = new Date();
+    const from = new Date();
+    from.setMonth(from.getMonth() - 6);
 
     console.log("LAST DATE:", lastDate);
     console.log("FROM:", from.toISOString());
@@ -196,6 +190,7 @@ console.log("================================");
     return NextResponse.json({ success:false, error:String(error?.message ?? error), stack:error?.stack }, { status:500 });
   }
 }
+
 
 
 
