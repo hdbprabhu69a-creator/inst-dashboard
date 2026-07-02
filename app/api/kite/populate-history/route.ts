@@ -78,15 +78,15 @@ const from = new Date();
     const to = new Date();
 
     let raw: any[] = [];
-try {
     try {
       raw = await kite.getHistoricalData(
-      "day",
-      from,
-      to,
-      false,
-      false
-    );
+        Number(stock.instrumentToken),
+        "day",
+        from,
+        to,
+        false,
+        false
+      );
 
 
  } catch(e:any){
@@ -196,6 +196,7 @@ const sortedCandles = [...candles].sort(
     return NextResponse.json({ success:false, error:String(error?.message ?? error), stack:error?.stack }, { status:500 });
   }
 }
+
 
 
 
