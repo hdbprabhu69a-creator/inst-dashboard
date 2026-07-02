@@ -77,10 +77,10 @@ const from = new Date();
 
     const to = new Date();
 
-    console.log("FETCHING:", stock.symbol, stock.instrumentToken);
+    let raw: any[] = [];
 try {
-const raw = await kite.getHistoricalData(
-      Number(stock.instrumentToken),
+    try {
+      raw = await kite.getHistoricalData(
       "day",
       from,
       to,
