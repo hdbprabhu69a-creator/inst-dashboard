@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
 import ExcelJS from "exceljs";
+import {
+  createHistoryWorkbook,
+  createSummarySheet
+} from "@/lib/export/historyWorkbook";
 import { collection,getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
@@ -17,25 +21,9 @@ Number(p[2])
 
 export async function GET(){
 
-const wb=new ExcelJS.Workbook();
+const wb=createHistoryWorkbook();
 
-wb.creator="Institution Dashboard";
-
-const summary=wb.addWorksheet("Summary");
-
-summary.columns=[
-{header:"Symbol",key:"symbol",width:18},
-{header:"Instrument Token",key:"token",width:18},
-{header:"Candles",key:"count",width:12},
-{header:"Latest Date",key:"latest",width:16},
-{header:"Earliest Date",key:"earliest",width:16}
-];
-
-summary.getRow(1).font={bold:true};
-
-summary.views=[{state:"frozen",ySplit:1}];
-
-summary.autoFilter="A1:E1";
+const summary=createSummarySheet(wb);
 
 summary.getColumn("latest").numFmt="dd-mm-yyyy";
 summary.getColumn("earliest").numFmt="dd-mm-yyyy";
@@ -141,6 +129,7 @@ headers:{
 });
 
 }
+
 
 
 
