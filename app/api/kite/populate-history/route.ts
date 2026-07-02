@@ -69,7 +69,10 @@ export async function GET() {
   let totalStocks = 0;
   let totalCandles = 0;
 
-  for (const stockDoc of snapshot.docs) {
+  let index = 0;
+for (const stockDoc of snapshot.docs) {
+index++;
+console.log(`[${index}/${snapshot.docs.length}] ${stockDoc.data().symbol}`);
 
     const stock = stockDoc.data();
     console.log("DOC:", stockDoc.id);
@@ -181,6 +184,7 @@ const sortedCandles = [...candles].sort(
     return NextResponse.json({ success:false, error:String(error?.message ?? error), stack:error?.stack }, { status:500 });
   }
 }
+
 
 
 
