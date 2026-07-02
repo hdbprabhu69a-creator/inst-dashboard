@@ -145,3 +145,43 @@ export function createStockSheet(
 
 }
 
+
+export function sortHistoryDescending<T extends { id:string }>(
+    rows:T[]
+){
+
+    return [...rows].sort(
+
+        (a,b)=>
+
+            b.id.localeCompare(a.id)
+
+    );
+
+}
+
+export function firestoreIdToExcelDate(
+    firestoreId:string
+){
+
+    const p =
+        firestoreId.split("-");
+
+    if(p.length!==3){
+
+        return firestoreId;
+
+    }
+
+    return new Date(
+
+        Number(p[0]),
+
+        Number(p[1])-1,
+
+        Number(p[2])
+
+    );
+
+}
+
