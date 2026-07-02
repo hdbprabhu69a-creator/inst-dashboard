@@ -84,7 +84,7 @@ console.log(`[${index}/${snapshot.docs.length}] ${stockDoc.data().symbol}`);
       skippedStocks++;
       continue;
     }
-const from = getDeltaFromDate(lastDate);
+    const from = getDeltaFromDate(lastDate);
     const to = getToday();
     if (from > to) {
       skippedStocks++;
@@ -110,10 +110,6 @@ throw e;
 }
     downloadedStocks++;
     const candles = normalize(raw);
-
-    const latestSnapshot = await getDocs(query(collection(db,"universe",stockDoc.id,"history"),orderBy("date","desc"),limit(1)));
-    const lastDate = latestSnapshot.empty ? undefined : latestSnapshot.docs[0].id;
-    const existingDates = new Set<string>();
 let inserted = 0;
 let skipped = 0;
 let missingSequence = 0;
@@ -199,6 +195,7 @@ console.log("================================");
     return NextResponse.json({ success:false, error:String(error?.message ?? error), stack:error?.stack }, { status:500 });
   }
 }
+
 
 
 
