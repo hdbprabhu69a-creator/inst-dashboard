@@ -137,8 +137,12 @@ export async function GET() {
       ops++;
 
       // ?? SAFE LIMIT (Firestore batch max ~500)
-      if (ops === 400) {
+      if (ops >= 400) {
+
         await batch.commit();
+
+        batch = writeBatch(db);
+
         ops = 0;
       }
     }
@@ -164,6 +168,7 @@ export async function GET() {
   });
 
 }
+
 
 
 
