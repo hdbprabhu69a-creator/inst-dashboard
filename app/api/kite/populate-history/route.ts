@@ -80,12 +80,16 @@ console.log(`[${index}/${snapshot.docs.length}] ${stockDoc.data().symbol}`);
     const stock = stockDoc.data();
     console.log("DOC:", stockDoc.id);
 
-    if (!stock.instrumentToken) skippedStocks++;
+    if (!stock.instrumentToken) {
+      skippedStocks++;
       continue;
-const from = new Date();
-    from.setFullYear(from.getFullYear() - 2);
-
-    const to = new Date();
+    }
+const from = getDeltaFromDate(lastDate);
+    const to = getToday();
+    if (from > to) {
+      skippedStocks++;
+      continue;
+    }
 
     let raw: any[] = [];
     try {
@@ -192,15 +196,10 @@ console.log("================================");
     console.error("STATUS:", error?.status);
     console.error("CODE:", error?.code);
     console.error("STACK:", error?.stack);
-    console.log("================================");
-console.log(`IMPORT FINISHED IN ${((Date.now()-startedAt)/1000).toFixed(2)}s`);
-console.log(`Downloaded: ${downloadedStocks}`);
-console.log(`Skipped: ${skippedStocks}`);
-console.log(`Candles Written: ${totalCandles}`);
-console.log("================================");
-  return NextResponse.json({ success:false, error:String(error?.message ?? error), stack:error?.stack }, { status:500 });
+    return NextResponse.json({ success:false, error:String(error?.message ?? error), stack:error?.stack }, { status:500 });
   }
 }
+
 
 
 
