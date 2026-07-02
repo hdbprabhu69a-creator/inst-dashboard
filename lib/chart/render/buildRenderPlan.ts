@@ -4,6 +4,8 @@ import { generateSignal } from "@/lib/pattern/signalEngine";
 
 export function buildRenderPlan(pattern: PatternResult | null): RenderPlan | null {
 
+  if (!pattern) return null;
+
   const signal = generateSignal({
     ...pattern,
     pattern: pattern.pattern,
@@ -30,8 +32,8 @@ const last = pattern.trendLines.at(-1);
 
     markers: [
       {
-        time: last?.end.time,
-        price: last?.end.price,
+        time: last?.end.time ?? "",
+        price: last?.end.price ?? 0,
         color:
           signal.action === "BUY" ? "#22c55e" :
           signal.action === "SELL" ? "#ef4444" :
@@ -43,6 +45,7 @@ const last = pattern.trendLines.at(-1);
   };
 
 }
+
 
 
 
