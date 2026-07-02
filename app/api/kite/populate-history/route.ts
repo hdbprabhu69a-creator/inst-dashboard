@@ -89,14 +89,7 @@ console.log(`[${index}/${snapshot.docs.length}] ${stockDoc.data().symbol}`);
       console.log("INTERVAL:", "day");
       console.log("FROM:", from.toISOString());
       console.log("TO:", to.toISOString());
-      raw = await kite.getHistoricalData(
-        Number(stock.instrumentToken),
-        "day",
-        from,
-        to,
-        false,
-        false
-      );
+      raw = await kite.getHistoricalData(Number(stock.instrumentToken), from, to, "day");
 
 
  } catch(e:any){
@@ -196,6 +189,7 @@ console.log("================================");
     return NextResponse.json({ success:false, error:String(error?.message ?? error), stack:error?.stack }, { status:500 });
   }
 }
+
 
 
 
