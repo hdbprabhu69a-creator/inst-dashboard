@@ -8,6 +8,7 @@ import {
   doc,
   query,
   orderBy,
+  limit,
   writeBatch,
 } from "firebase/firestore";
 
@@ -97,23 +98,10 @@ throw e;
 }
     const candles = normalize(raw);
 
-    const historySnapshot = await getDocs(
-      query(
-        collection(
-          db,
-          "universe",
-          stockDoc.id,
-          "history"
-        ),
-        orderBy("date")
-      )
-    );
-
-    const existingDates = new Set(
-      historySnapshot.docs.map(d => d.id)
-    );
-
-    let inserted = 0;
+    const latestSnapshot = await getDocs(query(collection(db,"universe",stockDoc.id,"history"),orderBy("date","desc"),limit(1)));
+    const lastDate = latestSnapshot.empty ? undefined : latestSnapshot.docs[0].id;
+    const existingDates = new Set<string>();
+let inserted = 0;
 let skipped = 0;
 let missingSequence = 0;
 
@@ -197,6 +185,7 @@ const sortedCandles = [...candles].sort(
     return NextResponse.json({ success:false, error:String(error?.message ?? error), stack:error?.stack }, { status:500 });
   }
 }
+
 
 
 
