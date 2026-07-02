@@ -68,6 +68,8 @@ export async function GET() {
   const snapshot = await getDocs(collection(db, "universe"));
 
   let totalStocks = 0;
+  let skippedStocks = 0;
+  let downloadedStocks = 0;
   let totalCandles = 0;
 
   let index = 0;
@@ -78,7 +80,8 @@ console.log(`[${index}/${snapshot.docs.length}] ${stockDoc.data().symbol}`);
     const stock = stockDoc.data();
     console.log("DOC:", stockDoc.id);
 
-    if (!stock.instrumentToken) continue;
+    if (!stock.instrumentToken) skippedStocks++;
+      continue;
 const from = new Date();
     from.setFullYear(from.getFullYear() - 2);
 
@@ -101,6 +104,7 @@ console.error("FAILED SYMBOL:", stock.symbol);
 console.error("FAILED TOKEN:", stock.instrumentToken);
 throw e;
 }
+    downloadedStocks++;
     const candles = normalize(raw);
 
     const latestSnapshot = await getDocs(query(collection(db,"universe",stockDoc.id,"history"),orderBy("date","desc"),limit(1)));
@@ -162,7 +166,12 @@ const sortedCandles = [...candles].sort(
 
   }
 
-  console.log(`IMPORT FINISHED IN ${((Date.now()-startedAt)/1000).toFixed(2)}s`);
+  console.log("================================");
+console.log(`IMPORT FINISHED IN ${((Date.now()-startedAt)/1000).toFixed(2)}s`);
+console.log(`Downloaded: ${downloadedStocks}`);
+console.log(`Skipped: ${skippedStocks}`);
+console.log(`Candles Written: ${totalCandles}`);
+console.log("================================");
   return NextResponse.json({
     success: true,
     totalStocks,
@@ -183,10 +192,16 @@ const sortedCandles = [...candles].sort(
     console.error("STATUS:", error?.status);
     console.error("CODE:", error?.code);
     console.error("STACK:", error?.stack);
-    console.log(`IMPORT FINISHED IN ${((Date.now()-startedAt)/1000).toFixed(2)}s`);
+    console.log("================================");
+console.log(`IMPORT FINISHED IN ${((Date.now()-startedAt)/1000).toFixed(2)}s`);
+console.log(`Downloaded: ${downloadedStocks}`);
+console.log(`Skipped: ${skippedStocks}`);
+console.log(`Candles Written: ${totalCandles}`);
+console.log("================================");
   return NextResponse.json({ success:false, error:String(error?.message ?? error), stack:error?.stack }, { status:500 });
   }
 }
+
 
 
 
