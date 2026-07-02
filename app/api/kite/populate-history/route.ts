@@ -84,6 +84,9 @@ console.log(`[${index}/${snapshot.docs.length}] ${stockDoc.data().symbol}`);
       skippedStocks++;
       continue;
     }
+    const latestSnapshot = await getDocs(query(collection(db,"universe",stockDoc.id,"history"),orderBy("date","desc"),limit(1)));
+    const lastDate = latestSnapshot.empty ? undefined : latestSnapshot.docs[0].id;
+    const existingDates = new Set<string>();
     const from = getDeltaFromDate(lastDate);
     const to = getToday();
     if (from > to) {
