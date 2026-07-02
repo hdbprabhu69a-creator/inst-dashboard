@@ -105,7 +105,12 @@ export async function GET() {
     );
 
     let inserted = 0;
-    let skipped = 0;
+let skipped = 0;
+let missingSequence = 0;
+
+const sortedCandles = [...candles].sort(
+  (a, b) => a.date.localeCompare(b.date)
+);
 
     let batch = writeBatch(db);
     let ops = 0;
@@ -170,6 +175,7 @@ export async function GET() {
   });
 
 }
+
 
 
 
