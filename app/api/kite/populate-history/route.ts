@@ -88,13 +88,13 @@ const raw = await kite.getHistoricalData(
       false
     );
 
-    );
+
  } catch(e:any){
 console.error("FAILED SYMBOL:", stock.symbol);
 console.error("FAILED TOKEN:", stock.instrumentToken);
 throw e;
 }
-const candles = normalize(raw);
+    const candles = normalize(raw);
 
     const historySnapshot = await getDocs(
       query(
