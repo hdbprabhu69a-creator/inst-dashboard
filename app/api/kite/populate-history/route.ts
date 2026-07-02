@@ -12,6 +12,7 @@ import {
 } from "firebase/firestore";
 
 import { adminDb } from "@/lib/firebase-admin";
+import { db } from "@/lib/firebase";
 
 type Candle = {
   date: string;
@@ -183,4 +184,5 @@ const sortedCandles = [...candles].sort(
     return NextResponse.json({ success:false, error:String(error?.message ?? error), stack:error?.stack }, { status:500 });
   }
 }
+
 
