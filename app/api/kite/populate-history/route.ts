@@ -94,6 +94,9 @@ console.log(`[${index}/${snapshot.docs.length}] ${stockDoc.data().symbol}`);
       continue;
     }
 
+    console.log("LAST DATE:", lastDate);
+    console.log("FROM:", from.toISOString());
+    console.log("TO:", to.toISOString());
     let raw: any[] = [];
     try {
       raw = await kite.getHistoricalData(
@@ -198,6 +201,7 @@ console.log("================================");
     return NextResponse.json({ success:false, error:String(error?.message ?? error), stack:error?.stack }, { status:500 });
   }
 }
+
 
 
 
