@@ -3,13 +3,15 @@ import ExcelJS from "exceljs";
 import { collection,getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
-function fmt(d:string){
+function excelDate(d:string){
 
 const p=d.split("-");
 
-if(p.length!==3) return d;
-
-return `${p[2]}-${p[1]}-${p[0]}`;
+return new Date(
+Number(p[0]),
+Number(p[1])-1,
+Number(p[2])
+);
 
 }
 
@@ -34,6 +36,9 @@ summary.getRow(1).font={bold:true};
 summary.views=[{state:"frozen",ySplit:1}];
 
 summary.autoFilter="A1:E1";
+
+summary.getColumn("latest").numFmt="dd-mm-yyyy";
+summary.getColumn("earliest").numFmt="dd-mm-yyyy";
 
 const universe=await getDocs(collection(db,"universe"));
 
@@ -68,6 +73,8 @@ ws.views=[{state:"frozen",ySplit:1}];
 
 ws.autoFilter="A1:G1";
 
+ws.getColumn("date").numFmt="dd-mm-yyyy";
+
 const history=await getDocs(
 collection(
 db,
@@ -87,7 +94,7 @@ const c=r.data();
 
 ws.addRow({
 
-date:fmt(r.id),
+date:excelDate(r.id),
 
 open:c.open,
 
@@ -113,9 +120,9 @@ token:s.instrumentToken,
 
 count:rows.length,
 
-latest:rows.length?fmt(rows[0].id):"",
+latest:rows.length?excelDate(rows[0].id):"",
 
-earliest:rows.length?fmt(rows[rows.length-1].id):""
+earliest:rows.length?excelDate(rows[rows.length-1].id):""
 
 });
 
@@ -133,3 +140,4 @@ headers:{
 });
 
 }
+
