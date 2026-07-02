@@ -229,7 +229,9 @@ const [scannerType,setScannerType] =
         const c =
           V[r.verdict]?.[0];
 
-        if(c) a[c]++;
+        if (c && c in a) {
+  a[c as keyof typeof a]++;
+}
 
         return a;
 
