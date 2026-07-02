@@ -1,4 +1,4 @@
-﻿export type TradeSignal = {
+export type TradeSignal = {
   symbol: string;
   price: number;
   direction: "BUY" | "SELL";
@@ -27,22 +27,18 @@ class ExecutionEngine {
   execute(signal: TradeSignal) {
 
     if (this.isKilled) {
-      console.log("🛑 EXECUTION BLOCKED (KILL SWITCH ACTIVE)");
-      return;
+return;
     }
 
     if (this.mode === "PAPER") {
-      console.log("🧠 PAPER TRADE:", signal);
-      return {
+return {
         status: "PAPER_EXECUTED",
         signal
       };
     }
 
     if (this.mode === "LIVE") {
-      console.log("💸 LIVE TRADE SENT:", signal);
-
-      // ⚠️ REAL BROKER INTEGRATION POINT
+// ?? REAL BROKER INTEGRATION POINT
       // KiteConnect / Zerodha / API call goes here
 
       return {
@@ -56,4 +52,5 @@ class ExecutionEngine {
 }
 
 export const executionEngine = new ExecutionEngine();
+
 

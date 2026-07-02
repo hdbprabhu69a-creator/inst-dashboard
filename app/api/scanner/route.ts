@@ -112,10 +112,7 @@ export async function GET() {
 export async function POST(
   request: Request
 ) {
-  console.log(
-    "POST HIT"
-  );
-  try {
+try {
 
     const filters =
       await request.json();
@@ -123,11 +120,7 @@ export async function POST(
     const scanner =
       filters.scanner ||
       "ALL";
-console.log(
-  "SCANNER:",
-  scanner
-);
-    const marketSnapshot =
+const marketSnapshot =
       await getDocs(
         collection(
           db,
@@ -546,20 +539,10 @@ Type: ${stock.buyZoneType}`
       .join("\n\n");
 
  try {
-
-  console.log(
-    "SENDING EMAIL..."
-  );
-
-  await sendEmail(
+await sendEmail(
     "BUYZONE ALERT",
     message
   );
-
-  console.log(
-    "EMAIL SENT"
-  );
-
 } catch (error) {
 
   console.error(

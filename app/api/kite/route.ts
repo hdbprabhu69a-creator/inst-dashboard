@@ -15,21 +15,10 @@ export async function GET(
 
     const cleanSymbol =
       symbol?.trim();
-
-    console.log(
-      "================================="
-    );
-
-    console.log(
+console.log(
       "KITE API ROUTE HIT"
     );
-
-    console.log(
-      "SYMBOL:",
-      cleanSymbol
-    );
-
-    if (
+if (
       !cleanSymbol ||
       cleanSymbol === "undefined" ||
       cleanSymbol === "null"
@@ -44,23 +33,12 @@ export async function GET(
         }
       );
     }
-
-    console.log(
-      "READING TOKEN FROM FIRESTORE..."
-    );
-
-    const tokenDoc =
+const tokenDoc =
       await adminDb
         .collection("settings")
         .doc("kite")
         .get();
-
-    console.log(
-      "TOKEN DOC EXISTS:",
-      tokenDoc.exists
-    );
-
-    if (!tokenDoc.exists) {
+if (!tokenDoc.exists) {
       return NextResponse.json(
         {
           success: false,
@@ -91,35 +69,15 @@ export async function GET(
         }
       );
     }
-
-    console.log(
-      "================================="
-    );
-
-    console.log(
+console.log(
       "API KEY:",
       process.env.KITE_API_KEY
     );
-
-    console.log(
-      "TOKEN UPDATED AT:",
-      tokenData?.updatedAt
-    );
-
-    console.log(
+console.log(
       "TOKEN LENGTH:",
       accessToken.length
     );
-
-    console.log(
-      "TOKEN PREVIEW:",
-      `${accessToken.substring(
-        0,
-        8
-      )}...`
-    );
-
-    console.log(
+console.log(
       "================================="
     );
 
@@ -135,22 +93,11 @@ export async function GET(
 
     const exchangeSymbol =
       `NSE:${cleanSymbol}`;
-
-    console.log(
-      "FETCHING QUOTE FOR:",
-      exchangeSymbol
-    );
-
-    const quote =
+const quote =
       await kite.getQuote([
         exchangeSymbol,
       ]);
-
-    console.log(
-      "QUOTE RECEIVED SUCCESSFULLY"
-    );
-
-    return NextResponse.json({
+return NextResponse.json({
       success: true,
       symbol: cleanSymbol,
       quote,

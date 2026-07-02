@@ -101,22 +101,13 @@ export async function GET() {
               )
         )
         .sort();
-
-    console.log(
-      "DELIVERY FOLDER:",
-      deliveryFolder
-    );
-
-    console.log(
+console.log(
       "FILES FOUND:"
     );
 
     files.forEach(
       (file) =>
-        console.log(file)
-    );
-
-    if (
+if (
       files.length === 0
     ) {
 
@@ -142,13 +133,7 @@ export async function GET() {
     for (
       const file of files
     ) {
-
-      console.log(
-        "PROCESSING:",
-        file
-      );
-
-      const rows: any[] = [];
+const rows: any[] = [];
 
       await new Promise(
         (

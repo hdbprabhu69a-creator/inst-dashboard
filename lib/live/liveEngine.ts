@@ -1,4 +1,4 @@
-﻿import { candleEngine } from "./candleEngine";
+import { candleEngine } from "./candleEngine";
 
 type Tick = {
   symbol?: string;
@@ -21,8 +21,7 @@ class LiveEngine {
     this.ws = new WebSocket(url);
 
     this.ws.onopen = () => {
-      console.log("LiveEngine connected");
-    };
+};
 
     this.ws.onmessage = (event) => {
       try {
@@ -51,7 +50,7 @@ class LiveEngine {
 
         this.lastTickMap.set(tick.symbol, tick);
 
-        // ⭐ Feed Candle Engine
+        // ? Feed Candle Engine
         candleEngine.processTick({
           symbol: tick.symbol,
           lastPrice: tick.lastPrice,
@@ -71,9 +70,7 @@ class LiveEngine {
     };
 
     this.ws.onclose = () => {
-      console.log("LiveEngine closed");
-
-      this.ws = null;
+this.ws = null;
 
       setTimeout(() => {
         this.reconnect(url);

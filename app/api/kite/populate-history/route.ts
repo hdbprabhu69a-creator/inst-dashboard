@@ -69,10 +69,7 @@ export async function GET() {
     const stock = stockDoc.data();
 
     if (!stock.instrumentToken) continue;
-
-    console.log("FETCHING:", stock.symbol);
-
-    const from = new Date();
+const from = new Date();
     from.setFullYear(from.getFullYear() - 2);
 
     const to = new Date();
@@ -160,12 +157,7 @@ const sortedCandles = [...candles].sort(
 
     totalStocks++;
     totalCandles += inserted;
-
-    console.log(
-  `${stock.symbol} | Inserted: ${inserted} | Skipped: ${skipped}`
-);
-
-    // ?? THROTTLE (CRITICAL FIX)
+// ?? THROTTLE (CRITICAL FIX)
     await delay(250);
 
   }
@@ -177,6 +169,7 @@ const sortedCandles = [...candles].sort(
   });
 
 }
+
 
 
 

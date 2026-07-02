@@ -173,12 +173,7 @@ INST Dashboard`;
 
         emailSent =
           true;
-
-        console.log(
-          "EMAIL SENT"
-        );
-
-      } catch (
+} catch (
         error
       ) {
 
@@ -190,23 +185,13 @@ INST Dashboard`;
       }
 
       try {
-
-        console.log(
-          "ABOUT TO SEND WHATSAPP"
-        );
-
-        await sendWhatsApp(
+await sendWhatsApp(
           message
         );
 
         whatsappSent =
           true;
-
-        console.log(
-          "WHATSAPP SENT"
-        );
-
-      } catch (
+} catch (
         error
       ) {
 

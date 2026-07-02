@@ -1,4 +1,4 @@
-﻿import { tradeFeedbackEngine } from "./tradeFeedbackEngine";
+import { tradeFeedbackEngine } from "./tradeFeedbackEngine";
 
 export class TrainingEngine {
 
@@ -48,9 +48,9 @@ export class TrainingEngine {
   // OPTIMIZER (META LEARNING)
   // -------------------------
   optimizeStrategy(stats: any) {
-    console.log("OPTIMIZING STRATEGY:", stats);
-  }
+}
 
 }
 
 export const trainingEngine = new TrainingEngine();
+

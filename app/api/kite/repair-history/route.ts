@@ -84,14 +84,10 @@ export async function GET() {
 
       // EXPECTED RANGE ~496
       if (count > 450) {
-        console.log("SKIP OK:", stock.symbol, count);
-        skipped++;
+skipped++;
         continue;
       }
-
-      console.log("REPAIRING:", stock.symbol, count);
-
-      const from = new Date();
+const from = new Date();
       from.setFullYear(from.getFullYear() - 2);
 
       const to = new Date();
@@ -162,3 +158,4 @@ export async function GET() {
   }
 
 }
+

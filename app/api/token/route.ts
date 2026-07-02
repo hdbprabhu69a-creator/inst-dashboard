@@ -28,13 +28,7 @@ export async function GET(
         }
       );
     }
-
-    console.log(
-      "REQUEST TOKEN:",
-      request_token
-    );
-
-    const checksum =
+const checksum =
       crypto
         .createHash("sha256")
         .update(
@@ -44,12 +38,7 @@ export async function GET(
               .KITE_API_SECRET!
         )
         .digest("hex");
-
-    console.log(
-      "GENERATING ACCESS TOKEN..."
-    );
-
-    const response =
+const response =
       await axios.post(
         "https://api.kite.trade/session/token",
         new URLSearchParams({
@@ -72,12 +61,7 @@ export async function GET(
     const accessToken =
       response.data.data
         .access_token;
-
-    console.log(
-      "ACCESS TOKEN RECEIVED"
-    );
-
-    console.log(
+console.log(
       "TOKEN PREVIEW:",
       `${accessToken.substring(
         0,
@@ -119,12 +103,7 @@ export async function GET(
         updatedAtEpoch:
           now.getTime(),
       });
-
-    console.log(
-      "FIRESTORE UPDATED SUCCESSFULLY"
-    );
-
-    return NextResponse.redirect(
+return NextResponse.redirect(
       new URL("/", req.url)
     );
   } catch (error: any) {

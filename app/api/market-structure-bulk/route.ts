@@ -231,14 +231,7 @@ export async function GET() {
         failedSymbols.push(
           symbol
         );
-
-        console.log(
-          "FAILED:",
-          symbol,
-          error
-        );
-
-      }
+}
 
     }
 

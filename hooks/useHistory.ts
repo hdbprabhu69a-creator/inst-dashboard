@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import { getHistory } from "@/lib/history/historyService";
@@ -20,41 +20,13 @@ export function useHistory(symbol: string) {
 
     getHistory(symbol)
       .then((rows) => {
-
-        console.log("======================================");
-        console.log("FIRESTORE HISTORY");
-        console.log("SYMBOL:", symbol);
-        console.log("TOTAL ROWS:", rows.length);
-
-        console.log("FIRST 20 CANDLES");
-
-        rows.slice(0, 20).forEach((r: any, i: number) => {
-          console.log(
-            i,
-            r.time,
-            r.open,
-            r.high,
-            r.low,
-            r.close
-          );
-        });
-
-        console.log("LAST 20 CANDLES");
-
-        rows.slice(-20).forEach((r: any, i: number) => {
-          console.log(
-            rows.length - 20 + i,
-            r.time,
-            r.open,
-            r.high,
-            r.low,
-            r.close
-          );
-        });
-
-        console.log("======================================");
-
-        setCandles(rows);
+console.log("FIRESTORE HISTORY");
+console.log("TOTAL ROWS:", rows.length);
+rows.slice(0, 20).forEach((r: any, i: number) => {
+});
+rows.slice(-20).forEach((r: any, i: number) => {
+});
+setCandles(rows);
 
       })
       .catch((err) => {

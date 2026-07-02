@@ -54,10 +54,7 @@ export default function Home() {
     }
 
   }, []);
-
-  console.log(kite);
-
-  return (
+return (
 
     <SelectedStockProvider>
 

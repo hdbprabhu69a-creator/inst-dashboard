@@ -94,9 +94,7 @@ export default function Home() {
     startLive();
 
   }, []);
-  console.log(kite);
-
-  return (
+return (
 
     <SelectedStockProvider>
 
@@ -253,6 +251,7 @@ export default function Home() {
   );
 
 }
+
 
 
 

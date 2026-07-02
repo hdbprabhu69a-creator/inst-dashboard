@@ -69,21 +69,11 @@ export async function GET() {
           "universe"
         )
       );
-
-    console.log(
-      "================================="
-    );
-
-    console.log(
+console.log(
       "TOTAL STOCKS:",
       universeSnapshot.size
     );
-
-    console.log(
-      "================================="
-    );
-
-    //
+//
     // LOOP THROUGH ALL STOCKS
     //
 
@@ -98,13 +88,7 @@ export async function GET() {
       const symbol =
         stock.symbol ??
         stockDoc.id;
-
-      console.log(
-        "EXPORTING:",
-        symbol
-      );
-
-      //
+//
       // LOAD HISTORY
       //
 
@@ -354,21 +338,10 @@ const sheet =
 
       }
     );
-
-    console.log(
-      "================================="
-    );
-
-    console.log(
+console.log(
       "EXCEL EXPORT COMPLETE"
     );
-
-    console.log(
-      "WORKSHEETS:",
-      workbook.worksheets.length
-    );
-
-    console.log(
+console.log(
       "================================="
     );
 

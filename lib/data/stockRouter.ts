@@ -65,10 +65,9 @@ const scored = filtered.map(p => ({
       confidence: live.confidence || 0,
       prediction
     });
-
-    console.log("LIVE:", symbol, live.pattern, prediction);
-  }
 }
+}
+
 
 
 

@@ -223,13 +223,7 @@ if (
         if (
           !instrumentToken
         ) {
-
-          console.log(
-            "TOKEN NOT FOUND:",
-            stock.kiteSymbol
-          );
-
-          failed++;
+failed++;
 
           failedSymbols.push(
             stock.symbol
@@ -238,14 +232,7 @@ if (
           continue;
 
         }
-
-        console.log(
-          "TOKEN:",
-          symbol,
-          instrumentToken
-        );
-
-        const candles =
+const candles =
           await getDailyCandles(
             kite,
             Number(
@@ -597,13 +584,7 @@ deliveryPctMonthly,
         );
 
       } catch (error: any) {
-
-        console.log(
-          "FAILED:",
-          stock.symbol
-        );
-
-        console.log(
+console.log(
           error
         );
 

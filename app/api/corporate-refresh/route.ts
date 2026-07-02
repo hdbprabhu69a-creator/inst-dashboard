@@ -2,11 +2,7 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    console.log(
-      "Corporate Refresh Started"
-    );
-
-    const { ingestNSE } = await import(
+const { ingestNSE } = await import(
       "@/lib/corporate/ingest-nse"
     );
 

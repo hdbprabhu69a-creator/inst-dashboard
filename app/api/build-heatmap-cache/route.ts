@@ -34,33 +34,17 @@ export async function GET() {
 
       const stock =
         stockDoc.data();
-
-      console.log(
-        "================================="
-      );
-
-      console.log(
+console.log(
         "DOC ID:",
         stockDoc.id
       );
-
-      console.log(
-        "SYMBOL:",
-        stock.symbol
-      );
-
-      if (
+if (
         !stock.symbol ||
         typeof stock.symbol !==
           "string" ||
         stock.symbol.trim() === ""
       ) {
-
-        console.log(
-          "SKIPPED INVALID SYMBOL"
-        );
-
-        skipped++;
+skipped++;
 
         skippedSymbols.push(
           stockDoc.id
@@ -97,17 +81,7 @@ export async function GET() {
             .toISOString(),
 
       };
-
-      console.log(
-        "WRITING:",
-        JSON.stringify(
-          dataToSave,
-          null,
-          2
-        )
-      );
-
-      await setDoc(
+await setDoc(
 
         doc(
           db,

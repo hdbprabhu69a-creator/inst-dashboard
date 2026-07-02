@@ -59,13 +59,7 @@ export async function GET() {
       );
 
       await batch.commit();
-
-      console.log(
-        "DELETED:",
-        stockDoc.data().symbol
-      );
-
-    }
+}
 
     return NextResponse.json({
       success: true,

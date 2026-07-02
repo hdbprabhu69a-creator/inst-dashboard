@@ -68,12 +68,7 @@ export async function GET() {
       ) {
         continue;
       }
-
-      console.log(
-        "================================="
-      );
-
-      console.log(
+console.log(
         "SYNCING:",
         stock.symbol
       );
@@ -86,13 +81,7 @@ export async function GET() {
           new Date(),
           false
         );
-
-      console.log(
-        "TOTAL CANDLES:",
-        history.length
-      );
-
-      for (
+for (
         const candle
         of history
       ) {
@@ -145,13 +134,7 @@ export async function GET() {
         );
 
       }
-
-      console.log(
-        "DONE:",
-        stock.symbol
-      );
-
-      updatedStocks++;
+updatedStocks++;
 
     }
 

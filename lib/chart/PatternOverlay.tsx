@@ -157,8 +157,7 @@ export default function PatternOverlay({
         pattern.points[
           pattern.points.length - 1
         ].swing;
-console.log("lastPoint.time =", lastPoint.time);
-      const projection =
+const projection =
         chart.addSeries(
           LineSeries,
           {

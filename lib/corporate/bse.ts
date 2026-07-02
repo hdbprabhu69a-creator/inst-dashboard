@@ -6,13 +6,7 @@ export async function getBSEAnnouncements() {
         cache: "no-store",
       }
     );
-
-    console.log(
-      "BSE STATUS:",
-      response.status
-    );
-
-    return [];
+return [];
   } catch (error) {
     console.error(error);
 

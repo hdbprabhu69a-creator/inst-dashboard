@@ -2,11 +2,7 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    console.log(
-      "BusinessLine Job Triggered"
-    );
-
-    return NextResponse.json({
+return NextResponse.json({
       success: true,
       message:
         "BusinessLine Job Executed",
