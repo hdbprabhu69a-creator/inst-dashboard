@@ -102,6 +102,11 @@ console.log(`[${index}/${snapshot.docs.length}] ${stockDoc.data().symbol}`);
  } catch(e:any){
 console.error("FAILED SYMBOL:", stock.symbol);
 console.error("FAILED TOKEN:", stock.instrumentToken);
+console.error("ERROR OBJECT:", JSON.stringify(e, Object.getOwnPropertyNames(e), 2));
+console.error("ERROR MESSAGE:", e?.message);
+console.error("ERROR STATUS:", e?.status);
+console.error("ERROR CODE:", e?.code);
+console.error("ERROR DATA:", e?.data);
 throw e;
 }
     downloadedStocks++;
@@ -191,6 +196,7 @@ console.log("================================");
     return NextResponse.json({ success:false, error:String(error?.message ?? error), stack:error?.stack }, { status:500 });
   }
 }
+
 
 
 
