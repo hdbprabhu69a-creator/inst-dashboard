@@ -5,7 +5,7 @@ let cachedAt = 0;
 
 const CACHE_MS = 1000 * 60 * 30; // 30 minutes
 
-export async function getCachedAccessToken() {
+export async function getCachedAccessToken(): Promise<string> {
   if (
     cachedToken &&
     Date.now() - cachedAt < CACHE_MS
@@ -38,3 +38,4 @@ export function clearKiteTokenCache() {
   cachedToken = null;
   cachedAt = 0;
 }
+
