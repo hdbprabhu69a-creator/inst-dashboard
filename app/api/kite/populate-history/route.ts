@@ -88,6 +88,25 @@ export async function GET() {
 
     const candles = normalize(raw);
 
+    const historySnapshot = await getDocs(
+      query(
+        collection(
+          db,
+          "universe",
+          stockDoc.id,
+          "history"
+        ),
+        orderBy("date")
+      )
+    );
+
+    const existingDates = new Set(
+      historySnapshot.docs.map(d => d.id)
+    );
+
+    let inserted = 0;
+    let skipped = 0;
+
     let batch = writeBatch(db);
     let ops = 0;
 
@@ -138,5 +157,6 @@ export async function GET() {
   });
 
 }
+
 
 
