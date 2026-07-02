@@ -181,10 +181,14 @@ const sortedCandles = [...candles].sort(
 
   } catch (error: any) {
     console.error("POPULATE HISTORY ERROR");
-    console.error(error);
+    console.error("MESSAGE:", error?.message);
+    console.error("STATUS:", error?.status);
+    console.error("CODE:", error?.code);
+    console.error("STACK:", error?.stack);
     return NextResponse.json({ success:false, error:String(error?.message ?? error), stack:error?.stack }, { status:500 });
   }
 }
+
 
 
 
