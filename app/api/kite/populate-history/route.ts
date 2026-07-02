@@ -24,7 +24,6 @@ type Candle = {
 
 async function delay(ms: number) {
   return new Promise(res => setTimeout(res, ms));
-}
 
 async function getKite() {
 
@@ -42,7 +41,6 @@ async function getKite() {
   kite.setAccessToken(accessToken);
 
   return kite;
-}
 
 function normalize(candles: any[]): Candle[] {
   return candles.map(c => ({
@@ -53,7 +51,6 @@ function normalize(candles: any[]): Candle[] {
     close: Number(c.close),
     volume: Number(c.volume ?? 0),
   }));
-}
 
 export async function GET() {
   try {
@@ -169,8 +166,6 @@ const sortedCandles = [...candles].sort(
     totalCandles
   });
 
-}
-
 
 
 
@@ -185,4 +180,3 @@ const sortedCandles = [...candles].sort(
     return NextResponse.json({ success:false, error:String(error?.message ?? error), stack:error?.stack }, { status:500 });
   }
 }
-
