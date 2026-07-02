@@ -1,9 +1,10 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useRef, useState } from "react";
 import { createChart, IChartApi } from "lightweight-charts";
 import { liveUIBridge } from "@/lib/data/liveUIBridge";
 import SDKPatternRenderer from "@/lib/chart/SDKPatternRenderer";
+import { buildRenderPlan } from "@/lib/chart/render/buildRenderPlan";
 
 export default function LiveChart() {
 
@@ -53,7 +54,7 @@ export default function LiveChart() {
     <div className="p-4 bg-black text-white h-screen">
 
       <h2 className="text-blue-400 text-lg mb-2">
-        📈 LIVE INSTITUTIONAL CHART
+        ?? LIVE INSTITUTIONAL CHART
       </h2>
 
       {!active ? (
@@ -77,7 +78,7 @@ export default function LiveChart() {
           {chartRef.current && (
             <SDKPatternRenderer
               chart={chartRef.current}
-              drawing={drawing}
+              plan={buildRenderPlan(drawing)}
             />
           )}
         </>
@@ -86,3 +87,4 @@ export default function LiveChart() {
     </div>
   );
 }
+
