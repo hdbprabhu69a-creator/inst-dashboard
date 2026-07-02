@@ -24,21 +24,32 @@ export async function getHistoricalCandles(
   console.log("TO:", toStr);
 
   const res = await fetch(url, {
-    headers: {
-      "Authorization": `token ${apiKey}:${accessToken}`,
-      "X-Kite-Version": "3",
-    },
-    cache: "no-store",
-  });
+  headers: {
+    Authorization: `token ${apiKey}:${accessToken}`,
+    "X-Kite-Version": "3",
+  },
+  cache: "no-store",
+});
 
-  const json = await res.json();
+const text = await res.text();
 
-  if (!res.ok || json.status !== "success") {
-    console.error("HIST RESPONSE:", json);
-    throw new Error(json.message ?? "Historical API failed");
-  }
+console.log("HTTP STATUS:", res.status);
+console.log("HTTP BODY:", text);
 
-  return json.data.candles;
+let json:any = {};
+
+try {
+  json = text ? JSON.parse(text) : {};
+} catch {
+  json = {};
 }
+
+if (!res.ok || json.status !== "success") {
+  throw new Error(json.message ?? text);
+}
+
+return json.data.candles;
+}
+
 
 
