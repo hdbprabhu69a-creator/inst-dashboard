@@ -6,7 +6,7 @@ import { db } from "@/lib/firebase";
 export async function GET() {
 
   const wb = new ExcelJS.Workbook();
-  const ws = wb.addWorksheet("History");
+  const ws = wb.addWorksheet("PriceHistory");
 
   ws.columns = [
     {header:"Symbol",key:"symbol",width:18},
@@ -90,3 +90,4 @@ export async function GET() {
   });
 
 }
+
