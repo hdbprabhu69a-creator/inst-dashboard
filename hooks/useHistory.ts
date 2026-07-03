@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getHistory } from "@/lib/history/historyService";
+import { getHistoryData } from "@/services/firebaseHistory";
 
 export function useHistory(symbol: string) {
 
@@ -18,7 +18,7 @@ export function useHistory(symbol: string) {
 
     setLoading(true);
 
-    getHistory(symbol)
+    getHistoryData(symbol)
       .then((rows) => {
 console.log("FIRESTORE HISTORY");
 console.log("TOTAL ROWS:", rows.length);
@@ -26,7 +26,7 @@ rows.slice(0, 20).forEach((r: any, i: number) => {
 });
 rows.slice(-20).forEach((r: any, i: number) => {
 });
-setCandles(rows);
+const chartData = rows.map((r:any)=>({ time:r.date, open:Number(r.open), high:Number(r.high), low:Number(r.low), close:Number(r.close), volume:Number(r.volume ?? 0) })); setCandles(chartData);
 
       })
       .catch((err) => {
@@ -49,3 +49,4 @@ setCandles(rows);
     loading,
   };
 }
+

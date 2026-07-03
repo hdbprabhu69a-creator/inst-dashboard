@@ -24,7 +24,7 @@ export async function getHistoryData(
 
       orderBy(
         "date",
-        "desc"
+        "asc"
       )
 
     )
