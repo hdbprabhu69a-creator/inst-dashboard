@@ -5,6 +5,7 @@ import {
   getDocs,
   orderBy,
   query,
+  where,
 } from "firebase/firestore";
 
 import { db } from "@/lib/firebase";
@@ -21,23 +22,18 @@ export async function GET(
     if (!symbol) {
 
       return NextResponse.json(
-        {
-          error: "Missing symbol",
-        },
-        {
-          status: 400,
-        }
+        [],
       );
 
     }
 
     const q =
       query(
-        collection(
-          db,
-          "marketHistory",
-          symbol.toUpperCase(),
-          "daily"
+        collection(db,"history"),
+        where(
+          "symbol",
+          "==",
+          symbol.toUpperCase()
         ),
         orderBy("date")
       );
@@ -46,51 +42,41 @@ export async function GET(
       await getDocs(q);
 
     const data =
-      snap.docs.map(doc => {
+      snap.docs.map(doc=>{
 
-        const d =
+        const d:any=
           doc.data();
 
-        return {
+        return{
 
-          time: d.date,
+          time:d.date,
 
-          open:
-            Number(d.open),
+          open:Number(d.open),
 
-          high:
-            Number(d.high),
+          high:Number(d.high),
 
-          low:
-            Number(d.low),
+          low:Number(d.low),
 
-          close:
-            Number(d.close),
+          close:Number(d.close),
 
-          volume:
-            Number(
-              d.volume ?? 0
-            ),
+          volume:Number(
+            d.volume ?? 0
+          ),
 
         };
 
       });
 
-    return NextResponse.json(
-      data
-    );
+    return NextResponse.json(data);
 
-  } catch (err) {
+  } catch(err){
 
     console.error(err);
 
     return NextResponse.json(
+      [],
       {
-        error:
-          "Unable to load history",
-      },
-      {
-        status: 500,
+        status:500
       }
     );
 

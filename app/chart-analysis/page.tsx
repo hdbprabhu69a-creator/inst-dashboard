@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 
@@ -8,50 +8,77 @@ import StockSearchPopup from "@/components/StockSearch/StockSearchPopup";
 import { setCurrentSymbol } from "@/lib/live/symbolManager";
 import CandlestickChart from "@/lib/chart/CandlestickChart";
 
-// 👉 ONLY ENGINE SOURCE (NEW)
-import { subscribeCandles } from "@/lib/live/candleEngine";
-
 type Interval = "D" | "W" | "M";
 
 export default function ChartAnalysisPage() {
+
   const [interval] = useState<Interval>("D");
-  const [symbol, setSymbol] = useState<string>("");
-  const [searchOpen, setSearchOpen] = useState(false);
 
-  const activeSymbol = symbol.trim();
+  const [symbol,setSymbol]=useState("");
 
-  const [candles, setCandles] = useState<any[]>([]);
+  const [searchOpen,setSearchOpen]=useState(false);
 
-  // 🔥 SINGLE SOURCE OF TRUTH SUBSCRIPTION
-  useEffect(() => {
-    if (!activeSymbol) return;
+  const [candles,setCandles]=useState<any[]>([]);
+
+  const activeSymbol=symbol.trim();
+
+  useEffect(()=>{
+
+    if(!activeSymbol){
+
+      setCandles([]);
+
+      return;
+
+    }
 
     setCurrentSymbol(activeSymbol);
 
-    const unsub = subscribeCandles(activeSymbol, interval, (data) => {
-      setCandles(data);
-    });
+    async function loadHistory(){
 
-    return () => {
-      unsub?.();
-    };
-  }, [activeSymbol, interval]);
+      try{
 
-  return (
+        const res=await fetch(
+          `/api/history?symbol=${encodeURIComponent(activeSymbol)}&interval=${interval}`
+        );
+
+        const json=await res.json();
+
+        setCandles(
+          Array.isArray(json)
+            ? json
+            : (json.candles ?? [])
+        );
+
+      }catch(err){
+
+        console.error(err);
+
+        setCandles([]);
+
+      }
+
+    }
+
+    loadHistory();
+
+  },[activeSymbol,interval]);
+
+  return(
+
     <div className="min-h-screen bg-black text-white p-6">
 
-      {/* SEARCH */}
       <div className="relative mb-6">
 
         <StockSearch
           value={symbol}
-          onClick={() => setSearchOpen(true)}
+          onClick={()=>setSearchOpen(true)}
         />
 
         <StockSearchPopup
           open={searchOpen}
-          onClose={() => setSearchOpen(false)}
-          onSelect={(s) => {
+          onClose={()=>setSearchOpen(false)}
+          onSelect={(s)=>{
             setCurrentSymbol(s);
             setSymbol(s);
           }}
@@ -59,17 +86,22 @@ export default function ChartAnalysisPage() {
 
       </div>
 
-      {/* CHART */}
       <div className="w-full">
-        {activeSymbol.length > 0 && (
+
+        {activeSymbol.length>0 && (
+
           <CandlestickChart
             data={candles}
             symbol={activeSymbol}
             interval={interval}
           />
+
         )}
+
       </div>
 
     </div>
+
   );
+
 }

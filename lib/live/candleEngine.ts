@@ -4,6 +4,16 @@ type Tick = {
   time?: number;
 };
 
+import {
+  collection,
+  getDocs,
+  query,
+  where,
+  orderBy,
+} from "firebase/firestore";
+
+import { db } from "@/lib/firebase";
+
 export type Candle = {
   time: number;
   open: number;
@@ -244,3 +254,6 @@ export function subscribeCandles(
     cb
   );
 }
+
+
+

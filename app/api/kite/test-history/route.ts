@@ -14,14 +14,13 @@ export async function GET() {
     const from = new Date();
     from.setMonth(from.getMonth() - 6);
 
-    const data = await kite.getHistoricalData(
-      2713345,
-      "day",
-      from,
-      to,
-      false,
-      false
-    );
+    const data = await kite.getHistoricalData(2713345,"day",from,to,false,false);
+console.log("===== RAW TYPE =====");
+console.log(Array.isArray(data), typeof data);
+console.log("===== RAW LENGTH =====");
+console.log(data.length);
+console.log("===== FIRST CANDLE =====");
+console.dir(data[0],{depth:null});
 
     return NextResponse.json({
       success: true,
@@ -44,3 +43,4 @@ export async function GET() {
 
   }
 }
+

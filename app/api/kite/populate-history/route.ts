@@ -46,7 +46,7 @@ async function getKite() {
 
 function normalize(candles: any[]): Candle[] {
   return candles.map(c => ({
-    date: String(c.date).substring(0, 10),
+    date: new Date(c.date).toISOString().substring(0,10),
     open: Number(c.open),
     high: Number(c.high),
     low: Number(c.low),
@@ -140,8 +140,7 @@ const sortedCandles = [...candles].sort(
         "history",
         c.date
       );
-
-      inserted++;
+inserted++;
 
       batch.set(ref, {
         ...c,
@@ -203,6 +202,12 @@ console.log("================================");
     return NextResponse.json({ success:false, error:String(error?.message ?? error), stack:error?.stack }, { status:500 });
   }
 }
+
+
+
+
+
+
 
 
 
