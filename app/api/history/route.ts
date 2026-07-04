@@ -13,41 +13,54 @@ import { db } from "@/lib/firebase";
 export async function GET(
   request: NextRequest
 ) {
-
   try {
 
     const symbol =
       request.nextUrl.searchParams.get("symbol");
 
     if (!symbol) {
-
-      return NextResponse.json(
-        [],
-      );
-
+      return NextResponse.json([]);
     }
 
-    const q =
-      query(
-        collection(db,"history"),
-        where(
-          "symbol",
-          "==",
-          symbol.toUpperCase()
-        ),
-        orderBy("date")
+    const stockSnap =
+      await getDocs(
+        query(
+          collection(db,"universe"),
+          where(
+            "symbol",
+            "==",
+            symbol.toUpperCase()
+          )
+        )
       );
 
-    const snap =
-      await getDocs(q);
+    if (stockSnap.empty) {
+      return NextResponse.json([]);
+    }
+
+    const stockId =
+      stockSnap.docs[0].id;
+
+    const historySnap =
+      await getDocs(
+        query(
+          collection(
+            db,
+            "universe",
+            stockId,
+            "history"
+          ),
+          orderBy("date")
+        )
+      );
 
     const data =
-      snap.docs.map(doc=>{
+      historySnap.docs.map(doc => {
 
-        const d:any=
+        const d:any =
           doc.data();
 
-        return{
+        return {
 
           time:d.date,
 
@@ -69,7 +82,7 @@ export async function GET(
 
     return NextResponse.json(data);
 
-  } catch(err){
+  } catch(err) {
 
     console.error(err);
 
@@ -81,5 +94,4 @@ export async function GET(
     );
 
   }
-
 }
