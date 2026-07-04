@@ -243,7 +243,7 @@ export default function CandlestickChart({
 
         <span className="text-zinc-400">{interval === "D" ? "1D" : interval === "W" ? "1W" : "1M"}</span>
 
-        <span className="text-zinc-500">Â· NSE</span>
+        
 
         <span className="ml-5 text-zinc-500">O</span>
         <span className="text-white">{ohlc.open.toFixed(2)}</span>
@@ -268,9 +268,9 @@ export default function CandlestickChart({
         <span className="ml-5 text-zinc-500">Vol</span>
 
         <span className="text-white">
-          {Intl.NumberFormat("en-IN",{
+          {Intl.NumberFormat("en",{
             notation:"compact",
-            maximumFractionDigits:1
+            maximumFractionDigits:2
           }).format(liveCandleRef.current?.volume ?? 0)}
         </span>
 
@@ -281,6 +281,7 @@ export default function CandlestickChart({
     </div>
   );
 }
+
 
 
 
