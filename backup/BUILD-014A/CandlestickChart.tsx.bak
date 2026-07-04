@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import {
   createChart,
@@ -77,7 +77,7 @@ const [ohlc, setOhlc] = useState({
 
     const chart = createChart(chartRef.current, {
       width: chartRef.current.clientWidth,
-      height: window.innerHeight - 42,
+      height: 700,
 
       layout: {
         background: { type: ColorType.Solid, color: "#0b0e11" },
@@ -96,13 +96,9 @@ const [ohlc, setOhlc] = useState({
       },
 
       rightPriceScale: {
-  autoScale: true,
-  mode: 1,
-  scaleMargins: {
-    top: 0.02,
-    bottom: 0.18,
-  },
-},
+        autoScale: true,
+        mode: 1,
+      },
 
       timeScale: {
         rightOffset: 10,
@@ -125,9 +121,7 @@ const [ohlc, setOhlc] = useState({
     });
 
     volume.priceScale().applyOptions({
-      scaleMargins: {
-  top: 0.80, bottom: 0.01,
-},
+      scaleMargins: { top: 0.8, bottom: 0 },
     });
 
     candleSeries.current = candle;
@@ -173,18 +167,6 @@ const [ohlc, setOhlc] = useState({
     liveCandleRef.current = last;
 
     chart.timeScale().fitContent();
-
-    const resize = () => {
-      if (!chartRef.current) return;
-
-      chart.applyOptions({
-        width: chartRef.current.clientWidth,
-        height: window.innerHeight - 42,
-      });
-    };
-
-    window.addEventListener("resize", resize);
-    resize();
 
     chart.subscribeCrosshairMove((param) => {
 
@@ -315,35 +297,65 @@ className="flex items-center gap-2 h-8 px-3 rounded border border-zinc-700 bg-[#
           }).format(liveCandleRef.current?.volume ?? 0)}
         </span>
 
-      </div>
+      </div><>
 
-<div className="relative flex-1 flex flex-col">
 
-  <div className="relative flex-1 min-h-0">
+<div className="relative flex-1">
 
-    <div ref={chartRef} className="absolute inset-0" />
+<div ref={chartRef} className="absolute inset-0" />
 
-    {searchOpen && (
-      <div className="absolute left-0 top-0 z-[9999]">
-        <StockSearchPopup
-          open={searchOpen}
-          onClose={()=>setSearchOpen(false)}
-          onSelect={(s)=>{
-            setCurrentSymbol(s);
-            setSearchOpen(false);
-            onSymbolChange(s);
-          }}
-        />
-      </div>
-    )}
+{searchOpen && (
+<div className="absolute left-0 top-0 z-[9999]">
+<StockSearchPopup
+open={searchOpen}
+onClose={()=>setSearchOpen(false)}
+onSelect={(s)=>{
 
-  </div>
+setCurrentSymbol(s);
+setSearchOpen(false);
+onSymbolChange(s);
+}}
+/>
+</div>
+)}
 
 </div>
+</>
 
-</div>
+    </div>
   );
-
-
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
