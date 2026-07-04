@@ -11,6 +11,9 @@ import {
 
 import { useEffect, useRef, useState } from "react";
 
+import StockSearchPopup from "@/components/StockSearch/StockSearchPopup";
+import { setCurrentSymbol } from "@/lib/live/symbolManager";
+
 import { subscribe } from "@/lib/live/liveEngine";
 import { subscribeOHLC } from "@/lib/live/ohlcEngine";
 
@@ -48,7 +51,11 @@ export default function CandlestickChart({
   const lastCandleRef = useRef<Candle | null>(null);
   const liveCandleRef = useRef<Candle | null>(null);
 
-  const [ohlc, setOhlc] = useState({
+  const [searchOpen,setSearchOpen]=useState(false);
+
+const [selectedSymbol,setSelectedSymbol]=useState(symbol);
+
+const [ohlc, setOhlc] = useState({
     time: "",
     open: 0,
     high: 0,
@@ -237,7 +244,7 @@ export default function CandlestickChart({
 
       <div className="h-10 flex items-center gap-3 px-4 border-b border-zinc-800 text-sm whitespace-nowrap overflow-x-auto">
 
-<button
+<button onClick={()=>setSearchOpen(true)}
 className="flex items-center gap-2 h-8 px-3 rounded border border-zinc-700 bg-[#131722] text-xs text-zinc-300 shrink-0"
 >
 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -288,11 +295,39 @@ className="flex items-center gap-2 h-8 px-3 rounded border border-zinc-700 bg-[#
           }).format(liveCandleRef.current?.volume ?? 0)}
         </span>
 
-      </div><div ref={chartRef} className="flex-1" />
+      </div><>
+
+
+<div className="relative flex-1">
+
+<div className="absolute left-0 top-0 z-50">
+<StockSearchPopup
+open={searchOpen}
+onClose={()=>setSearchOpen(false)}
+onSelect={(s)=>{
+setSelectedSymbol(s);
+setCurrentSymbol(s);
+window.location.href="/chart-analysis?symbol="+s;
+}}
+/>
+</div>
+
+<div ref={chartRef} className="h-full" />
+
+</div>
+</>
 
     </div>
   );
 }
+
+
+
+
+
+
+
+
 
 
 
