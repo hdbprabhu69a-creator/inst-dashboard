@@ -234,7 +234,7 @@ export default function CandlestickChart({
 
         <span className="text-zinc-500">·</span>
 
-        <span className="text-zinc-400">{interval}</span>
+        <span className="text-zinc-400">{interval === "D" ? "1D" : interval === "W" ? "1W" : "1M"}</span>
 
         <span className="text-zinc-500">· NSE</span>
 
@@ -248,7 +248,15 @@ export default function CandlestickChart({
         <span className="text-white">{ohlc.low.toFixed(2)}</span>
 
         <span className="text-zinc-500">C</span>
-        <span className="font-medium text-white">{ohlc.close.toFixed(2)}</span>
+        <span
+  className={
+    ohlc.close >= ohlc.open
+      ? "font-medium text-green-400"
+      : "font-medium text-red-400"
+}
+>
+  {ohlc.close.toFixed(2)}
+</span>
 
         <span className="ml-5 text-zinc-500">Vol</span>
 
@@ -266,3 +274,4 @@ export default function CandlestickChart({
     </div>
   );
 }
+
