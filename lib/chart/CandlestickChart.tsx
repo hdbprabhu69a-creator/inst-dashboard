@@ -227,13 +227,42 @@ export default function CandlestickChart({
 
   return (
     <div className="flex flex-col w-full h-full bg-[#0b0e11]">
-      <div className="h-10 flex items-center justify-between px-4 border-b border-zinc-800 text-sm text-white">
-        <div className="font-semibold">{symbol}</div>
+
+      <div className="h-10 flex items-center gap-3 px-4 border-b border-zinc-800 text-sm whitespace-nowrap overflow-x-auto">
+
+        <span className="font-semibold text-white">{symbol}</span>
+
+        <span className="text-zinc-500">·</span>
+
+        <span className="text-zinc-400">{interval}</span>
+
+        <span className="text-zinc-500">· NSE</span>
+
+        <span className="ml-5 text-zinc-500">O</span>
+        <span className="text-white">{ohlc.open.toFixed(2)}</span>
+
+        <span className="text-zinc-500">H</span>
+        <span className="text-white">{ohlc.high.toFixed(2)}</span>
+
+        <span className="text-zinc-500">L</span>
+        <span className="text-white">{ohlc.low.toFixed(2)}</span>
+
+        <span className="text-zinc-500">C</span>
+        <span className="font-medium text-white">{ohlc.close.toFixed(2)}</span>
+
+        <span className="ml-5 text-zinc-500">Vol</span>
+
+        <span className="text-white">
+          {Intl.NumberFormat("en-IN",{
+            notation:"compact",
+            maximumFractionDigits:1
+          }).format(liveCandleRef.current?.volume ?? 0)}
+        </span>
+
       </div>
 
       <div ref={chartRef} className="flex-1" />
+
     </div>
   );
 }
-
-
