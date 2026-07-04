@@ -239,7 +239,7 @@ export default function CandlestickChart({
 
         <span className="font-semibold text-white">{symbol}</span>
 
-        <span className="text-zinc-500">Â·</span>
+        <span className="text-zinc-500">·</span>
 
         <span className="text-zinc-400">{interval === "D" ? "1D" : interval === "W" ? "1W" : "1M"}</span>
 
@@ -281,6 +281,7 @@ export default function CandlestickChart({
     </div>
   );
 }
+
 
 
 
