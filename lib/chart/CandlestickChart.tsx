@@ -237,6 +237,20 @@ export default function CandlestickChart({
 
       <div className="h-10 flex items-center gap-3 px-4 border-b border-zinc-800 text-sm whitespace-nowrap overflow-x-auto">
 
+<button
+className="flex items-center gap-2 h-8 px-3 rounded border border-zinc-700 bg-[#131722] text-xs text-zinc-300 shrink-0"
+>
+<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+<circle cx="11" cy="11" r="7"/>
+<line x1="21" y1="21" x2="16.65" y2="16.65"/>
+</svg>
+
+<span>{symbol}</span>
+
+<span className="text-zinc-500">▼</span>
+
+</button>
+
         <span className="font-semibold text-white">{symbol}</span>
 
         <span className="text-zinc-500">·</span>
@@ -274,36 +288,16 @@ export default function CandlestickChart({
           }).format(liveCandleRef.current?.volume ?? 0)}
         </span>
 
-      </div>
-
-      <div className="absolute left-4 top-[54px] z-30">
-
-        <button
-          className="flex items-center gap-2 h-8 w-52 rounded border border-zinc-700 bg-[#131722] px-3 text-xs text-zinc-300 hover:bg-[#1b2130]"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-          >
-            <circle cx="11" cy="11" r="7"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-
-          <span>{symbol}</span>
-        </button>
-
-      </div>
-
-      <div ref={chartRef} className="flex-1" />
+      </div><div ref={chartRef} className="flex-1" />
 
     </div>
   );
 }
+
+
+
+
+
 
 
 
