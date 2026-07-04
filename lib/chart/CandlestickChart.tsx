@@ -300,7 +300,10 @@ className="flex items-center gap-2 h-8 px-3 rounded border border-zinc-700 bg-[#
 
 <div className="relative flex-1">
 
-<div className="absolute left-0 top-0 z-50">
+<div ref={chartRef} className="absolute inset-0" />
+
+{searchOpen && (
+<div className="absolute left-0 top-0 z-[9999]">
 <StockSearchPopup
 open={searchOpen}
 onClose={()=>setSearchOpen(false)}
@@ -311,8 +314,7 @@ window.location.href="/chart-analysis?symbol="+s;
 }}
 />
 </div>
-
-<div ref={chartRef} className="h-full" />
+)}
 
 </div>
 </>
@@ -320,6 +322,7 @@ window.location.href="/chart-analysis?symbol="+s;
     </div>
   );
 }
+
 
 
 
