@@ -48,14 +48,44 @@ function normalize(candles: any[]): Candle[] {
 
   console.log("RAW DATE SAMPLE:", candles[0]?.date);
 
-  return candles.map(c => ({
-    date: new Date(c.date).toISOString().substring(0,10),
-    open: Number(c.open),
-    high: Number(c.high),
-    low: Number(c.low),
-    close: Number(c.close),
-    volume: Number(c.volume ?? 0),
-  }));
+  return candles.map(c => {
+
+    const utc = new Date(c.date);
+
+    const ist = new Date(
+      utc.getTime() + (5.5 * 60 * 60 * 1000)
+    );
+
+    const yyyy = ist.getUTCFullYear();
+
+    const mm = String(
+      ist.getUTCMonth() + 1
+    ).padStart(2, "0");
+
+    const dd = String(
+      ist.getUTCDate()
+    ).padStart(2, "0");
+
+    return {
+
+      date: `${yyyy}-${mm}-${dd}`,
+
+      open: Number(c.open),
+
+      high: Number(c.high),
+
+      low: Number(c.low),
+
+      close: Number(c.close),
+
+      volume: Number(
+        c.volume ?? 0
+      ),
+
+    };
+
+  });
+
 }
 
 export async function GET() {
@@ -205,6 +235,7 @@ console.log("================================");
     return NextResponse.json({ success:false, error:String(error?.message ?? error), stack:error?.stack }, { status:500 });
   }
 }
+
 
 
 
