@@ -233,9 +233,9 @@ export default function CandlestickChart({
   }, [data, symbol, interval]);
 
   return (
-    <div className="flex flex-col w-full h-full bg-[#0b0e11]">
+    <div className="relative flex flex-col w-full h-full bg-[#0b0e11]">
 
-      <div className="h-10 mt-12 flex items-center gap-3 px-4 border-b border-zinc-800 text-sm whitespace-nowrap overflow-x-auto">
+      <div className="h-10 flex items-center gap-3 px-4 border-b border-zinc-800 text-sm whitespace-nowrap overflow-x-auto">
 
         <span className="font-semibold text-white">{symbol}</span>
 
@@ -276,7 +276,7 @@ export default function CandlestickChart({
 
       </div>
 
-      <div className="absolute top-3 left-4 z-30">
+      <div className="absolute left-4 top-[54px] z-30">
 
         <button
           className="flex items-center gap-2 h-8 w-52 rounded border border-zinc-700 bg-[#131722] px-3 text-xs text-zinc-300 hover:bg-[#1b2130]"
@@ -304,6 +304,7 @@ export default function CandlestickChart({
     </div>
   );
 }
+
 
 
 
