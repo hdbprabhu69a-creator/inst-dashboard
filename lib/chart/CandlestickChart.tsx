@@ -159,6 +159,29 @@ export default function CandlestickChart({
 
     chart.timeScale().fitContent();
 
+    chart.subscribeCrosshairMove((param) => {
+
+      if (!param.time) return;
+
+      const t =
+        typeof param.time === "number"
+          ? param.time
+          : (param.time as any).timestamp;
+
+      const candle = cleaned.find(c => c.time === t);
+
+      if (!candle) return;
+
+      setOhlc({
+        time: String(candle.time),
+        open: candle.open,
+        high: candle.high,
+        low: candle.low,
+        close: candle.close,
+      });
+
+    });
+
     // -----------------------------
     // LIVE TICK ENGINE (FIXED)
     // -----------------------------
@@ -186,30 +209,14 @@ export default function CandlestickChart({
       liveCandleRef.current = updated;
 
       candleSeries.current.update(updated);
-
-      setOhlc({
-        time: String(updated.time),
-        open: updated.open,
-        high: updated.high,
-        low: updated.low,
-        close: updated.close,
-      });
-    });
+});
 
     // -----------------------------
     // OHLC STREAM (DISPLAY ONLY)
     // -----------------------------
     ohlcUnsub.current = subscribeOHLC((v) => {
       if (disposed.current) return;
-
-      setOhlc({
-        time: String(v.time),
-        open: v.open,
-        high: v.high,
-        low: v.low,
-        close: v.close,
-      });
-    });
+});
 
     return () => {
       disposed.current = true;
@@ -274,6 +281,8 @@ export default function CandlestickChart({
     </div>
   );
 }
+
+
 
 
 
