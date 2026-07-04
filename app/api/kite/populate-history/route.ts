@@ -45,6 +45,9 @@ async function getKite() {
 }
 
 function normalize(candles: any[]): Candle[] {
+
+  console.log("RAW DATE SAMPLE:", candles[0]?.date);
+
   return candles.map(c => ({
     date: new Date(c.date).toISOString().substring(0,10),
     open: Number(c.open),
@@ -202,6 +205,7 @@ console.log("================================");
     return NextResponse.json({ success:false, error:String(error?.message ?? error), stack:error?.stack }, { status:500 });
   }
 }
+
 
 
 
