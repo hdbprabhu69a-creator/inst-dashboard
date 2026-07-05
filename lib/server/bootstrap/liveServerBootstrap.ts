@@ -1,9 +1,10 @@
 import { adminDb } from "@/lib/firebase-admin";
 import { kiteLiveService } from "@/lib/server/live/KiteLiveService";
 import { getUniverseTokens } from "@/lib/tokenResolver/universeTokenResolver";
-
+import { startEodScheduler } from "@/lib/scheduler/eodScheduler";
 
 let started = false;
+let schedulerStarted = false;
 
 export async function ensureLiveServerStarted() {
 
@@ -52,21 +53,23 @@ export async function ensureLiveServerStarted() {
     const tokens =
         getUniverseTokens();
 
-console.log(
-    "[LiveServer] Tokens:",
-    tokens.length
-);
+    console.log(
+        "[LiveServer] Tokens:",
+        tokens.length
+    );
 
-kiteLiveService.start(
-    process.env.KITE_API_KEY!,
-    accessToken,
-    tokens
-);
+    kiteLiveService.start(
+        process.env.KITE_API_KEY!,
+        accessToken,
+        tokens
+    );
+
+    if (!schedulerStarted) {
+
+        schedulerStarted = true;
+
+        startEodScheduler();
+
+    }
 
 }
-
-
-
-
-
-
