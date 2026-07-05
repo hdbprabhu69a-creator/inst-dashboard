@@ -1,4 +1,4 @@
-﻿import { buildPatternDrawing } from "./PatternDrawingFactory";
+import { buildPatternDrawing } from "./PatternDrawingFactory";
 import {
   Candle,
   PatternResult,
@@ -257,4 +257,5 @@ export function analyzeAllPatterns(
   );
 
 }
+
 

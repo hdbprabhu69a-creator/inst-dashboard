@@ -1,61 +1,67 @@
 "use client";
 
-type Label={
+type Label = {
 
-text:string;
+  text:string;
 
-x:number;
+  x:number;
 
-y:number;
+  y:number;
 
-color?:string;
+  color?:string;
 
 };
 
-type Props={
+type Props = {
 
-labels:Label[];
+  labels:Label[];
 
 };
 
 export default function PatternLabels({
 
-labels,
+  labels,
 
 }:Props){
 
-return(
+  return(
 
-<>
+    <>
 
-{labels.map(label=>(
+      {labels.map(label=>(
 
-<div
+        <div
 
-key={label.text+label.x}
+          key={label.text+label.x}
 
-className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-600 text-white text-[10px] font-bold w-6 h-6 flex items-center justify-center shadow-lg pointer-events-none"
+          className="absolute pointer-events-none select-none text-[10px] font-medium whitespace-nowrap"
 
-style={{
+          style={{
 
-left:label.x,
+            left:label.x,
 
-top:label.y,
+            top:label.y,
 
-background:label.color??"#2563eb",
+            color:label.color ?? "#d4d4d8",
 
-}}
+            opacity:0.65,
 
->
+            transform:"translate(-50%,-50%)",
 
-{label.text}
+            textShadow:"0 0 2px #000",
 
-</div>
+          }}
 
-))}
+        >
 
-</>
+          {label.text}
 
-);
+        </div>
+
+      ))}
+
+    </>
+
+  );
 
 }

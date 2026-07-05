@@ -21,6 +21,61 @@ type Props = {
 
 };
 
+
+function getLineLabels(pattern:any){
+
+switch(pattern.pattern){
+
+case "ASCENDING_TRIANGLE":
+return ["Resistance","Support"];
+
+case "DESCENDING_TRIANGLE":
+return ["Resistance","Support"];
+
+case "SYMMETRICAL_TRIANGLE":
+return ["Resistance","Support"];
+
+case "RISING_CHANNEL":
+return ["Upper Channel","Lower Channel"];
+
+case "FALLING_CHANNEL":
+return ["Upper Channel","Lower Channel"];
+
+case "RISING_WEDGE":
+return ["Upper Wedge","Lower Wedge"];
+
+case "FALLING_WEDGE":
+return ["Upper Wedge","Lower Wedge"];
+
+case "BULL_FLAG":
+return ["Flag Pole","Flag"];
+
+case "BEAR_FLAG":
+return ["Flag Pole","Flag"];
+
+case "HEAD_SHOULDER":
+return ["Neckline","Structure"];
+
+case "INVERSE_HEAD_SHOULDER":
+return ["Neckline","Structure"];
+
+case "DOUBLE_TOP":
+return ["Resistance","Neckline"];
+
+case "DOUBLE_BOTTOM":
+return ["Support","Neckline"];
+
+case "CUP_HANDLE":
+return ["Cup","Handle"];
+
+default:
+return ["Line 1","Line 2"];
+
+}
+
+}
+
+
 type Label = {
 
   text: string;
@@ -336,20 +391,57 @@ shape.setData(shapeData);
     );
 
     // ==========================================
-    // Breakout Projection
-    // ==========================================
+// Breakout Projection
+// BUILD 013 : Disabled
+// ==========================================
 
-    drawProjection(
-
-      "#22c55e"
-
-    );
+// Projection intentionally disabled for BUILD 013.
+// BUILD 014 will re-enable after timestamp normalization.
 
     // ==========================================
     // Pattern Labels (temporary)
     // ==========================================
 
-    console.table(labels);
+    const lineNames = getLineLabels(pattern);
+
+const uiLabels:any[] = [];
+
+// Pattern name
+if(pattern.points.length){
+
+const first = pattern.points[0].swing;
+const last  = pattern.points[pattern.points.length-1].swing;
+
+uiLabels.push({
+
+text: pattern.pattern.replace(/_/g," "),
+
+x:50,
+
+y:18,
+
+color:"#e5e7eb",
+
+});
+
+}
+
+// Trend line labels
+pattern.trendLines.forEach((line:any,index:number)=>{
+
+uiLabels.push({
+
+text: lineNames[index] ?? ("Line "+(index+1)),
+
+x:50,
+
+y:42 + index*16,
+
+color:"#FFD54F",
+
+});
+
+});
 
     return () => {
 
@@ -373,6 +465,59 @@ shape.setData(shapeData);
 
   ]);
 
-  return null;
+  return (
+
+<div
+className="absolute inset-0 pointer-events-none z-40"
+>
+
+<div
+className="absolute left-3 top-3 rounded bg-black/50 px-2 py-1 text-[10px] text-zinc-200"
+>
+
+{pattern?.pattern.replace(/_/g," ")}
+
+</div>
+
+{pattern?.trendLines.map((_,i)=>(
+
+<div
+key={i}
+className="absolute rounded bg-black/40 px-1 py-[1px] text-[9px] text-yellow-300"
+style={{
+left:12,
+top:34+i*16,
+}}
+>
+
+{getLineLabels(pattern)[i] ?? `Line ${i+1}`}
+
+</div>
+
+))}
+
+<div
+className="absolute rounded bg-black/40 px-1 py-[1px] text-[9px] text-green-300"
+style={{
+left:12,
+top:72,
+}}
+>
+
+Breakout
+
+</div>
+
+</div>
+
+);
 
 }
+
+
+
+
+
+
+
+

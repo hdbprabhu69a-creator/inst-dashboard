@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import {
   createChart,
@@ -17,6 +17,12 @@ import { setCurrentSymbol } from "@/lib/live/symbolManager";
 import { subscribe } from "@/lib/live/liveEngine";
 import { subscribeOHLC } from "@/lib/live/ohlcEngine";
 import { aggregateCandles } from "@/lib/history/aggregateCandles";
+import { detectPatterns } from "@/lib/patterns/analyzePattern";
+import PatternOverlay from "@/lib/chart/PatternOverlay";
+import PatternInfoOverlay from "@/lib/chart/PatternInfoOverlay";
+import PatternLabels from "@/lib/chart/PatternLabels";
+import { getPatternMetadata } from "@/lib/pattern/patternMetadata";
+import type { PatternResult } from "@/lib/pattern/types";
 
 type Candle = {
   time: number;
@@ -66,6 +72,12 @@ const intervalBtnRef = useRef<HTMLButtonElement>(null);
 const [menuPos,setMenuPos]=useState({left:0,top:0});
 
 
+
+const cleanedCandlesRef = useRef<any[]>([]);
+
+const [patternEnabled,setPatternEnabled]=useState(false);
+
+const [pattern,setPattern]=useState<PatternResult | null>(null);
 
 const [ohlc, setOhlc] = useState({
     time: "",
@@ -177,6 +189,8 @@ const [ohlc, setOhlc] = useState({
         minBarSpacing:3
     }
 });
+
+cleanedCandlesRef.current = cleaned;
 
 candle.setData(cleaned as any);
     volume.setData(
@@ -343,9 +357,7 @@ volumeSeries.current?.update({
     // -----------------------------
     ohlcUnsub.current = subscribeOHLC((v) => {
       if (disposed.current) return;
-});
-
-    return () => {
+});return () => {
       disposed.current = true;
 
       tickUnsub.current?.();
@@ -359,7 +371,30 @@ volumeSeries.current?.update({
     };
   }, [data, symbol, interval]);
 
-  return (
+  
+
+
+const togglePattern = () => {
+
+    if(patternEnabled){
+
+        setPattern(null);
+
+        setPatternEnabled(false);
+
+        return;
+
+    }
+
+    const result = detectPatterns(cleanedCandlesRef.current);
+
+    setPattern(result);
+
+    setPatternEnabled(true);
+
+};
+
+return (
     <div className="relative flex flex-col w-full h-full bg-[#0b0e11]">
 
       <div className="relative h-10 flex items-center gap-3 px-4 border-b border-zinc-800 text-sm whitespace-nowrap overflow-visible">
@@ -453,6 +488,17 @@ interval===v
 
 </div>
 
+<button
+onClick={togglePattern}
+className={`h-7 px-3 rounded border text-xs transition-colors ${
+patternEnabled
+? "border-green-600 bg-green-700 text-white"
+: "border-zinc-700 bg-[#131722] text-zinc-300 hover:bg-zinc-800"
+}`}
+>
+{patternEnabled ? "Hide Pattern" : "Detect Pattern"}
+</button>
+
 <span className="ml-5 text-zinc-500">O</span>
         <span className="text-white">{ohlc.open.toFixed(2)}</span>
 
@@ -490,6 +536,20 @@ interval===v
 
     <div ref={chartRef} className="absolute inset-0" />
 
+{chartInstance.current && pattern && (
+<>
+<PatternOverlay
+chart={chartInstance.current}
+pattern={pattern}
+/>
+
+<PatternInfoOverlay
+pattern={pattern}
+/>
+
+</>
+)}
+
     {searchOpen && (
       <div className="absolute left-0 top-0 z-[9999]">
         <StockSearchPopup
@@ -513,6 +573,20 @@ interval===v
 
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
