@@ -1,5 +1,6 @@
-﻿"use client";
+"use client";
 
+import { startLiveBootstrap, stopLiveBootstrap } from "@/lib/live/liveBootstrap";
 import { useEffect, useState } from "react";
 import { setCurrentSymbol } from "@/lib/live/symbolManager";
 import CandlestickChart from "@/lib/chart/CandlestickChart";
@@ -8,15 +9,28 @@ type Interval = "D" | "W" | "M";
 
 export default function ChartAnalysisPage() {
 
-  const [interval] = useState<Interval>("D");
+  const [interval, setInterval] = useState<Interval>("D");
 
   const [symbol, setSymbol] = useState("SBIN");
 
   const [candles, setCandles] = useState<any[]>([]);
 
+
   const activeSymbol = symbol.trim();
 
   useEffect(() => {
+
+    startLiveBootstrap();
+
+    return () => {
+
+        stopLiveBootstrap();
+
+    };
+
+}, []);
+
+useEffect(() => {
 
     if (!activeSymbol) {
       setCandles([]);
@@ -62,11 +76,12 @@ export default function ChartAnalysisPage() {
       <div className="w-full h-full">
 
         <CandlestickChart
-          data={candles}
-          symbol={activeSymbol}
-          interval={interval}
+    data={candles}
+    symbol={activeSymbol}
+    interval={interval}
+    onIntervalChange={setInterval}
           onSymbolChange={setSymbol}
-        />
+  />
 
       </div>
 
@@ -75,6 +90,12 @@ export default function ChartAnalysisPage() {
   );
 
 }
+
+
+
+
+
+
 
 
 

@@ -5,6 +5,7 @@ import {
   collection,
   getDocs,
   getDoc,
+  Timestamp,
   doc,
   query,
   orderBy,
@@ -115,8 +116,37 @@ console.log(`[${index}/${snapshot.docs.length}] ${stockDoc.data().symbol}`);
       continue;
     }
     const to = new Date();
-    const from = new Date();
-    from.setMonth(from.getMonth() - 6);    console.log("FROM:", from.toISOString());
+
+const historyRef = collection(
+  db,
+  "universe",
+  stockDoc.id,
+  "history"
+);
+
+const latestSnap = await getDocs(
+  query(
+    historyRef,
+    orderBy("date","desc"),
+    limit(1)
+  )
+);
+
+let from: Date;
+
+if (latestSnap.empty) {
+
+  from = new Date();
+  from.setMonth(from.getMonth() - 6);
+
+} else {
+
+  const latest = latestSnap.docs[0].data().date;
+
+  from = new Date(latest);
+  from.setDate(from.getDate() + 1);
+
+}    console.log("FROM:", from.toISOString());
     console.log("TO:", to.toISOString());
     let raw: any[] = [];
     try {
@@ -235,6 +265,9 @@ console.log("================================");
     return NextResponse.json({ success:false, error:String(error?.message ?? error), stack:error?.stack }, { status:500 });
   }
 }
+
+
+
 
 
 

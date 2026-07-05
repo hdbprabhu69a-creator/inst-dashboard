@@ -1,10 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import { LiveMarketStream } from "@/lib/data/liveMarketStream";
-import { liveUIBridge } from "@/lib/data/liveUIBridge";
-import { db } from "@/lib/firebase";
-import { doc, getDoc } from "firebase/firestore";
 
 import { kite } from "@/lib/kite";
 
@@ -56,42 +52,6 @@ export default function Home() {
       );
 
     }
-
-  }, []);
-
-
-  useEffect(() => {
-
-    const startLive = async () => {
-
-      const snap = await getDoc(doc(db, "settings", "kite"));
-      const accessToken = snap.data()?.accessToken;
-
-      if (!accessToken) return;
-
-      const stream = new LiveMarketStream(
-        process.env.NEXT_PUBLIC_KITE_API_KEY!,
-        accessToken
-      );
-
-      stream.connect([256265]);
-
-      stream.on(256265, (tick:any) => {
-
-        liveUIBridge.emit({
-          symbol: "SBIN",
-          time: new Date().toISOString(),
-          open: tick.last_price,
-          high: tick.last_price,
-          low: tick.last_price,
-          close: tick.last_price,
-        });
-
-      });
-
-    };
-
-    startLive();
 
   }, []);
 return (
@@ -169,6 +129,26 @@ return (
                   SCN
                 </Link>
 
+
+                <Link
+                  href="/chart-analysis"
+                  target="_blank"
+                  className="
+                    px-2
+                    py-0.5
+                    h-6
+                    rounded-md
+                    bg-blue-600
+                    hover:bg-blue-500
+                    text-white
+                    text-[11px]
+                    font-medium
+                    flex
+                    items-center
+                  "
+                >
+                  CHART
+                </Link>
                 <DeliveryImportButton />
 
                 <EodButton />
@@ -251,6 +231,11 @@ return (
   );
 
 }
+
+
+
+
+
 
 
 

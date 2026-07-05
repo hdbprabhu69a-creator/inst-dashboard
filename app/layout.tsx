@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import LiveBootstrapClient from "@/components/live/LiveBootstrapClient";
 
 import {
   SelectedStockProvider,
@@ -23,6 +24,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
 
         <SelectedStockProvider>
+          <LiveBootstrapClient />
           {children}
         </SelectedStockProvider>
 

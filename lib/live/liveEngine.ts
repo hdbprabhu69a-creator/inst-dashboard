@@ -10,77 +10,38 @@ type Listener = (tick: Tick) => void;
 
 class LiveEngine {
   private listeners: Set<Listener> = new Set();
-  private ws: WebSocket | null = null;
+  
 
   // per-symbol last tick cache
   private lastTickMap: Map<string, Tick> = new Map();
 
-  connect(url: string) {
-    if (this.ws) return;
+  processTick(tick: Tick) {
 
-    this.ws = new WebSocket(url);
+    if (!tick.symbol) return;
+    if (!Number.isFinite(tick.lastPrice)) return;
+    if (tick.lastPrice <= 0) return;
 
-    this.ws.onopen = () => {
-};
+    const last = this.lastTickMap.get(tick.symbol);
 
-    this.ws.onmessage = (event) => {
-      try {
-        const raw = JSON.parse(event.data);
+    if (
+      last &&
+      last.lastPrice === tick.lastPrice &&
+      last.time === tick.time
+    ) {
+      return;
+    }
 
-        const tick: Tick = {
-          symbol: raw.symbol,
-          lastPrice: Number(raw.lastPrice),
-          time: raw.time ? Number(raw.time) : Date.now(),
-        };
+    this.lastTickMap.set(tick.symbol, tick);
 
-        // reject invalid ticks
-        if (!tick.symbol) return;
-        if (!Number.isFinite(tick.lastPrice)) return;
-        if (tick.lastPrice <= 0) return;
+    console.log("[LiveEngine]", tick.symbol, tick.lastPrice);
 
-        // ignore duplicate ticks
-        const last = this.lastTickMap.get(tick.symbol);
-        if (
-          last &&
-          last.lastPrice === tick.lastPrice &&
-          last.time === tick.time
-        ) {
-          return;
-        }
+    candleEngine.processTick({
+      symbol: tick.symbol,
+      lastPrice: tick.lastPrice,
+      time: tick.time,
+    });
 
-        this.lastTickMap.set(tick.symbol, tick);
-
-        // ? Feed Candle Engine
-        candleEngine.processTick({
-          symbol: tick.symbol,
-          lastPrice: tick.lastPrice,
-          time: tick.time,
-        });
-
-        // Notify other listeners
-        this.emit(tick);
-
-      } catch (err) {
-        console.error("LiveEngine parse error:", err);
-      }
-    };
-
-    this.ws.onerror = (err) => {
-      console.error("LiveEngine error", err);
-    };
-
-    this.ws.onclose = () => {
-this.ws = null;
-
-      setTimeout(() => {
-        this.reconnect(url);
-      }, 2000);
-    };
-  }
-
-  reconnect(url: string) {
-    if (this.ws) return;
-    this.connect(url);
+    this.emit(tick);
   }
 
   subscribe(listener: Listener) {
@@ -102,11 +63,10 @@ this.ws = null;
   }
 
   disconnect() {
-    this.ws?.close();
-    this.ws = null;
     this.listeners.clear();
     this.lastTickMap.clear();
   }
+
 }
 
 export const liveEngine = new LiveEngine();
@@ -114,3 +74,5 @@ export const liveEngine = new LiveEngine();
 export function subscribe(cb: (tick: Tick) => void) {
   return liveEngine.subscribe(cb);
 }
+
+
