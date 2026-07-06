@@ -76,7 +76,6 @@ class CandleEngineV2 {
   // PROCESS LIVE TICK
   // -----------------------------------
   processTick(tick: Tick) {
-        console.log("[CandleEngine] Tick Received");
     if (!tick.symbol) return;
 
     const price = Number(
@@ -255,6 +254,8 @@ export function subscribeCandles(
     cb
   );
 }
+
+
 
 
 

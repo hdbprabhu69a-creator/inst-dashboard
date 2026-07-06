@@ -33,8 +33,6 @@ class LiveEngine {
 
     this.lastTickMap.set(tick.symbol, tick);
 
-    console.log("[LiveEngine]", tick.symbol, tick.lastPrice);
-
     candleEngine.processTick({
       symbol: tick.symbol,
       lastPrice: tick.lastPrice,
@@ -74,5 +72,7 @@ export const liveEngine = new LiveEngine();
 export function subscribe(cb: (tick: Tick) => void) {
   return liveEngine.subscribe(cb);
 }
+
+
 
 

@@ -1,5 +1,6 @@
 import { KiteTicker } from "kiteconnect";
 import { liveTickHub } from "@/lib/server/stream/LiveTickHub";
+import { getSymbolFromToken } from "@/lib/tokenResolver/tokenLookup";
 
 export class KiteLiveService {
 
@@ -81,7 +82,18 @@ export class KiteLiveService {
 
       for(const tick of ticks){
 
-        liveTickHub.publish(tick);
+        const symbol = getSymbolFromToken(Number(tick.instrument_token));
+
+        if (!symbol) continue;
+
+        liveTickHub.publish({
+          symbol,
+          lastPrice: Number(tick.last_price),
+          time: tick.exchange_timestamp
+            ? new Date(tick.exchange_timestamp).getTime()
+            : Date.now(),
+          raw: tick,
+        });
 
       }
 
@@ -166,4 +178,6 @@ export class KiteLiveService {
 
 export const kiteLiveService=
 new KiteLiveService();
+
+
 

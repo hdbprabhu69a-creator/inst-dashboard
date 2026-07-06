@@ -56,6 +56,7 @@ export default function CandlestickChart({
 
   const tickUnsub = useRef<null | (() => void)>(null);
   const ohlcUnsub = useRef<null | (() => void)>(null);
+const candleUnsub = useRef<null | (() => void)>(null);
 
   const disposed = useRef(false);
 
@@ -93,7 +94,9 @@ const [ohlc, setOhlc] = useState({
     disposed.current = false;
 
     tickUnsub.current?.();
+      candleUnsub.current?.();
     ohlcUnsub.current?.();
+    candleUnsub.current?.();
 
     chartInstance.current?.remove();
 
@@ -357,11 +360,15 @@ volumeSeries.current?.update({
     // -----------------------------
     ohlcUnsub.current = subscribeOHLC((v) => {
       if (disposed.current) return;
-});return () => {
+});
+
+return () => {
       disposed.current = true;
 
       tickUnsub.current?.();
+      candleUnsub.current?.();
       ohlcUnsub.current?.();
+    candleUnsub.current?.();
 
       chart.remove();
 
@@ -573,6 +580,9 @@ pattern={pattern}
 
 
 }
+
+
+
 
 
 

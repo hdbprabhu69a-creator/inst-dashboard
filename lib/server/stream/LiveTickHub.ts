@@ -41,7 +41,6 @@ class LiveTickHub{
     for(const [id,listener] of this.listeners){
 
       try{
-
         listener(tick);
 
       }catch(err:any){
@@ -69,3 +68,5 @@ class LiveTickHub{
 
 export const liveTickHub=
 new LiveTickHub();
+
+

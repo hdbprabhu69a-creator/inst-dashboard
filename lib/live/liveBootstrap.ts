@@ -5,11 +5,10 @@ let source: EventSource | null = null;
 
 export function startLiveBootstrap() {
 
-    if (started) return;
+    if (started) { console.log("[LiveBootstrap] Already started"); return; }
 
     started = true;
-
-    source = new EventSource(
+source = new EventSource(
         "/api/live/stream"
     );
 
@@ -28,6 +27,7 @@ export function startLiveBootstrap() {
             const tick =
                 JSON.parse(event.data);
 
+            console.log("[SSE]",tick.symbol,tick.lastPrice);
             liveEngine.processTick(tick);
 
         } catch (err) {
@@ -49,11 +49,14 @@ export function startLiveBootstrap() {
 }
 
 export function stopLiveBootstrap() {
-
-    source?.close();
+source?.close();
 
     source = null;
 
     started = false;
 
 }
+
+
+
+

@@ -4,6 +4,7 @@ import { startLiveBootstrap, stopLiveBootstrap } from "@/lib/live/liveBootstrap"
 import { useEffect, useState } from "react";
 import { setCurrentSymbol } from "@/lib/live/symbolManager";
 import CandlestickChart from "@/lib/chart/CandlestickChart";
+import { candleEngine } from "@/lib/live/candleEngine";
 
 type Interval = "D" | "W" | "M";
 
@@ -90,6 +91,8 @@ useEffect(() => {
   );
 
 }
+
+
 
 
 
