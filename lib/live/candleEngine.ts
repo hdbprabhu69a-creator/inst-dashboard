@@ -1,6 +1,13 @@
-type Tick = {
+﻿type Tick = {
   symbol: string;
   lastPrice: number;
+
+  open?: number;
+  high?: number;
+  low?: number;
+  close?: number;
+  volume?: number;
+
   time?: number;
 };
 
@@ -34,6 +41,9 @@ class CandleEngineV2 {
   // default 1 minute
   private intervalSeconds = 60;
 
+  private symbolIntervals: Map<string,number> =
+    new Map();
+
   setInterval(seconds: number) {
     this.intervalSeconds = seconds;
   }
@@ -46,8 +56,16 @@ class CandleEngineV2 {
     interval: string,
     cb: Listener
   ) {
-    this.intervalSeconds =
-      this.parseInterval(interval);
+    const seconds =
+  this.parseInterval(interval);
+
+this.intervalSeconds =
+  seconds;
+
+this.symbolIntervals.set(
+  symbol,
+  seconds
+);
 
     if (!this.listeners.has(symbol)) {
       this.listeners.set(
@@ -76,6 +94,8 @@ class CandleEngineV2 {
   // PROCESS LIVE TICK
   // -----------------------------------
   processTick(tick: Tick) {
+
+    
     if (!tick.symbol) return;
 
     const price = Number(
@@ -93,10 +113,15 @@ class CandleEngineV2 {
       ? Math.floor(tick.time / 1000)
       : Math.floor(Date.now() / 1000);
 
-    const bucket =
-      Math.floor(
-        ts / this.intervalSeconds
-      ) * this.intervalSeconds;
+    const interval =
+  this.symbolIntervals.get(
+    tick.symbol
+  ) ?? this.intervalSeconds;
+
+const bucket =
+  Math.floor(
+    ts / interval
+  ) * interval;
 
     let candles =
       this.activeCandles.get(
@@ -124,15 +149,21 @@ class CandleEngineV2 {
       lastBucket !== bucket
     ) {
       candle = {
-        time: bucket,
-        open: price,
-        high: price,
-        low: price,
-        close: price,
-        volume: 0,
-      };
+  time: bucket,
 
-      candles.push(candle);
+  open: tick.open ?? price,
+  high: tick.high ?? price,
+  low: tick.low ?? price,
+  close: tick.close ?? price,
+  volume: tick.volume ?? 0,
+};
+
+      if (
+        candles.length === 0 ||
+        candle.time > candles[candles.length-1].time
+      ) {
+        candles.push(candle);
+      }
 
       this.lastBucket.set(
         tick.symbol,
@@ -140,19 +171,21 @@ class CandleEngineV2 {
       );
     }
 
-    candle.high = Math.max(
-      candle.high,
-      price
-    );
+    candle.high =
+  tick.high ??
+  Math.max(candle.high,price);
 
-    candle.low = Math.min(
-      candle.low,
-      price
-    );
+candle.low =
+  tick.low ??
+  Math.min(candle.low,price);
 
-    candle.close = price;
+candle.close =
+  tick.close ??
+  price;
 
-    candle.volume++;
+candle.volume =
+  tick.volume ??
+  (candle.volume+1);
 
     this.emit(
       tick.symbol,
@@ -205,6 +238,29 @@ class CandleEngineV2 {
     }
   }
 
+
+  initializeHistory(
+    symbol:string,
+    candles:Candle[]
+  ){
+
+    this.activeCandles.set(
+      symbol,
+      [...candles].sort(
+        (a,b)=>a.time-b.time
+      )
+    );
+
+    if(candles.length){
+
+      this.lastBucket.set(
+        symbol,
+        candles[candles.length-1].time
+      );
+
+    }
+
+  }
   // -----------------------------------
   // GETTERS
   // -----------------------------------
@@ -254,6 +310,33 @@ export function subscribeCandles(
     cb
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

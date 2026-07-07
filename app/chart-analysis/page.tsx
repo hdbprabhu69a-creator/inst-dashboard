@@ -48,6 +48,12 @@ useEffect(() => {
           `/api/history?symbol=${encodeURIComponent(activeSymbol)}&interval=${interval}`
         );
 
+        if (!res.ok) {
+          console.error("History API failed", res.status);
+          setCandles([]);
+          return;
+        }
+
         const json = await res.json();
 
         setCandles(
@@ -91,6 +97,8 @@ useEffect(() => {
   );
 
 }
+
+
 
 
 

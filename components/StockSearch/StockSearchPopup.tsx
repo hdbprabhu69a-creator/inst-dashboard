@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useMemo, useState } from "react";
 import { useUniverse } from "@/hooks/useUniverse";
@@ -26,7 +26,7 @@ export default function StockSearchPopup({
           s.symbol.toLowerCase().includes(q) ||
           (s.name ?? "").toLowerCase().includes(q)
       )
-      .slice(0, 20);
+      .slice(0, 10);
   }, [stocks, query]);
 
   if (!open) return null;
@@ -38,18 +38,18 @@ export default function StockSearchPopup({
         className="fixed inset-0 bg-black/40 z-40"
       />
 
-      <div className="absolute top-14 left-0 w-[420px] bg-[#131722] border border-zinc-700 rounded-lg shadow-2xl z-50">
-        <div className="p-3 border-b border-zinc-700">
+      <div className="absolute top-7 left-0 w-[190px] bg-[#131722] border border-zinc-700 rounded shadow-lg z-50">
+        <div className="p-1.5 border-b border-zinc-700">
           <input
             autoFocus
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search stock..."
-            className="w-full rounded bg-[#0b0e11] border border-zinc-700 px-3 py-2 outline-none text-white"
+            placeholder="Search..."
+            className="w-full rounded bg-[#0b0e11] border border-zinc-700 px-1.5 py-1 text-sm outline-none text-white"
           />
         </div>
 
-        <div className="max-h-80 overflow-auto">
+        <div className="max-h-[220px] overflow-y-auto overflow-x-hidden">
           {filtered.map((s) => (
             <div
               key={s.symbol}
@@ -57,10 +57,10 @@ export default function StockSearchPopup({
                 onSelect(s.symbol);
                 onClose();
               }}
-              className="cursor-pointer border-b border-zinc-800 px-3 py-2 hover:bg-zinc-800"
+              className="cursor-pointer border-b border-zinc-800 px-1.5 py-0.5 hover:bg-zinc-800"
             >
-              <div className="font-semibold">{s.symbol}</div>
-              <div className="text-xs text-zinc-400">{s.name}</div>
+              <div className="font-medium text-[11px]">{s.symbol}</div>
+              <div className="hidden">{s.name}</div>
             </div>
           ))}
         </div>
@@ -69,3 +69,9 @@ export default function StockSearchPopup({
     </>
   );
 }
+
+
+
+
+
+

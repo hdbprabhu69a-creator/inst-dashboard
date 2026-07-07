@@ -1,27 +1,55 @@
-import { candleEngine } from "./candleEngine";
+﻿import { candleEngine } from "./candleEngine";
+import { updateOHLC } from "./ohlcEngine";
 
 type Tick = {
   symbol?: string;
+
   lastPrice: number;
+
+  open?: number;
+  high?: number;
+  low?: number;
+  close?: number;
+  volume?: number;
+
   time?: number;
 };
 
 type Listener = (tick: Tick) => void;
 
 class LiveEngine {
-  private listeners: Set<Listener> = new Set();
-  
 
-  // per-symbol last tick cache
-  private lastTickMap: Map<string, Tick> = new Map();
+  // -----------------------------
+  // Symbol-wise listeners
+  // -----------------------------
+  private listeners: Map<
+    string,
+    Set<Listener>
+  > = new Map();
 
+  // -----------------------------
+  // Last tick cache per symbol
+  // -----------------------------
+  private lastTickMap: Map<
+    string,
+    Tick
+  > = new Map();
+
+  // -----------------------------
+  // PROCESS LIVE TICK
+  // -----------------------------
   processTick(tick: Tick) {
 
     if (!tick.symbol) return;
+
     if (!Number.isFinite(tick.lastPrice)) return;
+
     if (tick.lastPrice <= 0) return;
 
-    const last = this.lastTickMap.get(tick.symbol);
+    const last =
+      this.lastTickMap.get(
+        tick.symbol
+      );
 
     if (
       last &&
@@ -31,47 +59,141 @@ class LiveEngine {
       return;
     }
 
-    this.lastTickMap.set(tick.symbol, tick);
+    this.lastTickMap.set(
+      tick.symbol,
+      tick
+    );
 
-    candleEngine.processTick({
-      symbol: tick.symbol,
-      lastPrice: tick.lastPrice,
-      time: tick.time,
-    });
+    if(tick.symbol==="SBIN"){
 
-    this.emit(tick);
+  console.log(
+    "[LIVEENGINE INPUT]",
+    {
+      symbol:tick.symbol,
+
+      lastPrice:tick.lastPrice,
+
+      open:tick.open,
+
+      high:tick.high,
+
+      low:tick.low,
+
+      close:tick.close,
+
+      volume:tick.volume,
+
+      time:tick.time,
+    }
+  );
+
+}
+
+candleEngine.processTick(
+  tick
+);
+
+updateOHLC(
+  tick
+);
+
+this.emit(
+  tick
+);
+
   }
 
-  subscribe(listener: Listener) {
-    this.listeners.add(listener);
+  // -----------------------------
+  // SUBSCRIBE
+  // -----------------------------
+  subscribe(
+    symbol: string,
+    listener: Listener
+  ) {
+
+    if (!this.listeners.has(symbol)) {
+
+      this.listeners.set(
+        symbol,
+        new Set()
+      );
+
+    }
+
+    this.listeners
+      .get(symbol)!
+      .add(listener);
 
     return () => {
-      this.listeners.delete(listener);
+
+      this.listeners
+        .get(symbol)
+        ?.delete(listener);
+
     };
+
   }
 
+  // -----------------------------
+  // EMIT
+  // -----------------------------
   private emit(tick: Tick) {
-    for (const listener of this.listeners) {
+
+    if (!tick.symbol) return;
+
+    const listeners =
+      this.listeners.get(
+        tick.symbol
+      );
+
+    if (!listeners) return;
+
+    for (const listener of listeners) {
+
       try {
+
         listener(tick);
+
       } catch (err) {
+
         console.error(err);
+
       }
+
     }
+
   }
 
+  // -----------------------------
+  // DISCONNECT
+  // -----------------------------
   disconnect() {
+
     this.listeners.clear();
+
     this.lastTickMap.clear();
+
   }
 
 }
 
-export const liveEngine = new LiveEngine();
+export const liveEngine =
+  new LiveEngine();
 
-export function subscribe(cb: (tick: Tick) => void) {
-  return liveEngine.subscribe(cb);
+export function subscribe(
+  symbol: string,
+  cb: (tick: Tick) => void
+) {
+
+  return liveEngine.subscribe(
+    symbol,
+    cb
+  );
+
 }
+
+
+
 
 
 

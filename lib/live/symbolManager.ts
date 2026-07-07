@@ -25,7 +25,9 @@ class SymbolManager {
   // SUBSCRIBE TO GLOBAL TICK STREAM
   // -----------------------------------
   private init() {
-    subscribe((tick) => {
+    subscribe(
+      "*",
+      (tick) => {
       if (!tick.symbol) return;
 
       const price = Number(tick.lastPrice);
@@ -33,7 +35,8 @@ class SymbolManager {
       if (!Number.isFinite(price) || price <= 0) return;
 
       this.tickCache.set(tick.symbol, tick);
-    });
+    }
+    );
   }
 
   // -----------------------------------

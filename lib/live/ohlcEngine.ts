@@ -9,25 +9,115 @@ export interface OHLCState{
   time:number;
 }
 
-let state:OHLCState|null=null;
-const listeners=new Set<(s:OHLCState)=>void>();
+const states =
+  new Map<string,OHLCState>();
+
+const listeners =
+  new Map<
+    string,
+    Set<(s:OHLCState)=>void>
+  >();
 
 export function updateOHLC(tick:LiveTick){
+
+  const symbol = tick.symbol;
+
+  if(!symbol) return;
+
+  let state = states.get(symbol);
+
   if(!state){
-    state={open:tick.lastPrice,high:tick.lastPrice,low:tick.lastPrice,close:tick.lastPrice,volume:tick.volume??0,time:tick.time};
+
+    state={
+      open:tick.open ?? tick.lastPrice,
+      high:tick.high ?? tick.lastPrice,
+      low:tick.low ?? tick.lastPrice,
+      close:tick.close ?? tick.lastPrice,
+      volume:tick.volume ?? 0,
+      time:tick.time,
+    };
+
   }else{
-    state.high=Math.max(state.high,tick.lastPrice);
-    state.low=Math.min(state.low,tick.lastPrice);
-    state.close=tick.lastPrice;
-    state.volume=tick.volume??state.volume;
+
+    state.high=
+      tick.high ?? state.high;
+
+    state.low=
+      tick.low ?? state.low;
+
+    state.close=
+      tick.close ?? tick.lastPrice;
+
+    state.open=
+      tick.open ?? state.open;
+    state.volume=tick.volume ?? state.volume;
     state.time=tick.time;
+
   }
-  listeners.forEach(fn=>fn(state!));
+
+  states.set(symbol,state);
+
+  listeners
+    .get(symbol)
+    ?.forEach(fn=>fn({...state!}));
+
 }
 
-export function getCurrentOHLC(){ return state; }
-export function resetOHLC(){ state=null; }
-export function subscribeOHLC(fn:(s:OHLCState)=>void){
- listeners.add(fn);
- return ()=>listeners.delete(fn);
+export function getCurrentOHLC(
+  symbol:string
+){
+  return states.get(symbol) ?? null;
 }
+
+export function resetOHLC(
+  symbol?:string
+){
+
+  if(symbol){
+
+    states.delete(symbol);
+    listeners.delete(symbol);
+    return;
+
+  }
+
+  states.clear();
+  listeners.clear();
+
+}
+
+export function subscribeOHLC(
+  symbol:string,
+  fn:(s:OHLCState)=>void
+){
+
+  if(!listeners.has(symbol)){
+    listeners.set(
+      symbol,
+      new Set()
+    );
+  }
+
+  listeners
+    .get(symbol)!
+    .add(fn);
+
+  const state =
+    states.get(symbol);
+
+  if(state){
+    fn({...state});
+  }
+
+  return ()=>{
+
+    listeners
+      .get(symbol)
+      ?.delete(fn);
+
+  };
+
+}
+
+
+
