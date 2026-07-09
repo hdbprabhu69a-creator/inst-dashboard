@@ -1,4 +1,4 @@
-import { KiteConnect } from "kiteconnect";
+﻿import { KiteConnect } from "kiteconnect";
 import { adminDb } from "@/lib/firebase-admin";
 import { getCachedAccessToken } from "@/lib/kite/tokenCache";
 import { NextResponse } from "next/server";
@@ -6,13 +6,13 @@ import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 const verdict = (s: number) =>
-  s >= 90
+  s >= 70
     ? "STRONG BUY"
-    : s >= 80
+    : s >= 60
     ? "BUY ON DIP"
-    : s >= 65
-    ? "HOLD"
     : s >= 50
+    ? "HOLD"
+    : s >= 35
     ? "OBSERVE"
     : "AVOID";
 
@@ -171,10 +171,26 @@ const liveVolume =
   stock.totalVolumeDaily ??
   0;
 
+const prevClose =
+  q?.ohlc?.close ??
+  stock.dailyOHLC?.close ??
+  0;
+
+const change =
+  liveCmp - prevClose;
+
+const changePct =
+  prevClose > 0
+    ? (change / prevClose) * 100
+    : 0;
+
 const sc =
   score({
     ...stock,
     cmp: liveCmp,
+
+change,
+changePct,
     totalVolumeDaily:
       liveVolume,
   });
@@ -190,6 +206,9 @@ const sc =
 
            
               cmp: liveCmp,
+
+change,
+changePct,
 
             open:
   q?.ohlc?.open ??
@@ -278,3 +297,6 @@ dpvt:
     });
   }
 }
+
+
+

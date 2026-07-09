@@ -12,11 +12,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 
 import StockSearchPopup from "@/components/StockSearch/StockSearchPopup";
-import { setCurrentSymbol } from "@/lib/live/symbolManager";
 
-import { subscribe } from "@/lib/live/liveEngine";
-import { candleEngine, subscribeCandles } from "@/lib/live/candleEngine";
-import { subscribeOHLC } from "@/lib/live/ohlcEngine";
 import { aggregateCandles } from "@/lib/history/aggregateCandles";
 import { detectPatterns } from "@/lib/patterns/analyzePattern";
 import PatternOverlay from "@/lib/chart/PatternOverlay";
@@ -53,14 +49,9 @@ export default function CandlestickChart({
 
   const chartInstance = useRef<any>(null);
   const candleSeries = useRef<any>(null);
-  const volumeSeries = useRef<any>(null);  const ohlcUnsub = useRef<null | (() => void)>(null);
-const candleUnsub = useRef<null | (() => void)>(null);
+  const volumeSeries = useRef<any>(null);const disposed = useRef(false);
 
-  const disposed = useRef(false);
-
-  const lastCandleRef = useRef<Candle | null>(null);
-  const liveCandleRef = useRef<Candle | null>(null);
-const visibleRangeRef = useRef<any>(null);
+  const lastCandleRef = useRef<Candle | null>(null);const visibleRangeRef = useRef<any>(null);
 const logicalWidthRef = useRef<number | null>(null);
 const barSpacingRef = useRef<number>(10);
 const firstLoadRef = useRef(true);
@@ -96,17 +87,7 @@ const [historyOHLC, setHistoryOHLC] = useState({
     close: 0,
 });
 
-const [liveOHLC, setLiveOHLC] = useState({
-    time: "",
-    open: 0,
-    high: 0,
-    low: 0,
-    close: 0,
-});
-
 const [historyVolume,setHistoryVolume]=useState(0);
-const [liveVolume,setLiveVolume]=useState(0);
-
 const [ohlc, setOhlc] = useState({
     time: "",
     open: 0,
@@ -121,8 +102,8 @@ const [ohlc, setOhlc] = useState({
     disposed.current = false;
 
     
-      candleUnsub.current?.();
-ohlcUnsub.current?.();
+      
+
 
     chartInstance.current?.remove();
 
@@ -232,7 +213,7 @@ candle.setData(cleaned as any);
 
     const last = cleaned[cleaned.length - 1] || null;
     lastCandleRef.current = last;
-    liveCandleRef.current = last;
+    
 
     if(firstLoadRef.current){
 
@@ -330,7 +311,7 @@ chart.subscribeCrosshairMove((param) => {
 
         isHoveringRef.current = false;
 
-        const live = liveCandleRef.current;
+        
 
         isHoveringRef.current = true;
 
@@ -379,85 +360,14 @@ setHistoryVolume(hovered.volume ?? 0);
 
     });
 
+    // -----------------------------`r`n// OHLC STREAM (DISPLAY ONLY)
     // -----------------------------
-// LIVE CANDLE ENGINE
-// -----------------------------
-
-candleUnsub.current = subscribeCandles(
-  symbol,
-  interval,
-  (candles:any[])=>{
-
-    if(disposed.current) return;
-    if(!candleSeries.current) return;
-    if(!candles?.length) return;
-    const last = candles[candles.length-1];
-
-
-    liveCandleRef.current = last;
-
-    candleSeries.current.update(
-      last as any
-    );
-
-    volumeSeries.current?.update({
-      time:last.time,
-      value:last.volume,
-    } as any);
-
-    const display = last;
-
-    if(!isHoveringRef.current){
-
-      setLiveOHLC({
-        time:String(display.time),
-        open:display.open,
-        high:display.high,
-        low:display.low,
-        close:display.close,
-      });
-
-      setLiveVolume(display.volume ?? 0);
-
-    }
-
-  }
-);
-
-// -----------------------------
-// LIVE CANDLE ENGINE
-// -----------------------------
-
-// -----------------------------
-// OHLC STREAM (DISPLAY ONLY)
-    // -----------------------------
-    ohlcUnsub.current = subscribeOHLC(
-  symbol,
-  (v:any)=>{
-
-    if(disposed.current) return;
-
-    setLiveOHLC({
-      time:String(v.time),
-      open:v.open,
-      high:v.high,
-      low:v.low,
-      close:v.close,
-    });
-
-    setLiveVolume(
-      v.volume ?? 0
-    );
-
-  }
-);
-
-return () => {
+    return ()=> {
       disposed.current = true;
 
       
-      candleUnsub.current?.();
-ohlcUnsub.current?.();
+      
+
 
       if(chartInstance.current){
     chart.remove();
@@ -492,10 +402,7 @@ const togglePattern = () => {
 
 };
 
-const displayOHLC =
-  historyOHLC.time
-    ? historyOHLC
-    : liveOHLC;
+const displayOHLC = historyOHLC;
 
 return (
     <div className="relative flex flex-col w-full h-full bg-[#0b0e11]">
@@ -518,7 +425,7 @@ className="flex items-center gap-1 h-5 px-2 rounded border border-zinc-700 bg-[#
 
         <span className="font-semibold text-[12px] leading-none text-white">{symbol}</span>
 
-        <span className="text-zinc-500">Â·</span>
+        <span className="text-zinc-500">·</span>
 
         <div className="relative inline-block">
 
@@ -628,7 +535,7 @@ patternEnabled
           {Intl.NumberFormat("en",{
             notation:"compact",
             maximumFractionDigits:2
-          }).format(historyOHLC.time ? historyVolume : liveVolume)}
+          }).format(historyVolume)}
         </span>
 
       </div>
@@ -659,7 +566,7 @@ pattern={pattern}
           open={searchOpen}
           onClose={()=>setSearchOpen(false)}
           onSelect={(s)=>{
-            setCurrentSymbol(s);
+            
             setSearchOpen(false);
             onSymbolChange(s);
           }}
@@ -676,6 +583,13 @@ pattern={pattern}
 
 
 }
+
+
+
+
+
+
+
 
 
 

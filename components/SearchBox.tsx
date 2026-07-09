@@ -105,12 +105,12 @@ export default function SearchBox() {
           bg-zinc-900
           border
           border-zinc-700
-          rounded-lg
-          px-3
+          rounded-md
+          px-2
           py-1
-          h-8
-          w-[220px]
-          text-sm
+          h-6
+          w-[170px]
+          text-[11px]
           outline-none
         "
       />
@@ -127,9 +127,9 @@ export default function SearchBox() {
             bg-zinc-900
             border
             border-zinc-700
-            rounded-lg
+            rounded-md
             z-50
-            max-h-80
+            max-h-60
             overflow-y-auto
           "
         >
@@ -161,7 +161,7 @@ export default function SearchBox() {
 
               <div className="flex justify-between">
 
-                <span className="text-sm">
+                <span className="text-[11px]">
 
                   {stock.symbol}
 

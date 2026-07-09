@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 
@@ -8,7 +8,10 @@ type Row = {
 
   cmp:number;
 
-  open:number;
+change:number;
+changePct:number;
+
+open:number;
   high:number;
   low:number;
   close:number;
@@ -22,6 +25,10 @@ mvol:number;
 dpvt:number;
 wpvt:number;
 mpvt:number;
+
+dailyVWAP:number;
+weeklyVWAP:number;
+monthlyVWAP:number;
 
 oneWeekLow:number;
 oneWeekHigh:number;
@@ -39,10 +46,10 @@ const V:any = {
   AVOID:["A","text-red-400"],
 };
 const scoreColor=(s:number)=>
- s>=90?"text-green-400":
- s>=80?"text-cyan-400":
- s>=65?"text-yellow-400":
- s>=50?"text-orange-400":
+ s>=70?"text-green-400":
+ s>=60?"text-cyan-400":
+ s>=50?"text-yellow-400":
+ s>=35?"text-orange-400":
  "text-red-400";
 export default function WatchlistPage() {
 
@@ -60,8 +67,13 @@ const [selectedFilters,setSelectedFilters] =
 const [runFilters,setRunFilters] =
   useState<string[]>([]);
 
+const [scannerApplied,setScannerApplied] =
+  useState(false);
+
 const [scannerType,setScannerType] =
-  useState("Buy Zone");  const [loading,setLoading] =
+  useState("All Stocks");
+
+const [loading,setLoading] =
     useState(true);
 
   const [time,setTime] =
@@ -132,97 +144,163 @@ const [scannerType,setScannerType] =
 
   }
 
- const filtered =
-  rows.filter((r) => {
+ let filtered=[...rows];
 
-    const searchMatch =
-      r.symbol
-        .toLowerCase()
-        .includes(search.toLowerCase());
+//----------------------------------
+// SEARCH
+//----------------------------------
 
-    if (!searchMatch) return false;
+filtered=filtered.filter(r=>
+  r.symbol.toLowerCase().includes(search.toLowerCase())
+);
 
-    // ===== DROPDOWN FILTER =====
-    let typeMatch = true;
+//----------------------------------
+// SCANNER
+//----------------------------------
 
-    switch (scannerType) {
+if(scannerApplied){
 
-      case "Buy Zone":
-        typeMatch =
-          r.verdict === "STRONG BUY" ||
-          r.verdict === "BUY ON DIP";
-        break;
+  switch(scannerType){
 
-      case "Pullback":
-        typeMatch =
-          r.cmp > r.dpvt &&
-          r.cmp < r.oneWeekHigh;
-        break;
+    case "All Stocks":
+      break;
 
-      case "Breakout":
-        typeMatch =
-          r.cmp >= r.oneWeekHigh;
-        break;
+    case "Buy Zone":
 
-      case "Momentum":
-        typeMatch =
-          r.score >= 80;
-        break;
+      filtered=filtered.filter(r=>
+        r.verdict==="STRONG BUY"||
+        r.verdict==="BUY ON DIP"
+      );
 
-      default:
-        typeMatch = true;
-    }
+      break;
 
-    if (!typeMatch) return false;
+    case "Pullback":
 
-    // ===== RUN BUTTON FILTER =====
-    if (runFilters.length === 0) return true;
+      filtered=filtered.filter(r=>
+        r.cmp>r.dpvt &&
+        r.cmp<r.oneWeekHigh
+      );
 
-    return runFilters.every((f) => {
+      break;
 
-      switch (f) {
+    case "Breakout":
+
+      filtered=filtered.filter(r=>{
+
+        let s=0;
+
+        if(r.score>=60)s+=20;
+        if(r.cmp>r.dpvt)s+=15;
+        if(r.cmp>r.wpvt)s+=15;
+        if(r.dailyVWAP>0 && r.cmp>r.dailyVWAP)s+=10;
+        if(r.changePct>=0.5)s+=10;
+        if(r.dvol>r.wvol/5)s+=10;
+        if(r.deliveryPctDaily>=40)s+=10;
+        if(r.oneWeekHigh>0 && r.cmp>=r.oneWeekHigh*0.995)s+=20;
+
+        return s>=60;
+
+      });
+
+      break;
+
+    case "Momentum":
+
+      filtered=filtered.filter(r=>{
+
+        let s=0;
+
+        if(r.score>=60)s+=20;
+        if(r.cmp>r.dpvt)s+=10;
+        if(r.cmp>r.wpvt)s+=10;
+        if(r.cmp>r.mpvt)s+=10;
+        if(r.dailyVWAP>0 && r.cmp>r.dailyVWAP)s+=10;
+        if(r.changePct>=1)s+=15;
+        else if(r.changePct>=0.5)s+=8;
+        if(r.dvol>r.wvol/5)s+=10;
+        if(r.deliveryPctDaily>=50)s+=10;
+        if(r.oneWeekHigh>0 && r.cmp>=r.oneWeekHigh*0.98)s+=15;
+
+        return s>=65;
+
+      });
+
+      break;
+
+    case "Top Gainers":
+
+      filtered=filtered
+        .filter(r=>r.changePct>0)
+        .sort((a,b)=>b.changePct-a.changePct);
+
+      break;
+
+    case "Top Losers":
+
+      filtered=filtered
+        .filter(r=>r.changePct<0)
+        .sort((a,b)=>a.changePct-b.changePct);
+
+      break;
+
+  }
+
+}
+
+//----------------------------------
+// LEFT FILTERS
+//----------------------------------
+
+if(runFilters.length){
+
+  filtered=filtered.filter(r=>
+
+    runFilters.every(f=>{
+
+      switch(f){
 
         case "BZ":
-          return (
-            r.verdict === "STRONG BUY" ||
-            r.verdict === "BUY ON DIP"
-          );
+          return r.verdict==="STRONG BUY"||
+                 r.verdict==="BUY ON DIP";
 
         case "DP":
-          return r.cmp > r.dpvt;
+          return r.cmp>r.dpvt;
 
         case "WP":
-          return r.cmp > r.wpvt;
+          return r.cmp>r.wpvt;
 
         case "MP":
-          return r.cmp > r.mpvt;
+          return r.cmp>r.mpvt;
 
         case "DV":
-          return r.dvol > 0;
+          return r.dvol>0;
 
         case "WW":
-          return r.wvol > 0;
+          return r.wvol>0;
 
         case "MV":
-          return r.mvol > 0;
+          return r.mvol>0;
 
         case "DC":
-          return r.deliveryPctDaily >= 50;
+          return r.deliveryPctDaily>=50;
 
         case "WC":
-          return r.cmp >= r.oneWeekLow;
+          return r.cmp>=r.oneWeekLow;
 
         case "MC":
-          return r.cmp >= r.oneWeekHigh;
+          return r.cmp>=r.oneWeekHigh;
 
         default:
           return true;
+
       }
 
-    });
+    })
 
-  });
-  const counts =
+  );
+
+}
+const counts =
     rows.reduce(
       (a,r) => {
 
@@ -369,15 +447,19 @@ RESULTS:{filtered.length}
       rounded
     "
   >
-    <option>Buy Zone</option>
+                  <option>All Stocks</option>
+              <option>Buy Zone</option>
     <option>Pullback</option>
     <option>Breakout</option>
     <option>Momentum</option>
+    <option>Top Gainers</option>
+    <option>Top Losers</option>
   </select>
 
   <button
    onClick={() => {
   setRunFilters([...selectedFilters]);
+setScannerApplied(true);
 }}
     className="
       bg-cyan-700
@@ -431,17 +513,19 @@ RESULTS:{filtered.length}
               <th className="w-[42px] text-green-400 sticky left-[75px] bg-black z-20">
   CMP
 </th>
-<th className="w-[40px] text-cyan-400">SC</th>
+<th className="w-[40px] text-cyan-400">CHG%</th>
+
+<th className="w-[40px] text-yellow-400">SC</th>
 
               <th className="w-[40px] text-white">VD</th>
 
-              <th className="w-[42px] text-white">O</th>
+              <th className="w-[42px] text-white">OPEN</th>
 
-              <th className="w-[42px] text-green-400">H</th>
+              <th className="w-[42px] text-green-400">HIGH</th>
 
-              <th className="w-[42px] text-red-400">L</th>
+              <th className="w-[42px] text-red-400">LOW</th>
 
-              <th className="w-[42px] text-yellow-400">PC</th>
+              <th className="w-[42px] text-yellow-400">CLOSE</th>
 
               <th className="w-[42px] text-blue-400">DP</th>
 
@@ -505,7 +589,11 @@ RESULTS:{filtered.length}
 >
  {r.cmp?.toFixed(2)}
 </td>
-                  <td
+                  <td className={`text-center font-bold ${r.changePct>=0?"text-green-400":"text-red-400"}`}>
+  {r.changePct.toFixed(2)}%
+</td>
+
+<td
  className={`text-center font-bold ${scoreColor(r.score)}`}
 >
  {r.score}
@@ -594,3 +682,36 @@ RESULTS:{filtered.length}
   );
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

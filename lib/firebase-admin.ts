@@ -1,4 +1,3 @@
-import "dotenv/config";
 
 import { cert, getApps, initializeApp } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
@@ -28,3 +27,4 @@ const app =
       });
 
 export const adminDb = getFirestore(app);
+

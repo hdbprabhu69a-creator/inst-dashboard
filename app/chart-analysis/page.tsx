@@ -1,37 +1,22 @@
 "use client";
 
-import { startLiveBootstrap, stopLiveBootstrap } from "@/lib/live/liveBootstrap";
 import { useEffect, useState } from "react";
 import { setCurrentSymbol } from "@/lib/live/symbolManager";
 import CandlestickChart from "@/lib/chart/CandlestickChart";
-import { candleEngine } from "@/lib/live/candleEngine";
 
 type Interval = "D" | "W" | "M";
 
 export default function ChartAnalysisPage() {
 
-  const [interval, setInterval] = useState<Interval>("D");
+  const [interval] = useState<Interval>("D");
 
   const [symbol, setSymbol] = useState("SBIN");
 
   const [candles, setCandles] = useState<any[]>([]);
 
-
   const activeSymbol = symbol.trim();
 
   useEffect(() => {
-
-    startLiveBootstrap();
-
-    return () => {
-
-        stopLiveBootstrap();
-
-    };
-
-}, []);
-
-useEffect(() => {
 
     if (!activeSymbol) {
       setCandles([]);
@@ -47,12 +32,6 @@ useEffect(() => {
         const res = await fetch(
           `/api/history?symbol=${encodeURIComponent(activeSymbol)}&interval=${interval}`
         );
-
-        if (!res.ok) {
-          console.error("History API failed", res.status);
-          setCandles([]);
-          return;
-        }
 
         const json = await res.json();
 
@@ -78,17 +57,17 @@ useEffect(() => {
 
   return (
 
-    <div className="h-screen overflow-hidden bg-[#0b0e11] text-white p-0">
+    <div className="min-h-screen bg-black text-white p-6">
 
-      <div className="w-full h-full">
+      <div className="w-full">
 
         <CandlestickChart
-    data={candles}
-    symbol={activeSymbol}
-    interval={interval}
-    onIntervalChange={setInterval}
+          data={candles}
+          symbol={activeSymbol}
+          interval={interval}
           onSymbolChange={setSymbol}
-  />
+          onIntervalChange={() => {}}
+        />
 
       </div>
 
@@ -97,16 +76,6 @@ useEffect(() => {
   );
 
 }
-
-
-
-
-
-
-
-
-
-
 
 
 
