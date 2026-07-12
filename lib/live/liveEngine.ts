@@ -1,8 +1,10 @@
-﻿import { candleEngine } from "./candleEngine";
+import { candleEngine } from "./candleEngine";
 import { updateOHLC } from "./ohlcEngine";
 
 type Tick = {
-  symbol?: string;
+  symbol: string;
+
+  token: number;
 
   lastPrice: number;
 
@@ -10,9 +12,10 @@ type Tick = {
   high?: number;
   low?: number;
   close?: number;
+
   volume?: number;
 
-  time?: number;
+  time: number;
 };
 
 type Listener = (tick: Tick) => void;
@@ -191,6 +194,7 @@ export function subscribe(
   );
 
 }
+
 
 
 
