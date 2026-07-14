@@ -30,9 +30,9 @@ export const DELIVERY_CONFIG = {
   ],
 
   SELECTORS: {
-    SEARCH: 'input[type="search"]',
-    REPORT_CARD: 'a[href], button',
-    DOWNLOAD_BUTTON: 'a[download], button',
+    SEARCH: 'input.searchbox-input[placeholder="Search...."]',
+    REPORT_CARD: "a[href], button",
+    DOWNLOAD_BUTTON: "a[download], button",
     DATE_PICKER: 'input[type="date"]'
   }
 } as const;

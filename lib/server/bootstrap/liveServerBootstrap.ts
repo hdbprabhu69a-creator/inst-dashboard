@@ -1,4 +1,4 @@
-import { adminDb } from "@/lib/firebase-admin";
+﻿import { adminDb } from "@/lib/firebase-admin";
 import { kiteLiveService } from "@/lib/server/live/KiteLiveService";
 import { getUniverseTokens } from "@/lib/tokenResolver/universeTokenResolver";
 import { startEodScheduler } from "@/lib/scheduler/eodScheduler";
@@ -58,11 +58,7 @@ export async function ensureLiveServerStarted() {
         tokens.length
     );
 
-    kiteLiveService.start(
-        process.env.KITE_API_KEY!,
-        accessToken,
-        tokens
-    );
+    // BUILD-014 Disabled KiteLiveService
 
     if (!schedulerStarted) {
 
