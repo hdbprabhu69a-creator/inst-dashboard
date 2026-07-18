@@ -1,0 +1,499 @@
+================================================================================
+MISSING: .\src\lib\delivery-analysis\DeliveryTypes.ts
+================================================================================
+
+================================================================================
+MISSING: .\src\lib\delivery-analysis\DeliveryNormalizer.ts
+================================================================================
+
+================================================================================
+MISSING: .\src\lib\delivery-analysis\DeliveryMetrics.ts
+================================================================================
+
+================================================================================
+MISSING: .\src\lib\delivery-analysis\DeliveryTrend.ts
+================================================================================
+
+================================================================================
+MISSING: .\src\lib\delivery-analysis\DeliverySignals.ts
+================================================================================
+
+================================================================================
+MISSING: .\src\lib\delivery-analysis\DeliveryDetector.ts
+================================================================================
+
+================================================================================
+MISSING: .\src\lib\delivery-analysis\DeliveryScoring.ts
+================================================================================
+
+================================================================================
+MISSING: .\src\lib\delivery-analysis\DeliveryRanking.ts
+================================================================================
+
+================================================================================
+MISSING: .\src\lib\delivery-analysis\DeliveryQualityEngine.ts
+================================================================================
+
+================================================================================
+MISSING: .\src\lib\delivery-analysis\DeliveryPersistenceEngine.ts
+================================================================================
+
+================================================================================
+MISSING: .\src\lib\delivery-analysis\DeliveryEngine.ts
+================================================================================
+
+================================================================================
+FILE: .\src\lib\deliveryEngine.ts
+================================================================================
+
+export function parseNumber(
+  value: string | number
+) {
+
+  if (
+    value === undefined ||
+    value === null
+  ) {
+
+    return 0;
+
+  }
+
+  return Number(
+
+    String(value)
+      .replace(/,/g, "")
+      .trim()
+
+  );
+
+}
+
+export function buildDeliveryRecord(
+  row: any
+) {
+
+  return {
+
+    symbol:
+      row.SYMBOL?.trim(),
+
+    date:
+      row.DATE1?.trim(),
+
+    volume:
+      parseNumber(
+        row.TTL_TRD_QNTY
+      ),
+
+    deliveryQty:
+      parseNumber(
+        row.DELIV_QTY
+      ),
+
+    deliveryPct:
+      parseNumber(
+        row.DELIV_PER
+      ),
+
+  };
+
+}
+
+
+================================================================================
+FILE: .\src\lib\deliveryHistoryEngine.ts
+================================================================================
+
+import fs from "fs";
+import path from "path";
+
+export interface DeliveryHistoryResult {
+  success: boolean;
+  archivedZip?: string;
+  archivedCsv?: string;
+  logFile?: string;
+  error?: string;
+}
+
+function ensure(dir: string) {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+}
+
+export function archiveDeliveryFiles(
+  zipFile: string,
+  csvFile: string
+): DeliveryHistoryResult {
+
+  try {
+
+    const archiveDir = path.join(
+      process.cwd(),
+      "data",
+      "delivery",
+      "archive"
+    );
+
+    const logDir = path.join(
+      process.cwd(),
+      "logs",
+      "delivery"
+    );
+
+    ensure(archiveDir);
+    ensure(logDir);
+
+    const zipTarget = path.join(
+      archiveDir,
+      path.basename(zipFile)
+    );
+
+    const csvTarget = path.join(
+      archiveDir,
+      path.basename(csvFile)
+    );
+
+    if (fs.existsSync(zipFile))
+      fs.renameSync(zipFile, zipTarget);
+
+    if (fs.existsSync(csvFile))
+      fs.renameSync(csvFile, csvTarget);
+
+    const stamp = new Date()
+      .toISOString()
+      .replace(/[:.]/g, "-");
+
+    const logFile = path.join(
+      logDir,
+      `delivery_${stamp}.log`
+    );
+
+    fs.writeFileSync(
+      logFile,
+`Delivery Pipeline Completed
+
+ZIP : ${zipTarget}
+
+CSV : ${csvTarget}
+
+Completed : ${new Date().toLocaleString()}
+`
+    );
+
+    return {
+      success: true,
+      archivedZip: zipTarget,
+      archivedCsv: csvTarget,
+      logFile
+    };
+
+  } catch (error) {
+
+    return {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : String(error)
+    };
+
+  }
+
+}
+
+
+================================================================================
+FILE: .\src\lib\deliveryImportEngine.ts
+================================================================================
+
+import fs from "fs";
+import path from "path";
+import AdmZip from "adm-zip";
+
+export interface DeliveryImportResult {
+  success: boolean;
+  zipFile: string;
+  csvFile?: string;
+  extractedDir: string;
+  rowsImported?: number;
+  error?: string;
+}
+
+export async function extractDeliveryZip(
+  zipFile: string
+): Promise<DeliveryImportResult> {
+
+  const absoluteZip = path.resolve(zipFile);
+
+  const extractedDir = path.resolve(
+    process.cwd(),
+    "data",
+    "delivery"
+  );
+
+  try {
+
+    if (!fs.existsSync(absoluteZip)) {
+      throw new Error("ZIP file not found.");
+    }
+
+    const zip = new AdmZip(absoluteZip);
+    zip.extractAllTo(extractedDir, true);
+
+    const csvFiles = fs
+      .readdirSync(extractedDir)
+      .filter(f => f.toLowerCase().endsWith(".csv"))
+      .map(f => ({
+        file: f,
+        time: fs.statSync(path.join(extractedDir, f)).mtimeMs
+      }))
+      .sort((a,b)=>b.time-a.time);
+
+    if (!csvFiles.length) {
+      throw new Error("No CSV extracted.");
+    }
+
+    return {
+      success: true,
+      zipFile,
+      csvFile: path.join(extractedDir, csvFiles[0].file),
+      extractedDir
+    };
+
+  } catch (error) {
+
+    return {
+      success: false,
+      zipFile,
+      extractedDir,
+      error:
+        error instanceof Error
+          ? error.message
+          : String(error)
+    };
+
+  }
+
+}
+
+export function validateExtractedCsv(
+  csvFile: string
+): boolean {
+
+  if (!fs.existsSync(csvFile)) {
+    return false;
+  }
+
+  return fs.statSync(csvFile).size > 1024;
+
+}
+
+export function getLatestCsv(): string | null {
+
+  const dir = path.join(
+    process.cwd(),
+    "data",
+    "delivery"
+  );
+
+  const files = fs
+    .readdirSync(dir)
+    .filter(f =>
+      f.toLowerCase().endsWith(".csv")
+    )
+    .sort();
+
+  return files.length
+    ? path.join(dir, files[0])
+    : null;
+
+}
+
+
+
+
+
+
+
+================================================================================
+FILE: .\src\lib\sharedDeliveryImporter.ts
+================================================================================
+
+import fs from "fs";
+import csv from "csv-parser";
+
+import {
+  collection,
+  getDocs,
+  doc,
+  getDoc,
+  setDoc,
+} from "firebase/firestore";
+
+import { db } from "@/lib/firebase";
+
+import {
+  buildDeliveryRecord,
+} from "@/src/lib/deliveryEngine";
+
+function convertDate(dateStr:string){
+
+  const months:Record<string,string>={
+    Jan:"01",
+    Feb:"02",
+    Mar:"03",
+    Apr:"04",
+    May:"05",
+    Jun:"06",
+    Jul:"07",
+    Aug:"08",
+    Sep:"09",
+    Oct:"10",
+    Nov:"11",
+    Dec:"12"
+  };
+
+  const [day,mon,year]=dateStr.split("-");
+
+  return `${year}-${months[mon]}-${day}`;
+
+}
+
+export async function importDeliveryCsv(csvFile:string){
+
+  const universeSnapshot=
+    await getDocs(
+      collection(
+        db,
+        "universe"
+      )
+    );
+
+  const universeSymbols=
+    universeSnapshot.docs.map(
+      doc=>doc.data().symbol
+    );
+
+  console.log("[IMPORT] Universe:",universeSymbols.length);
+
+  const rows:any[]=[];
+
+  await new Promise<void>((resolve,reject)=>{
+
+    fs.createReadStream(csvFile)
+
+      .pipe(
+        csv({
+          mapHeaders:({header})=>header.trim()
+        })
+      )
+
+      .on("data",data=>{
+        rows.push(
+          buildDeliveryRecord(data)
+        );
+      })
+
+      .on("end",()=>resolve())
+
+      .on("error",reject);
+
+  });
+
+  console.log("[IMPORT] Parsed Rows:",rows.length);
+
+  const filtered=
+    rows.filter(
+      row=>universeSymbols.includes(row.symbol)
+    );
+
+  console.log("[IMPORT] Filtered Rows:",filtered.length);
+
+  let written=0;
+  let updated=0;
+  let failed=0;
+
+  for(const stock of filtered){
+
+    try{
+
+      const isoDate=
+        convertDate(stock.date);
+
+      const docId=
+        `${stock.symbol}_${isoDate}`;
+
+      const docRef=
+        doc(
+          db,
+          "delivery_history",
+          docId
+        );
+
+      const existing=
+        await getDoc(docRef);
+
+      await setDoc(
+
+        docRef,
+
+        {
+          symbol:stock.symbol,
+          date:isoDate,
+          volume:stock.volume,
+          deliveryQty:stock.deliveryQty,
+          deliveryPct:stock.deliveryPct,
+          updatedAt:Date.now()
+        },
+
+        {
+          merge:true
+        }
+
+      );
+
+      if(existing.exists()){
+
+        updated++;
+
+      }else{
+
+        written++;
+
+      }
+
+    }catch(error){
+
+      failed++;
+
+      console.error(
+        "[IMPORT ERROR]",
+        stock.symbol,
+        stock.date,
+        error
+      );
+
+    }
+
+  }
+
+  return{
+
+    success:true,
+
+    written,
+
+    updated,
+
+    failed
+
+  };
+
+}
+
+
+
+
+

@@ -1,0 +1,307 @@
+{
+    "success":  true,
+    "symbol":  "SBIN",
+    "total":  32,
+    "deliveryRecords":  [
+                            {
+                                "id":  "SBIN_2026-06-01",
+                                "symbol":  "SBIN",
+                                "date":  "2026-06-01",
+                                "volume":  11118975,
+                                "deliveryQty":  5101558,
+                                "deliveryPct":  45.88,
+                                "createdAt":  1781442523576,
+                                "updatedAt":  1783850772753
+                            },
+                            {
+                                "id":  "SBIN_2026-06-02",
+                                "symbol":  "SBIN",
+                                "date":  "2026-06-02",
+                                "volume":  15911760,
+                                "deliveryQty":  6762630,
+                                "deliveryPct":  42.5,
+                                "createdAt":  1781442531565,
+                                "updatedAt":  1783850791155
+                            },
+                            {
+                                "id":  "SBIN_2026-06-03",
+                                "symbol":  "SBIN",
+                                "date":  "2026-06-03",
+                                "volume":  27947005,
+                                "deliveryQty":  14338937,
+                                "deliveryPct":  51.31,
+                                "createdAt":  1781442539424,
+                                "updatedAt":  1783850808690
+                            },
+                            {
+                                "id":  "SBIN_2026-06-04",
+                                "symbol":  "SBIN",
+                                "date":  "2026-06-04",
+                                "volume":  18875883,
+                                "deliveryQty":  9702135,
+                                "deliveryPct":  51.4,
+                                "createdAt":  1781442546855,
+                                "updatedAt":  1783764415949
+                            },
+                            {
+                                "id":  "SBIN_2026-06-05",
+                                "symbol":  "SBIN",
+                                "date":  "2026-06-05",
+                                "volume":  20955539,
+                                "deliveryQty":  9146984,
+                                "deliveryPct":  43.65,
+                                "createdAt":  1781442554622,
+                                "updatedAt":  1783764430889
+                            },
+                            {
+                                "id":  "SBIN_2026-06-08",
+                                "symbol":  "SBIN",
+                                "date":  "2026-06-08",
+                                "volume":  12895416,
+                                "deliveryQty":  6656604,
+                                "deliveryPct":  51.62,
+                                "createdAt":  1781442563049,
+                                "updatedAt":  1783764446691
+                            },
+                            {
+                                "id":  "SBIN_2026-06-09",
+                                "symbol":  "SBIN",
+                                "date":  "2026-06-09",
+                                "volume":  22142480,
+                                "deliveryQty":  12680438,
+                                "deliveryPct":  57.27,
+                                "createdAt":  1781442571078,
+                                "updatedAt":  1783764461813
+                            },
+                            {
+                                "id":  "SBIN_2026-06-10",
+                                "symbol":  "SBIN",
+                                "date":  "2026-06-10",
+                                "volume":  19122317,
+                                "deliveryQty":  13087660,
+                                "deliveryPct":  68.44,
+                                "createdAt":  1781442578619,
+                                "updatedAt":  1783764476674
+                            },
+                            {
+                                "id":  "SBIN_2026-06-11",
+                                "symbol":  "SBIN",
+                                "date":  "2026-06-11",
+                                "volume":  13773978,
+                                "deliveryQty":  8102967,
+                                "deliveryPct":  58.83,
+                                "createdAt":  1781442586492,
+                                "updatedAt":  1783764492083
+                            },
+                            {
+                                "id":  "SBIN_2026-06-12",
+                                "symbol":  "SBIN",
+                                "date":  "2026-06-12",
+                                "volume":  11081119,
+                                "deliveryQty":  5804492,
+                                "deliveryPct":  52.38,
+                                "createdAt":  1781442594320,
+                                "updatedAt":  1783764506259
+                            },
+                            {
+                                "id":  "SBIN_2026-06-15",
+                                "symbol":  "SBIN",
+                                "date":  "2026-06-15",
+                                "volume":  12463437,
+                                "deliveryQty":  7322784,
+                                "deliveryPct":  58.75,
+                                "createdAt":  1781524412700,
+                                "updatedAt":  1784049704432
+                            },
+                            {
+                                "id":  "SBIN_2026-06-16",
+                                "date":  "2026-06-16",
+                                "volume":  9693677,
+                                "symbol":  "SBIN",
+                                "deliveryQty":  4962421,
+                                "deliveryPct":  51.19,
+                                "updatedAt":  1784049723172
+                            },
+                            {
+                                "id":  "SBIN_2026-06-17",
+                                "symbol":  "SBIN",
+                                "date":  "2026-06-17",
+                                "volume":  8190062,
+                                "deliveryQty":  4627035,
+                                "deliveryPct":  56.5,
+                                "createdAt":  1781765002050,
+                                "updatedAt":  1784049743363
+                            },
+                            {
+                                "id":  "SBIN_2026-06-18",
+                                "date":  "2026-06-18",
+                                "volume":  11048009,
+                                "symbol":  "SBIN",
+                                "deliveryQty":  4757877,
+                                "deliveryPct":  43.07,
+                                "updatedAt":  1784049761039
+                            },
+                            {
+                                "id":  "SBIN_2026-06-19",
+                                "date":  "2026-06-19",
+                                "volume":  9099878,
+                                "symbol":  "SBIN",
+                                "deliveryQty":  5638770,
+                                "deliveryPct":  61.97,
+                                "updatedAt":  1784049780795
+                            },
+                            {
+                                "id":  "SBIN_2026-06-22",
+                                "date":  "2026-06-22",
+                                "volume":  6209440,
+                                "symbol":  "SBIN",
+                                "deliveryQty":  3514102,
+                                "deliveryPct":  56.59,
+                                "updatedAt":  1784049799237
+                            },
+                            {
+                                "id":  "SBIN_2026-06-23",
+                                "date":  "2026-06-23",
+                                "volume":  10411004,
+                                "symbol":  "SBIN",
+                                "deliveryQty":  4751867,
+                                "deliveryPct":  45.64,
+                                "updatedAt":  1784049817354
+                            },
+                            {
+                                "id":  "SBIN_2026-06-24",
+                                "date":  "2026-06-24",
+                                "volume":  11724076,
+                                "symbol":  "SBIN",
+                                "deliveryQty":  6130453,
+                                "deliveryPct":  52.29,
+                                "updatedAt":  1784049835445
+                            },
+                            {
+                                "id":  "SBIN_2026-06-25",
+                                "date":  "2026-06-25",
+                                "volume":  16002360,
+                                "symbol":  "SBIN",
+                                "deliveryQty":  8608658,
+                                "deliveryPct":  53.8,
+                                "updatedAt":  1784049880050
+                            },
+                            {
+                                "id":  "SBIN_2026-06-29",
+                                "date":  "2026-06-29",
+                                "volume":  16818246,
+                                "symbol":  "SBIN",
+                                "deliveryQty":  11810287,
+                                "deliveryPct":  70.22,
+                                "updatedAt":  1784049916740
+                            },
+                            {
+                                "id":  "SBIN_2026-06-30",
+                                "date":  "2026-06-30",
+                                "volume":  11161643,
+                                "symbol":  "SBIN",
+                                "deliveryQty":  4018462,
+                                "deliveryPct":  36,
+                                "updatedAt":  1784049949684
+                            },
+                            {
+                                "id":  "SBIN_2026-07-01",
+                                "date":  "2026-07-01",
+                                "volume":  6295315,
+                                "symbol":  "SBIN",
+                                "deliveryQty":  3111030,
+                                "deliveryPct":  49.42,
+                                "updatedAt":  1784050204512
+                            },
+                            {
+                                "id":  "SBIN_2026-07-02",
+                                "date":  "2026-07-02",
+                                "volume":  14682790,
+                                "symbol":  "SBIN",
+                                "deliveryQty":  8183860,
+                                "deliveryPct":  55.74,
+                                "updatedAt":  1784050221924
+                            },
+                            {
+                                "id":  "SBIN_2026-07-03",
+                                "date":  "2026-07-03",
+                                "volume":  10441493,
+                                "symbol":  "SBIN",
+                                "deliveryQty":  6053165,
+                                "deliveryPct":  57.97,
+                                "updatedAt":  1784049513347
+                            },
+                            {
+                                "id":  "SBIN_2026-07-06",
+                                "date":  "2026-07-06",
+                                "volume":  8761017,
+                                "symbol":  "SBIN",
+                                "deliveryQty":  5178312,
+                                "deliveryPct":  59.11,
+                                "updatedAt":  1784049556080
+                            },
+                            {
+                                "id":  "SBIN_2026-07-07",
+                                "date":  "2026-07-07",
+                                "volume":  11053574,
+                                "symbol":  "SBIN",
+                                "deliveryQty":  6037126,
+                                "deliveryPct":  54.62,
+                                "updatedAt":  1784049586984
+                            },
+                            {
+                                "id":  "SBIN_2026-07-08",
+                                "date":  "2026-07-08",
+                                "volume":  14141694,
+                                "symbol":  "SBIN",
+                                "deliveryQty":  7873275,
+                                "deliveryPct":  55.67,
+                                "updatedAt":  1784049618522
+                            },
+                            {
+                                "id":  "SBIN_2026-07-09",
+                                "date":  "2026-07-09",
+                                "volume":  7661699,
+                                "symbol":  "SBIN",
+                                "deliveryQty":  2014082,
+                                "deliveryPct":  26.29,
+                                "updatedAt":  1784049644892
+                            },
+                            {
+                                "id":  "SBIN_2026-07-10",
+                                "date":  "2026-07-10",
+                                "volume":  8792150,
+                                "symbol":  "SBIN",
+                                "deliveryQty":  4249961,
+                                "deliveryPct":  48.34,
+                                "updatedAt":  1784049663999
+                            },
+                            {
+                                "id":  "SBIN_2026-07-13",
+                                "date":  "2026-07-13",
+                                "volume":  8381510,
+                                "symbol":  "SBIN",
+                                "deliveryQty":  3572985,
+                                "deliveryPct":  42.63,
+                                "updatedAt":  1784049684492
+                            },
+                            {
+                                "id":  "SBIN_2026-07-14",
+                                "date":  "2026-07-14",
+                                "volume":  11562326,
+                                "symbol":  "SBIN",
+                                "deliveryQty":  5845603,
+                                "deliveryPct":  50.56,
+                                "updatedAt":  1784046009952
+                            },
+                            {
+                                "id":  "SBIN_2026-07-15",
+                                "date":  "2026-07-15",
+                                "volume":  14275394,
+                                "symbol":  "SBIN",
+                                "deliveryQty":  7105463,
+                                "deliveryPct":  49.77,
+                                "updatedAt":  1784120463607
+                            }
+                        ]
+}

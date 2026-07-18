@@ -1,0 +1,13 @@
+import {parseContractNote} from "../../lib/trade-ledger/parser/parseContractNote";
+
+async function main(){
+
+    const note=await parseContractNote(
+        "data/trade-ledger/contract.pdf"
+    );
+
+    console.dir(note,{depth:null});
+
+}
+
+main().catch(console.error);

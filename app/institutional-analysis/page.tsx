@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import EngineNavigator from "./components/EngineNavigator";
 import EngineWorkspace from "./components/workspaces/EngineWorkspace";
+import PortfolioEngineSidebar from "@/components/portfolio/PortfolioEngineSidebar";
 
 
 const ENGINE_APIS: Record<string,{run:string;update:string}>={
@@ -17,6 +18,11 @@ const ENGINE_APIS: Record<string,{run:string;update:string}>={
   "CPR Analysis":{
     run:"/api/institutional-analysis/cpr",
     update:"/api/institutional-analysis/cpr/update"
+  }
+  ,
+  "Delivery Analysis":{
+    run:"/api/institutional-analysis/delivery",
+    update:"/api/institutional-analysis/delivery/update"
   }
 };
 export default function InstitutionalAnalysisPage() {
@@ -93,8 +99,20 @@ const [engine,setEngine]=useState("Trend Analysis");
 
       <aside className="w-[220px] shrink-0 bg-[#11161C] border-r border-[#232B36]">
         <EngineNavigator
+  selected={engine}
+  setSelected={setEngine}
+/>
+
+<div className="border-t border-[#232B36] mt-2 pt-2">
+  <PortfolioEngineSidebar
+    selected={engine}
+    onSelect={setEngine}
+  />
+</div>
+
+        <PortfolioEngineSidebar
           selected={engine}
-          setSelected={setEngine}
+          onSelect={setEngine}
         />
       </aside>
 
@@ -150,6 +168,14 @@ const [engine,setEngine]=useState("Trend Analysis");
   );
 
 }
+
+
+
+
+
+
+
+
 
 
 

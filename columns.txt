@@ -1,0 +1,18 @@
+const columns = [
+  { key: "symbol", title: "INSTRUMENT", width: 220 },
+
+  { key: "mtfQty", title: "MTF", width: 80 },
+  { key: "cncQty", title: "CNC", width: 80 },
+
+  { key: "averagePrice", title: "AVG COST", width: 120 },
+  { key: "lastPrice", title: "LTP", width: 120 },
+
+  { key: "investedValue", title: "INVESTED", width: 150 },
+  { key: "marketValue", title: "CURRENT VALUE", width: 160 },
+
+  { key: "unrealizedPnL", title: "TOTAL P&L", width: 140 },
+  { key: "returnPercent", title: "RETURN %", width: 110 },
+
+  { key: "dayPnL", title: "DAY P&L", width: 130 },
+  { key: "dayChangePercent", title: "DAY %", width: 100 },
+];

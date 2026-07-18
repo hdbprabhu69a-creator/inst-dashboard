@@ -1,0 +1,48 @@
+import {loadPdf} from "../pdf/pdfLoader";
+import {splitContracts} from "./splitContracts";
+import {parseContract} from "./parseContract";
+import {parseTradeLedger} from "./parseTradeLedger";
+
+export async function parseMonthlyLedger(
+    pdfPath:string
+){
+
+    const pdf=await loadPdf(pdfPath);
+
+    const groups=await splitContracts(pdf);
+
+    const notes=[];
+
+    for(const group of groups){
+
+        const trades=await parseTradeLedger(
+
+            pdfPath,
+
+            group.startPage,
+
+            group.endPage
+
+        );
+
+        notes.push(
+
+            await parseContract(
+
+                pdf,
+
+                group.startPage,
+
+                group.endPage,
+
+                trades
+
+            )
+
+        );
+
+    }
+
+    return notes;
+
+}

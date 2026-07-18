@@ -3,6 +3,7 @@
 import UniverseTable from "../UniverseTable";
 import PivotAnalysis from "../engines/PivotAnalysis";
 import CPRAnalysis from "../engines/CPRAnalysis";
+import DeliveryAnalysis from "../engines/DeliveryAnalysis";
 
 interface Props{
   engine:string;
@@ -33,7 +34,11 @@ export default function EngineWorkspace({
 
   if(engine==="CPR Analysis"){
     return <CPRAnalysis rows={rows} />;
-  }
+}
+
+if(engine==="Delivery Analysis"){
+    return <DeliveryAnalysis rows={rows} />;
+}
 
   return(
     <div className="h-full bg-[#11161d] border border-[#2a313b] rounded-md flex items-center justify-center text-[#b8c1cc] text-lg">
@@ -42,3 +47,5 @@ export default function EngineWorkspace({
   );
 
 }
+
+

@@ -1,0 +1,63 @@
+import {extractPageItems} from "../pdf/pageExtractor";
+
+import {parseContractHeader} from "./parseContractHeader";
+import {parseCharges} from "./parseCharges";
+import {parseSummary} from "./parseSummary";
+
+import type {ContractNote} from "../contractTypes";
+import type {PDFDocumentProxy} from "pdfjs-dist/types/src/display/api";
+
+export async function parseContract(
+
+    pdf:PDFDocumentProxy,
+
+    start:number,
+
+    end:number,
+
+    trades:any[]
+
+):Promise<ContractNote>{
+
+    let header;
+
+    let charges;
+
+    let summary;
+
+    for(let pageNo=start;pageNo<=end;pageNo++){
+
+        const page=await pdf.getPage(pageNo);
+
+        const items=await extractPageItems(page);
+
+        const text=items.map(x=>x.text).join(" ");
+
+        if(text.includes("Trade Date"))
+            header=parseContractHeader(items);
+
+        if(text.includes("Stamp Duty"))
+            charges=parseCharges(items);
+
+        if(
+            text.includes("Net Amount")
+            ||
+            text.includes("Net obligation")
+        )
+            summary=parseSummary(items);
+
+    }
+
+    return{
+
+        header:header!,
+
+        trades,
+
+        charges:charges!,
+
+        summary:summary!
+
+    };
+
+}

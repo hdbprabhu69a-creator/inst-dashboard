@@ -1,0 +1,27 @@
+import {parseMonthlyLedger} from "../../lib/trade-ledger/parser/parseMonthlyLedger";
+
+async function main(){
+
+    const notes=await parseMonthlyLedger(
+        "data/trade-ledger/contract.pdf"
+    );
+
+    console.log("Contracts:",notes.length);
+
+    for(const note of notes){
+
+        console.log(
+
+            note.header.tradeDate,
+
+            note.header.settlementNo,
+
+            note.trades.length
+
+        );
+
+    }
+
+}
+
+main().catch(console.error);

@@ -159,7 +159,7 @@ export default function InstitutionalGrid({columns,rows}:Props){
                         :{width:c.width}
                     }
                     className={
-                      "px-3 py-2 border border-[#1f2833] whitespace-nowrap text-center "+
+                      "px-3 py-2 border border-[#1f2833] whitespace-nowrap text-center text-slate-200 "+
                       (index<2?"sticky bg-[#0d131a] z-20":"")
                     }
                   >
@@ -183,3 +183,4 @@ export default function InstitutionalGrid({columns,rows}:Props){
   );
 
 }
+

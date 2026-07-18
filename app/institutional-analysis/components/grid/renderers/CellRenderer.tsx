@@ -87,9 +87,30 @@ export function renderCell(column: GridColumn, row: any) {
 
       return badge(value, "bg-slate-800 text-slate-200 border border-slate-600");
 
-    default:
-      return value ?? "-";
+    case "text":
+
+  if(column.key==="symbol")
+    return <span className="text-amber-300 font-semibold tracking-wide uppercase">{value ?? "-"}</span>;
+
+  if(column.key==="tradeDate")
+    return <span className="text-cyan-400 font-medium">{value ?? "-"}</span>;
+
+  if(column.key==="remarks")
+    return <span className="text-slate-300">{value ?? "-"}</span>;
+
+  return <span className="text-slate-200">{value ?? "-"}</span>;
+
+case "number":
+  return <span className="text-slate-100 tabular-nums">{value ?? "-"}</span>;
+
+default:
+  return value ?? "-";
 
   }
 
 }
+
+
+
+
+

@@ -18,15 +18,51 @@ interface Props{
 
 function cellClass(key:string){
 
-  if(key==="symbol") return "font-semibold text-[#3cf2df] drop-shadow-[0_0_6px_rgba(37,216,197,.45)]";
+  if(key==="symbol") return "font-semibold text-[#3cf2df] drop--[0_0_6px_rgba(37,216,197,.45)]";
   if(key==="cmp"||key==="score") return "text-white";
-  if(key.toLowerCase().includes("value") || key.includes("PVT") || key.endsWith("BC") || key.endsWith("TC") || key.endsWith("Pivot")) return "text-cyan-300 font-semibold drop-shadow-[0_0_8px_rgba(34,211,238,.85)]";
-  if(key.includes("R")) return "text-green-300 font-semibold drop-shadow-[0_0_8px_rgba(74,222,128,.85)]";
-  if(key.includes("S")) return "text-red-300 font-semibold drop-shadow-[0_0_8px_rgba(248,113,113,.85)]";
-  if(key==="alignment") return "text-emerald-300 font-semibold drop-shadow-[0_0_8px_rgba(52,211,153,.85)]";
-  if(key==="bias") return "text-amber-300 font-semibold drop-shadow-[0_0_8px_rgba(251,191,36,.85)]";
-  if(key==="verdict") return "text-lime-300 font-semibold drop-shadow-[0_0_8px_rgba(132,204,22,.85)]";
+  if(key.toLowerCase().includes("value") || key.includes("PVT") || key.endsWith("BC") || key.endsWith("TC") || key.endsWith("Pivot")) return "text-cyan-300 font-semibold drop--[0_0_8px_rgba(34,211,238,.85)]";
+  if(key.includes("R")) return "text-green-300 font-semibold drop--[0_0_8px_rgba(74,222,128,.85)]";
+  if(key.includes("S")) return "text-red-300 font-semibold drop--[0_0_8px_rgba(248,113,113,.85)]";
+  if(key==="alignment") return "text-emerald-300 font-semibold drop--[0_0_8px_rgba(52,211,153,.85)]";
+  if(key==="bias") return "text-amber-300 font-semibold drop--[0_0_8px_rgba(251,191,36,.85)]";
+  if(key==="verdict") return "text-lime-300 font-semibold drop--[0_0_8px_rgba(132,204,22,.85)]";
   return "text-white";
+}
+
+function formatValue(key:string,value:any){
+  if(value===undefined||value===null||value==="") return "-";
+
+  if(
+    key==="symbol"||
+    key==="tradeDate"||
+    key==="action"||
+    key==="remarks"
+  ) return value;
+
+  if(key==="mtfQty"||key==="cncQty")
+    return Number(value).toLocaleString("en-IN");
+
+  if(key==="returnPercent"||key==="dayChangePercent")
+    return `${Number(value).toFixed(2)}%`;
+
+  return Number(value).toLocaleString("en-IN",{
+    minimumFractionDigits:2,
+    maximumFractionDigits:2,
+  });
+}
+
+function valueClass(key:string,value:any){
+  if(
+    key==="unrealizedPnL"||
+    key==="dayPnL"||
+    key==="returnPercent"||
+    key==="dayChangePercent"
+  ){
+    const n=Number(value);
+    if(n>0) return "text-emerald-400";
+    if(n<0) return "text-red-400";
+  }
+  return "";
 }
 
 export default function GridTable({columns,rows,rowKey="symbol"}:Props){
@@ -45,7 +81,7 @@ return(
 
 <div
 ref={ref}
-className="h-full overflow-auto rounded-xl border border-[#26313c] bg-[#0d131a] cursor-grab active:cursor-grabbing select-none"
+className="h-full overflow-auto  border border-[#26313c] bg-[#0d131a] cursor-grab active:cursor-grabbing select-none"
 style={{
 scrollbarWidth:"none",
 msOverflowStyle:"none"
@@ -83,7 +119,7 @@ gridTemplateColumns:template
 
 <div
 key={c.key}
-className={`sticky top-0 z-30 bg-[#0d1117] border-r border-b border-[#26313c] px-3 py-3 text-[11px] font-bold tracking-wide text-[#3cf2df] ${c.key==="symbol"?"left-0":c.key==="cmp"?"left-[140px]":""}`}
+className={`sticky top-0 z-30 bg-[#0d1117] border-r border-b border-[#26313c] px-2 py-1.5 text-[13px] font-bold tracking-wide text-[#3cf2df] ${c.key==="symbol"?"left-0":c.key==="cmp"?"left-[140px]":""}`}
 style={{textAlign:c.align??"center"}}
 >
 {c.title}
@@ -97,10 +133,10 @@ columns.map(c=>
 
 <div
 key={r[rowKey]+"_"+c.key}
-className={`border-r border-b border-[#1f2833] px-3 py-[6px] whitespace-nowrap hover:bg-[#18222d] hover:shadow-[inset_0_0_18px_rgba(34,211,238,.08)] ${cellClass(c.key)} ${c.key==="symbol"?"sticky left-0 z-10 bg-[#0d131a]":c.key==="cmp"?"sticky left-[140px] z-10 bg-[#0d131a]":""}`}
+className={`border-r border-b border-[#1f2833] px-2 py-1 whitespace-nowrap hover:bg-[#18222d] hover:-[inset_0_0_18px_rgba(34,211,238,.08)] ${cellClass(c.key)} ${c.key==="symbol"?"sticky left-0 z-10 bg-[#0d131a]":c.key==="cmp"?"sticky left-[140px] z-10 bg-[#0d131a]":""}`}
 style={{textAlign:c.align??"center"}}
 >
-{c.render?c.render(r):r[c.key]}
+{c.render?c.render(r):(<span className={valueClass(c.key,r[c.key])}>{formatValue(c.key,r[c.key])}</span>)}
 </div>
 
 )
@@ -114,6 +150,10 @@ style={{textAlign:c.align??"center"}}
 );
 
 }
+
+
+
+
 
 
 

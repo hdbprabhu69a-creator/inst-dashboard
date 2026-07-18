@@ -1,0 +1,66 @@
+import {normalizeAnnexureText} from "./normalizeAnnexureText";
+import {parseAnnexureRow} from "./annexureRowParser";
+import type {TradeRecord} from "../types";
+
+export function parseAnnexure(
+  text:string,
+  tradeDate:string
+):TradeRecord[]{
+
+  const normalized=normalizeAnnexureText(text);
+
+  const trades:TradeRecord[]=[];
+
+  for(const line of normalized.split(/\r?\n/)){
+
+    const row=parseAnnexureRow(line);
+
+    if(!row){
+
+      continue;
+
+    }
+
+    trades.push({
+
+      tradeDate,
+
+      orderNo:row.orderNo,
+
+      tradeNo:row.tradeNo,
+
+      orderTime:row.orderTime,
+
+      tradeTime:row.tradeTime,
+
+      symbol:row.symbol.replace(/-EQ$/,""),
+
+      isin:row.isin,
+
+      exchange:row.exchange,
+
+      side:row.side==="B"?"BUY":"SELL",
+
+      quantity:row.quantity,
+
+      brokerage:row.brokerage,
+
+      price:row.price,
+
+      grossValue:row.total,
+
+      value:row.total,
+
+      segment:"EQ"
+
+    } as TradeRecord);
+
+  }
+
+  return trades;
+
+}
+
+
+
+
