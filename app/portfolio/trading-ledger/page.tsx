@@ -1,98 +1,82 @@
 "use client";
 
-
 import { usePortfolio } from "@/hooks/portfolio/usePortfolio";
+import {
+    buildPortfolioLedger,
+    buildPortfolioSummary
+} from "@/lib/portfolio/ledger";
+import { usePortfolioMarketData } from "@/hooks/usePortfolioMarketData";
+
 import InstitutionalGrid from "@/app/institutional-analysis/components/grid/InstitutionalGrid";
 import type { GridColumn } from "@/app/institutional-analysis/components/grid/GridTypes";
 
 const columns: GridColumn[] = [
   { key:"tradeDate", title:"DATE", width:75, type:"text" },
   { key:"symbol", title:"STOCK", width:90, type:"text" },
-  { key:"action", title:"ACTION", width:65, type:"badge" },
-  { key:"quantity", title:"QTY", width:55, type:"number" },
-  { key:"buyPrice", title:"BUY", width:75, type:"price" },
-  { key:"sellPrice", title:"SELL", width:75, type:"price" },
-  { key:"tradeValue", title:"VALUE", width:85, type:"price" },
+  { key:"action", title:"ACTION", width:70, type:"badge" },
+  { key:"quantity", title:"QTY", width:60, type:"number" },
+  { key:"tradeAvg", title:"AVG", width:70, type:"price" },
+  { key:"cmp", title:"CMP", width:70, type:"price" },
   { key:"holdingQty", title:"HOLD", width:70, type:"number" },
-  { key:"averageCost", title:"AVG", width:70, type:"price" },
-  { key:"tradePnL", title:"P/L", width:70, type:"price" },
-  { key:"totalProfit", title:"PROFIT", width:80, type:"price" },
-  { key:"totalLoss", title:"LOSS", width:80, type:"price" },
-  { key:"netRealized", title:"REALIZED", width:90, type:"price" },
+  { key:"investedValue", title:"INVESTED", width:95, type:"price" },
+  { key:"holdingValue", title:"H.VALUE", width:95, type:"price" },
   { key:"unrealizedPnL", title:"UNREAL", width:90, type:"price" },
-  { key:"holdingValue", title:"H.VALUE", width:90, type:"price" },
-  { key:"remarks", title:"REMARKS", width:90, type:"text" },
+  { key:"unrealizedPct", title:"UNREAL %", width:85, type:"percent" },
+  { key:"netRealized", title:"REALIZED", width:90, type:"price" }
 ];
 
-export default function TradingLedgerPage() {
+export default function TradingLedgerPage(){
 
-  const { data } = usePortfolio();
+    const { data } = usePortfolio();
 
-  const trades = data?.trades ?? [];
+    const trades: any[] = (data?.trades as any[]) ?? [];
 
-const rows = Object.values(
-  trades.reduce((acc: any, trade: any) => {
+    const symbols: string[] = [...new Set(
+        trades.map(
+            (trade:any): string => String(trade.symbol)
+        )
+    )];
 
-    const id = trade.order_id;
+const {
+    prices
+} =
+    usePortfolioMarketData(
+        symbols
+    );
 
-    if (!acc[id]) {
-      acc[id] = {
-        id,
-        DATE: trade.exchange_timestamp ?? trade.fill_timestamp,
-        STOCK: trade.tradingsymbol,
-        ACTION: trade.transaction_type,
-        qty: 0,
-        value: 0,
-        REMARKS: trade.product,
-      };
-    }
+const rows =
+        buildPortfolioLedger(
+        trades,
+        prices
+    );
 
-    acc[id].qty += Number(trade.quantity ?? 0);
-    acc[id].value +=
-      Number(trade.quantity ?? 0) *
-      Number(trade.average_price ?? 0);
+    const summary=
+        buildPortfolioSummary(rows);
 
-    return acc;
+    return(
 
-  }, {})
-).map((r: any) => {
+        <div className="h-screen bg-slate-950 flex flex-col">
 
-  const avg =
-    r.qty === 0
-      ? 0
-      : r.value / r.qty;
+            <>
+    <div className="text-white p-4">
+        Trades : {trades.length}
+        <br />
+        Rows : {rows.length}
+    </div>
 
-  return {
-    tradeDate: r.DATE ? new Date(r.DATE).toLocaleDateString("en-GB") : "",
-    symbol: r.STOCK,
-    action: r.ACTION,
-    quantity: r.qty,
-    buyPrice: r.ACTION==="BUY" ? avg.toFixed(2) : "",
-    sellPrice: r.ACTION==="SELL" ? avg.toFixed(2) : "",
-    tradeValue: r.value.toFixed(2),
-    holdingQty: "",
-    averageCost: "",
-    tradePnL: "",
-    totalProfit: "",
-    totalLoss: "",
-    netRealized: "",
-    unrealizedPnL: "",
-    holdingValue: "",
-    remarks: r.REMARKS,
-  };
-
-});
-  console.log(rows);
-
-return (
-    <div className="h-screen bg-slate-950 p-0 overflow-hidden">
-      <InstitutionalGrid
+    <div className="flex-1 min-h-0 overflow-hidden"><InstitutionalGrid
         columns={columns}
         rows={rows}
-      />
-    </div>
-  );
+    /></div></>
+
+        </div>
+
+    );
+
 }
+
+
+
 
 
 

@@ -1,0 +1,31 @@
+const COLUMNS={
+
+    isin:[0,95],
+
+    symbol:[95,175],
+
+    buyQty:[175,215],
+
+    buyWap:[215,275],
+
+    brokerage:[275,320],
+
+    buyAfterBrokerage:[320,380],
+
+    buyValue:[380,440],
+
+    sellQty:[440,490],
+
+    sellWap:[490,540],
+
+    sellBrokerage:[540,595],
+
+    sellAfterBrokerage:[595,650],
+
+    sellValue:[650,715],
+
+    netQty:[715,750],
+
+    netObligation:[750,820]
+
+} as const;

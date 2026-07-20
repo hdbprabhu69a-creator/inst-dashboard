@@ -1,0 +1,1048 @@
+=================================================================
+FILE: G:\GProjects\inst-dashboard\components\portfolio\AssetAllocation.tsx
+=================================================================
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\components\portfolio\HoldingsGrid.tsx
+=================================================================
+"use client";
+
+import { useHoldings } from "@/hooks/portfolio/useHoldings";
+
+export default function HoldingsGrid() {
+  const { data, loading, error } = useHoldings();
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
+
+  return (
+    <table className="w-full text-sm">
+      <thead>
+        <tr>
+          <th className="text-left p-2">Symbol</th>
+          <th className="text-right p-2">Qty</th>
+          <th className="text-right p-2">Avg</th>
+          <th className="text-right p-2">Invested</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {data.map((row) => (
+          <tr key={row.symbol}>
+            <td className="p-2">{row.symbol}</td>
+            <td className="text-right p-2">{row.quantity}</td>
+            <td className="text-right p-2">
+              ?{row.averagePrice.toFixed(2)}
+            </td>
+            <td className="text-right p-2">
+              ?{row.investedValue.toLocaleString()}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\components\portfolio\OrdersGrid.tsx
+=================================================================
+"use client";
+
+import { useOrders } from "@/hooks/portfolio/useOrders";
+
+export default function OrdersGrid() {
+  const { data, loading, error } = useOrders();
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
+
+  return (
+    <>
+      <h3 className="mb-2 font-semibold">Open Orders</h3>
+
+      <table className="w-full text-sm mb-6">
+        <thead>
+          <tr>
+            <th className="text-left p-2">Symbol</th>
+            <th className="text-left p-2">Side</th>
+            <th className="text-right p-2">Qty</th>
+            <th className="text-right p-2">Price</th>
+            <th className="text-left p-2">Status</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {data.open.map((o) => (
+            <tr key={o.orderId}>
+              <td className="p-2">{o.symbol}</td>
+              <td className="p-2">{o.side}</td>
+              <td className="text-right p-2">{o.quantity}</td>
+              <td className="text-right p-2">?{o.price}</td>
+              <td className="p-2">{o.status}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <h3 className="mb-2 font-semibold">Completed Orders</h3>
+
+      <table className="w-full text-sm">
+        <thead>
+          <tr>
+            <th className="text-left p-2">Symbol</th>
+            <th className="text-left p-2">Side</th>
+            <th className="text-right p-2">Qty</th>
+            <th className="text-right p-2">Price</th>
+            <th className="text-left p-2">Status</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {data.completed.map((o) => (
+            <tr key={o.orderId}>
+              <td className="p-2">{o.symbol}</td>
+              <td className="p-2">{o.side}</td>
+              <td className="text-right p-2">{o.quantity}</td>
+              <td className="text-right p-2">?{o.price}</td>
+              <td className="p-2">{o.status}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </>
+  );
+}
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\components\portfolio\PerformanceChart.tsx
+=================================================================
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\components\portfolio\PortfolioAnalytics.tsx
+=================================================================
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\components\portfolio\PortfolioEngineMenu.ts
+=================================================================
+export interface PortfolioEngineItem{
+  id:string;
+  title:string;
+}
+
+export const PORTFOLIO_ENGINE_MENU:PortfolioEngineItem[]=[
+
+{id:"portfolio-manager",title:"Portfolio Manager"},
+{id:"portfolio-allocation",title:"Portfolio Allocation"},
+{id:"entry-execution",title:"Entry & Execution"},
+{id:"institutional-structure",title:"Institutional Structure"},
+{id:"risk-management",title:"Risk Management"},
+{id:"capital-flow",title:"Capital Flow"},
+{id:"portfolio-exposure",title:"Portfolio Exposure"},
+{id:"sector-allocation",title:"Sector Allocation"},
+{id:"correlation-matrix",title:"Correlation Matrix"},
+{id:"performance-attribution",title:"Performance Attribution"},
+{id:"portfolio-health",title:"Portfolio Health"},
+{id:"rebalancing",title:"Rebalancing"},
+{id:"alerts",title:"Alerts"},
+{id:"portfolio-heatmap",title:"Portfolio Heatmap"}
+
+];
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\components\portfolio\PortfolioEngineSidebar.tsx
+=================================================================
+"use client";
+
+import {useState} from "react";
+
+import {PORTFOLIO_ENGINE_MENU} from "./PortfolioEngineMenu";
+
+interface Props{
+selected:string;
+onSelect:(id:string)=>void;
+}
+
+export default function PortfolioEngineSidebar({
+selected,
+onSelect
+}:Props){
+
+const [open,setOpen]=useState(false);
+
+return(
+
+<>
+
+<button
+onClick={()=>setOpen(!open)}
+className="w-full flex items-center justify-between px-6 py-3 text-left text-[#d7c9a7] hover:bg-[#141c24]"
+>
+
+<span className="font-semibold">
+Portfolio Engine
+</span>
+
+{open ? "?" : "?"}
+
+</button>
+
+{open&&(
+
+<div className="flex flex-col">
+
+{PORTFOLIO_ENGINE_MENU.map(item=>(
+
+<button
+key={item.id}
+onClick={()=>onSelect(item.id)}
+className={`text-left pl-10 pr-4 py-2 text-sm transition ${
+selected===item.id
+?"bg-[#14222d] text-[#38f2d6]"
+:"text-[#c4b89a] hover:bg-[#11181f]"
+}`}
+>
+
+{item.title}
+
+</button>
+
+))}
+
+</div>
+
+)}
+
+</>
+
+);
+
+}
+
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\components\portfolio\PortfolioOverview.tsx
+=================================================================
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\components\portfolio\PortfolioSummary.tsx
+=================================================================
+"use client";
+
+import { usePortfolio } from "@/hooks/portfolio/usePortfolio";
+
+export default function PortfolioSummary() {
+  const { data, loading, error } = usePortfolio();
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
+  if (!data) return <div>No portfolio data.</div>;
+
+  return (
+    <div className="grid grid-cols-3 gap-4">
+      <div className="rounded-lg border p-4">
+        <div className="text-xs text-gray-500">Net Worth</div>
+        <div className="text-2xl font-bold">
+          ?{data.netWorth.toLocaleString()}
+        </div>
+      </div>
+
+      <div className="rounded-lg border p-4">
+        <div className="text-xs text-gray-500">Day P&L</div>
+        <div className="text-2xl font-bold">
+          ?{data.dayPnL.toLocaleString()}
+        </div>
+      </div>
+
+      <div className="rounded-lg border p-4">
+        <div className="text-xs text-gray-500">Buying Power</div>
+        <div className="text-2xl font-bold">
+          ?{data.buyingPower.toLocaleString()}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\components\portfolio\PositionsGrid.tsx
+=================================================================
+"use client";
+
+import { usePositions } from "@/hooks/portfolio/usePositions";
+
+export default function PositionsGrid() {
+  const { data, loading, error } = usePositions();
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
+
+  return (
+    <table className="w-full text-sm">
+      <thead>
+        <tr>
+          <th className="text-left p-2">Symbol</th>
+          <th className="text-right p-2">Qty</th>
+          <th className="text-right p-2">LTP</th>
+          <th className="text-right p-2">P&L</th>
+          <th className="text-right p-2">Day P&L</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {data.map((row) => (
+          <tr key={row.symbol}>
+            <td className="p-2">{row.symbol}</td>
+            <td className="text-right p-2">{row.quantity}</td>
+            <td className="text-right p-2">
+              ?{row.lastPrice.toFixed(2)}
+            </td>
+            <td className="text-right p-2">
+              ?{row.unrealizedPnL.toLocaleString()}
+            </td>
+            <td className="text-right p-2">
+              ?{row.dayPnL.toLocaleString()}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\components\portfolio\TradeHistoryGrid.tsx
+=================================================================
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\components\portfolio\cards\BuyingPowerCard.tsx
+=================================================================
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\components\portfolio\cards\CashBalanceCard.tsx
+=================================================================
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\components\portfolio\cards\DayPnLCard.tsx
+=================================================================
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\components\portfolio\cards\NetWorthCard.tsx
+=================================================================
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\components\portfolio\cards\RealizedPnLCard.tsx
+=================================================================
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\components\portfolio\cards\TotalPnLCard.tsx
+=================================================================
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\components\portfolio\cards\UnrealizedPnLCard.tsx
+=================================================================
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\components\portfolio\charts\AssetAllocation.tsx
+=================================================================
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\components\portfolio\charts\PerformanceChart.tsx
+=================================================================
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\components\portfolio\grids\PositionsGrid.tsx
+=================================================================
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\components\portfolio\grids\RecentTrades.tsx
+=================================================================
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\components\portfolio\grids\TopMovers.tsx
+=================================================================
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\components\portfolio\layout\PortfolioDashboard.tsx
+=================================================================
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\components\portfolio\layout\PortfolioHeader.tsx
+=================================================================
+"use client";
+
+import { Bell, ChevronDown, Search, User } from "lucide-react";
+
+export default function PortfolioHeader() {
+  return (
+    <header className="sticky top-0 z-40 border-b border-[#1f2a37] bg-[#101720]">
+      <div className="flex h-16 items-center justify-between px-8">
+
+        <div>
+          <h1 className="text-2xl font-bold text-white">
+            Portfolio Management
+          </h1>
+
+          <p className="text-sm text-slate-400">
+            Institutional Portfolio Dashboard
+          </p>
+        </div>
+
+        <div className="flex items-center gap-4">
+
+          <div className="relative">
+
+            <Search
+              size={18}
+              className="absolute left-3 top-1/2 -translate-y-1/2 -translate-x-0 text-slate-500"
+            />
+
+            <input
+              placeholder="Search..."
+              className="w-72 rounded-xl border border-[#253344] bg-[#121a24] py-2 pl-10 pr-4 text-sm outline-none focus:border-cyan-400"
+            />
+
+          </div>
+
+          <button className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#253344] bg-[#121a24] hover:bg-[#1b2532]">
+            <Bell size={18}/>
+          </button>
+
+          <button className="flex items-center gap-3 rounded-xl border border-[#253344] bg-[#121a24] px-3 py-2">
+
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-cyan-500">
+              <User size={18}/>
+            </div>
+
+            <div className="text-left">
+              <div className="text-sm font-semibold">
+                Portfolio
+              </div>
+
+              <div className="text-xs text-slate-400">
+                LIVE
+              </div>
+            </div>
+
+            <ChevronDown size={16}/>
+
+          </button>
+
+        </div>
+
+      </div>
+    </header>
+  );
+}
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\components\portfolio\layout\PortfolioSummaryBar.tsx
+=================================================================
+"use client";
+
+import {
+  Wallet,
+  TrendingUp,
+  DollarSign,
+  BarChart3,
+  PieChart,
+  Landmark,
+  CreditCard
+} from "lucide-react";
+
+const cards = [
+  { title:"Net Worth", value:"--", icon:Wallet, color:"text-cyan-400" },
+  { title:"Day P&L", value:"--", icon:TrendingUp, color:"text-green-400" },
+  { title:"Total P&L", value:"--", icon:DollarSign, color:"text-emerald-400" },
+  { title:"Unrealized", value:"--", icon:BarChart3, color:"text-yellow-400" },
+  { title:"Realized", value:"--", icon:PieChart, color:"text-orange-400" },
+  { title:"Cash", value:"--", icon:Landmark, color:"text-blue-400" },
+  { title:"Buying Power", value:"--", icon:CreditCard, color:"text-violet-400" }
+];
+
+export default function PortfolioSummaryBar(){
+
+  return(
+
+    <section className="p-6">
+
+      <div className="grid grid-cols-7 gap-5">
+
+        {cards.map(card=>{
+
+          const Icon=card.icon;
+
+          return(
+
+            <div
+              key={card.title}
+              className="
+              rounded-2xl
+              border
+              border-[#223041]
+              bg-[#121a24]
+              p-5
+              transition-all
+              duration-300
+              hover:border-cyan-500
+              hover:shadow-[0_0_20px_rgba(34,211,238,.12)]
+              "
+            >
+
+              <div className="flex items-center justify-between">
+
+                <div>
+
+                  <div className="text-[11px] uppercase tracking-wider text-slate-400">
+
+                    {card.title}
+
+                  </div>
+
+                  <div className="mt-5 text-3xl font-bold text-white">
+
+                    {card.value}
+
+                  </div>
+
+                </div>
+
+                <div className="rounded-xl bg-[#1b2430] p-3">
+
+                  <Icon
+                    size={24}
+                    className={card.color}
+                  />
+
+                </div>
+
+              </div>
+
+            </div>
+
+          );
+
+        })}
+
+      </div>
+
+    </section>
+
+  );
+
+}
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\components\portfolio\widgets\CashBuyingPower.tsx
+=================================================================
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\components\portfolio\widgets\OpenOrders.tsx
+=================================================================
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\components\portfolio\widgets\PerformanceSummary.tsx
+=================================================================
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\components\portfolio\widgets\RiskMetrics.tsx
+=================================================================
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\components\portfolio\widgets\SectorAllocation.tsx
+=================================================================
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\components\portfolio\widgets\StatusBar.tsx
+=================================================================
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\hooks\portfolio\useHoldings.ts
+=================================================================
+"use client";
+
+import { useEffect, useState } from "react";
+
+export function useHoldings() {
+  const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    fetch("/api/portfolio/holdings")
+      .then((r) => r.json())
+      .then((r) => setData(r.data))
+      .catch((e) => setError(e.message))
+      .finally(() => setLoading(false));
+  }, []);
+
+  return { data, loading, error };
+}
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\hooks\portfolio\useOrders.ts
+=================================================================
+"use client";
+
+import { useEffect, useState } from "react";
+
+export function useOrders() {
+  const [data, setData] = useState<{
+    open: any[];
+    completed: any[];
+  }>({
+    open: [],
+    completed: [],
+  });
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    fetch("/api/portfolio/orders")
+      .then((r) => r.json())
+      .then((r) => setData(r.data))
+      .catch((e) => setError(e.message))
+      .finally(() => setLoading(false));
+  }, []);
+
+  return { data, loading, error };
+}
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\hooks\portfolio\usePnL.ts
+=================================================================
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\hooks\portfolio\usePortfolio.ts
+=================================================================
+"use client";
+
+import { useEffect, useState } from "react";
+
+export function usePortfolio() {
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const [summaryRes, holdingsRes, tradesRes] = await Promise.all([
+          fetch("/api/portfolio/summary"),
+          fetch("/api/portfolio/holdings"),
+          fetch("/api/portfolio/trades"),
+        ]);
+
+        const summary = await summaryRes.json();
+        const holdings = await holdingsRes.json();
+const trades = await tradesRes.json();
+
+        setData({
+          ...summary.data,
+          holdings: holdings.data,
+          trades: trades.data,
+        });
+      } catch (e: any) {
+        setError(e.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    load();
+  }, []);
+
+  return { data, loading, error };
+}
+
+
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\hooks\portfolio\usePositions.ts
+=================================================================
+"use client";
+
+import { useEffect, useState } from "react";
+
+export function usePositions() {
+  const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    fetch("/api/portfolio/positions")
+      .then((r) => r.json())
+      .then((r) => setData(r.data))
+      .catch((e) => setError(e.message))
+      .finally(() => setLoading(false));
+  }, []);
+
+  return { data, loading, error };
+}
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\hooks\portfolio\useSignals.ts
+=================================================================
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\lib\portfolio\allocationCalculator.ts
+=================================================================
+import { PortfolioHolding } from "./portfolioTypes";
+
+export function calculateAllocation(
+  holdings: PortfolioHolding[]
+) {
+  const investedValue = holdings.reduce(
+    (sum, h) => sum + h.investedValue,
+    0
+  );
+
+  const marketValue = investedValue;
+
+  const netWorth = marketValue;
+
+  return {
+    investedValue,
+    marketValue,
+    netWorth,
+  };
+}
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\lib\portfolio\chargesCalculator.ts
+=================================================================
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\lib\portfolio\fundsRepository.ts
+=================================================================
+import { getKiteClient } from "@/lib/kite/client";
+
+export async function getFunds() {
+  const kite = await getKiteClient();
+
+  const equity = await kite.getMargins("equity");
+
+  return equity;
+}
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\lib\portfolio\holdingsRepository.ts
+=================================================================
+import { getKiteClient } from "@/lib/kite/client";
+
+export async function getHoldings() {
+  const kite = await getKiteClient();
+  return await kite.getHoldings();
+}
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\lib\portfolio\orderRepository.ts
+=================================================================
+import { getKiteClient } from "@/lib/kite/client";
+
+export async function getOrders() {
+  const kite = await getKiteClient();
+  return await kite.getOrders();
+}
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\lib\portfolio\orderService.ts
+=================================================================
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\lib\portfolio\performanceCalculator.ts
+=================================================================
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\lib\portfolio\pnlCalculator.ts
+=================================================================
+import { PortfolioPosition } from "./portfolioTypes";
+
+export function calculatePnL(
+  positions: PortfolioPosition[]
+) {
+  const unrealizedPnL = positions.reduce(
+    (sum, p) => sum + p.unrealizedPnL,
+    0
+  );
+
+  const realizedPnL = positions.reduce(
+    (sum, p) => sum + p.realizedPnL,
+    0
+  );
+
+  const dayPnL = positions.reduce(
+    (sum, p) => sum + p.dayPnL,
+    0
+  );
+
+  const totalPnL =
+    unrealizedPnL + realizedPnL;
+
+  return {
+    unrealizedPnL,
+    realizedPnL,
+    dayPnL,
+    totalPnL,
+  };
+}
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\lib\portfolio\portfolioMapper.ts
+=================================================================
+import type {
+  PortfolioHolding as KiteHolding,
+  Position,
+  Order,
+} from "kiteconnect";
+
+import type {
+  PortfolioHolding,
+  PortfolioPosition,
+  PortfolioOrder,
+} from "./portfolioTypes";
+
+export function mapHoldings(
+  holdings: KiteHolding[]
+): PortfolioHolding[] {
+  return holdings.map((h: any) => {
+    const quantity =
+      h.quantity > 0
+        ? h.quantity
+        : (h.mtf?.quantity ?? h.opening_quantity ?? 0);
+
+    const investedValue =
+      h.mtf?.value ??
+      quantity * h.average_price;
+
+    const marketValue =
+      quantity * h.last_price;
+
+    const totalPnL =
+      marketValue - investedValue;
+
+    return {
+      symbol: h.tradingsymbol,
+
+      mtfQty: h.mtf?.quantity ?? 0,
+      cncQty: h.quantity ?? 0,
+
+      quantity,
+
+      averagePrice: h.average_price,
+      lastPrice: h.last_price,
+
+      investedValue,
+      marketValue,
+
+      unrealizedPnL: totalPnL,
+
+      returnPercent:
+        investedValue > 0
+          ? (totalPnL / investedValue) * 100
+          : 0,
+
+      dayPnL: h.day_change ?? 0,
+
+      dayChangePercent:
+        h.day_change_percentage ?? 0,
+    };
+  });
+}
+
+export function mapPositions(
+  positions: { net: Position[]; day: Position[] }
+): PortfolioPosition[] {
+  return positions.net.map((p) => ({
+    symbol: p.tradingsymbol,
+    exchange: p.exchange as "NSE" | "BSE",
+    product: p.product as "CNC" | "MIS" | "NRML",
+    quantity: p.quantity,
+    averagePrice: p.average_price,
+    lastPrice: p.last_price,
+    marketValue: p.quantity * p.last_price,
+    investedValue: p.quantity * p.average_price,
+    unrealizedPnL: p.pnl,
+    realizedPnL: 0,
+    dayPnL: p.m2m,
+    dayChangePercent: 0,
+  }));
+}
+
+export function mapOrders(
+  orders: Order[]
+): PortfolioOrder[] {
+  return orders.map((o) => ({
+    orderId: o.order_id,
+    symbol: o.tradingsymbol,
+    side: o.transaction_type as "BUY" | "SELL",
+    orderType: o.order_type as "MARKET" | "LIMIT" | "SL" | "SL-M",
+    product: o.product as "CNC" | "MIS" | "NRML",
+    quantity: o.quantity,
+    price: o.price,
+    status: o.status,
+    exchange: o.exchange,
+    timestamp: o.order_timestamp
+      ? o.order_timestamp.toISOString()
+      : "",
+  }));
+}
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\lib\portfolio\portfolioRepository.ts
+=================================================================
+import { getHoldings } from "./holdingsRepository";
+import { getPositions } from "./positionsRepository";
+import { getOrders } from "./orderRepository";
+import { getFunds } from "./fundsRepository";
+
+export async function getPortfolioData() {
+  const [
+    holdings,
+    positions,
+    orders,
+    funds,
+  ] = await Promise.all([
+    getHoldings(),
+    getPositions(),
+    getOrders(),
+    getFunds(),
+  ]);
+
+  return {
+    holdings,
+    positions,
+    orders,
+    funds,
+  };
+}
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\lib\portfolio\portfolioService.ts
+=================================================================
+import { getPortfolioData } from "./portfolioRepository";
+import {
+  mapHoldings,
+  mapPositions,
+  mapOrders,
+} from "./portfolioMapper";
+import { calculatePnL } from "./pnlCalculator";
+import { calculateAllocation } from "./allocationCalculator";
+import { PortfolioSnapshot } from "./portfolioTypes";
+
+export async function getPortfolioSnapshot(): Promise<PortfolioSnapshot> {
+  const {
+    holdings,
+    positions,
+    orders,
+    funds,
+  } = await getPortfolioData();
+
+  const mappedHoldings = mapHoldings(holdings);
+  const mappedPositions = mapPositions(positions);
+  const mappedOrders = mapOrders(orders);
+
+  const pnl = calculatePnL(mappedPositions);
+  const allocation = calculateAllocation(mappedHoldings);
+
+  return {
+    summary: {
+      netWorth: allocation.netWorth,
+      dayPnL: pnl.dayPnL,
+      totalPnL: pnl.totalPnL,
+      unrealizedPnL: pnl.unrealizedPnL,
+      realizedPnL: pnl.realizedPnL,
+
+      cash: funds.equity?.available.cash ?? 0,
+      buyingPower: funds.equity?.available.live_balance ?? 0,
+
+      investedValue: allocation.investedValue,
+      marketValue: allocation.marketValue,
+    },
+
+    holdings: mappedHoldings,
+
+    positions: mappedPositions,
+
+    openOrders: mappedOrders.filter(
+      (o) => o.status !== "COMPLETE"
+    ),
+
+    completedOrders: mappedOrders.filter(
+      (o) => o.status === "COMPLETE"
+    ),
+
+    lastUpdated: new Date().toISOString(),
+  };
+}
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\lib\portfolio\portfolioTypes.ts
+=================================================================
+export interface PortfolioSummary{
+  netWorth:number;
+  dayPnL:number;
+  totalPnL:number;
+  unrealizedPnL:number;
+  realizedPnL:number;
+  cash:number;
+  buyingPower:number;
+  investedValue:number;
+  marketValue:number;
+}
+
+export interface PortfolioPosition{
+  symbol:string;
+  exchange:"NSE"|"BSE";
+  product:"CNC"|"MIS"|"NRML";
+  quantity:number;
+  averagePrice:number;
+  lastPrice:number;
+  marketValue:number;
+  investedValue:number;
+  unrealizedPnL:number;
+  realizedPnL:number;
+  dayPnL:number;
+  dayChangePercent:number;
+}
+
+export interface PortfolioHolding{
+  symbol:string;
+  quantity:number;
+  averagePrice:number;
+  investedValue:number;
+}
+
+export interface PortfolioOrder{
+  orderId:string;
+  symbol:string;
+  side:"BUY"|"SELL";
+  orderType:"MARKET"|"LIMIT"|"SL"|"SL-M";
+  product:"CNC"|"MIS"|"NRML";
+  quantity:number;
+  price:number;
+  status:string;
+  exchange:string;
+  timestamp:string;
+}
+
+export interface PortfolioSnapshot{
+  summary:PortfolioSummary;
+  holdings:PortfolioHolding[];
+  positions:PortfolioPosition[];
+  openOrders:PortfolioOrder[];
+  completedOrders:PortfolioOrder[];
+  lastUpdated:string;
+}
+
+=================================================================
+FILE: G:\GProjects\inst-dashboard\lib\portfolio\positionsRepository.ts
+=================================================================
+import { getKiteClient } from "@/lib/kite/client";
+
+export async function getPositions() {
+  const kite = await getKiteClient();
+  return await kite.getPositions();
+}
+

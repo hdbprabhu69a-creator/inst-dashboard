@@ -81,7 +81,7 @@ export default function InstitutionalGrid({columns,rows}:Props){
 
   return(
 
-    <div className="relative h-full">
+    <div className="relative h-full min-h-0 flex flex-col">
 
       {canLeft&&(
         <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[#0d131a] to-transparent z-40"/>
@@ -94,7 +94,7 @@ export default function InstitutionalGrid({columns,rows}:Props){
       <div
         ref={scrollRef}
         onScroll={checkScroll}
-        onWheel={onWheel}
+        
         onDragStart={(e)=>e.preventDefault()}
         onMouseDown={(e)=>{
           setDragging(true);
@@ -105,7 +105,7 @@ export default function InstitutionalGrid({columns,rows}:Props){
         onMouseUp={()=>setDragging(false)}
         onMouseLeave={()=>setDragging(false)}
         className={
-          "h-full w-full overflow-x-auto overflow-y-auto hidescroll rounded-xl border border-[#26313c] bg-[#0d131a] select-none "+
+           "h-full w-full overflow-auto max-h-[500px] hidescroll rounded-xl border border-[#26313c] bg-[#0d131a] select-none "+
           (dragging?"cursor-grabbing":"cursor-grab")
         }
       >
@@ -145,7 +145,7 @@ export default function InstitutionalGrid({columns,rows}:Props){
 
             {rows.map((row,i)=>
 
-              <tr key={row.symbol??i} className="hover:bg-[#18222d] transition-colors">
+              <tr key={i} className="hover:bg-[#18222d] transition-colors">
 
                 {columns.map((c,index)=>
 
@@ -183,4 +183,14 @@ export default function InstitutionalGrid({columns,rows}:Props){
   );
 
 }
+
+
+
+
+
+
+
+
+
+
 

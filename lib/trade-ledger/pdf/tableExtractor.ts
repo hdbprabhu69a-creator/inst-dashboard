@@ -29,8 +29,8 @@ const COLUMNS={
     exchange:[445,500],
     quantity:[500,545],
     brokerage:[545,590],
-    price:[590,650],
-    total:[710,780]
+    price:[590,710],
+    total:[710,790]
 
 } as const;
 
@@ -105,6 +105,9 @@ export function extractTradeRows(
 
         }
 
+        console.log({symbol:readColumn(row,...COLUMNS.security),side:readColumn(row,...COLUMNS.side),price:readColumn(row,...COLUMNS.price),total:readColumn(row,...COLUMNS.total)});
+
+
         trades.push({
 
             orderNo,
@@ -136,3 +139,5 @@ export function extractTradeRows(
     return trades;
 
 }
+
+

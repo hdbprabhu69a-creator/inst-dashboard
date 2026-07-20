@@ -1,16 +1,50 @@
-﻿export type MarketSession =
-  | "PREOPEN"
-  | "OPEN"
-  | "POSTCLOSE"
-  | "CLOSED";
+export function isMarketOpen(
+    now:Date=new Date()
+):boolean{
 
-export function getMarketSession(now = new Date()): MarketSession {
-  const h = now.getHours();
-  const m = now.getMinutes();
-  const t = h * 60 + m;
+    const ist=new Date(
+        now.toLocaleString(
+            "en-US",
+            {
+                timeZone:"Asia/Kolkata"
+            }
+        )
+    );
 
-  if (t >= 540 && t < 555) return "PREOPEN";
-  if (t >= 555 && t < 930) return "OPEN";
-  if (t >= 930 && t < 960) return "POSTCLOSE";
-  return "CLOSED";
+    const day=ist.getDay();
+
+    if(day===0||day===6){
+
+        return false;
+
+    }
+
+    const minutes=
+        ist.getHours()*60+
+        ist.getMinutes();
+
+    const open=9*60+15;
+
+    const close=15*60+30;
+
+    return minutes>=open&&minutes<close;
+
+}
+
+export function getPortfolioCmp(
+    structure:any
+):number{
+
+    if(!structure){
+
+        return 0;
+
+    }
+
+    return Number(
+        structure.cmp ??
+        structure.close ??
+        0
+    );
+
 }

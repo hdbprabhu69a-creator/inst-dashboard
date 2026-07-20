@@ -15,19 +15,23 @@ User,
 ChevronDown,
 Wallet,
 TrendingUp,
-DollarSign
+DollarSign,
+Upload
 } from "lucide-react";
+import ImportPdfButton from "@/components/portfolio/ImportPdfButton";
 
 import GridTable from "@/app/institutional-analysis/components/GridTable";
 
 const cards=[
 {title:"Net Worth",icon:Wallet,key:"netWorth"},
 {title:"Day P&L",icon:TrendingUp,key:"dayPnL"},
-{title:"Total P&L",icon:DollarSign,key:"totalPnL"},
+{title:"Total P&L",icon:DollarSign,
+key:"totalPnL"},
 {title:"Unrealized",icon:BarChart3,key:"unrealizedPnL"},
 {title:"Realized",icon:PieChart,key:"realizedPnL"},
 {title:"Cash",icon:Wallet,key:"cash"},
-{title:"Buying Power",icon:DollarSign,key:"buyingPower"}
+{title:"Buying Power",icon:DollarSign,
+key:"buyingPower"}
 ];
 
 export default function PortfolioPage(){
@@ -112,6 +116,9 @@ className="flex h-11 w-full items-center gap-3 px-4 text-white hover:bg-slate-80
 <Shield size={18} />
 <span>Risk</span>
 </button>
+
+
+<ImportPdfButton />
 
 </aside>
 
@@ -315,6 +322,17 @@ LIVE
 );
 
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 

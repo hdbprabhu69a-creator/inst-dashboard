@@ -1,10 +1,14 @@
-import {parseTradeLedger} from "../../lib/trade-ledger/parser/parseTradeLedger";
+import { parseTradeLedger } from "../../lib/trade-ledger/parser/parseTradeLedger";
 
-async function main(){
+async function main() {
 
-    const trades=await parseTradeLedger(
-        "data/trade-ledger/contract.pdf"
-    );
+    const pdfPath =
+        process.argv[2] ??
+        "data/trade-ledger/contract.pdf";
+
+    console.log("Parsing:", pdfPath);
+
+    const trades = await parseTradeLedger(pdfPath);
 
     console.table(trades);
 

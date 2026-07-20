@@ -1,24 +1,41 @@
 import { NextResponse } from "next/server";
-import { getKiteClient } from "@/lib/kite/client";
+import { adminDb } from "@/lib/firebase-admin";
 
-export async function GET() {
-  try {
-    const kite = await getKiteClient();
+export async function GET(){
 
-    const trades = await kite.getTrades();
+    const snapshot=await adminDb
+        .collection("contract_trades")
+        .get();
+
+    const trades=snapshot.docs
+        .map(doc=>({
+
+            id:doc.id,
+
+            ...doc.data()
+
+        }))
+        .sort((a:any,b:any)=>{
+
+            if(a.tradeDate!==b.tradeDate){
+
+                return a.tradeDate.localeCompare(b.tradeDate);
+
+            }
+
+            return (a.tradeTime??"")
+                .localeCompare(b.tradeTime??"");
+
+        });
 
     return NextResponse.json({
-      success: true,
-      data: trades,
-    });
-  } catch (error: any) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: error?.message ?? "Unable to load trades",
-      },
-      { status: 500 }
-    );
-  }
-}
 
+        success:true,
+
+        count:trades.length,
+
+        data:trades
+
+    });
+
+}

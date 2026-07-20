@@ -49,11 +49,19 @@ export async function parseSingleContractNote(
 
     );
 
+    const summary=parseSummary(page3);
+
+    for(const trade of trades){
+
+        trade.isin=summary.isin;
+
+    }
+
     return{
 
         header:parseContractHeader(page1),
 
-        summary:parseSummary(page3),
+        summary,
 
         charges:parseCharges(page4),
 
@@ -62,3 +70,4 @@ export async function parseSingleContractNote(
     };
 
 }
+

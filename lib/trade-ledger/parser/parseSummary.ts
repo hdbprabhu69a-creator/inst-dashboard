@@ -1,34 +1,117 @@
-import type {TradeSummary} from "../contractNoteTypes";
-import type {PdfTextItem} from "../pdf/textItems";
+import type { TradeSummary } from "../contractNoteTypes";
+import type { PdfTextItem } from "../pdf/textItems";
+
+interface Cell {
+    x:number;
+    text:string;
+}
+
+interface Row {
+    y:number;
+    cells:Cell[];
+}
+
+function buildRows(items:PdfTextItem[]):Row[]{
+
+    const tolerance=2;
+    const rows:Row[]=[];
+
+    for(const item of items){
+
+        let row=rows.find(r=>Math.abs(r.y-item.y)<tolerance);
+
+        if(!row){
+
+            row={
+                y:item.y,
+                cells:[]
+            };
+
+            rows.push(row);
+
+        }
+
+        row.cells.push({
+            x:item.x,
+            text:item.text
+        });
+
+    }
+
+    rows.sort((a,b)=>a.y-b.y);
+
+    for(const row of rows){
+
+        row.cells.sort((a,b)=>a.x-b.x);
+
+    }
+
+    return rows;
+
+}
+
+function cell(row:Row,min:number,max:number){
+
+    return row.cells
+        .filter(c=>c.x>=min && c.x<max)
+        .map(c=>c.text)
+        .join(" ")
+        .trim();
+
+}
+
+function numberValue(text:string){
+
+    return Number(
+        text
+            .replace(/\u2212/g,"-")
+            .replace(/\u2013/g,"-")
+            .replace(/\u2014/g,"-")
+            .replace(/,/g,"")
+            .replace(/[^\d.-]/g,"")
+    )||0;
+
+}
 
 export function parseSummary(
     items:PdfTextItem[]
 ):TradeSummary{
 
-    const text=items.map(i=>i.text).join(" ");
+    const rows=buildRows(items);
 
-    const nums=text.match(/-?\d+\.\d+|-?\d+/g) ?? [];
+    const row=rows.find(r=>
+        r.cells.some(c=>/^IN[A-Z0-9]+/i.test(c.text))
+    );
 
-    return{
+    if(!row){
 
-        isin:/INE[A-Z0-9]+/.exec(text)?.[0] ?? "",
+        throw new Error("Summary row not found.");
 
-        symbol:/INE[A-Z0-9]+\s+([A-Z]+)/.exec(text)?.[1] ?? "",
+    }
 
-        buyQty:Number(nums[0] ?? 0),
+        return{
 
-        sellQty:Number(nums[5] ?? 0),
+        isin:cell(row,0,80),
 
-        averagePrice:Number(nums[1] ?? 0),
+        symbol:cell(row,80,170),
 
-        buyValue:Number(nums[4] ?? 0),
+        buyQty:numberValue(cell(row,170,220)),
 
-        sellValue:Number(nums[9] ?? 0),
+        averagePrice:numberValue(cell(row,220,285)),
 
-        netQty:Number(nums[10] ?? 0),
+        buyValue:numberValue(cell(row,380,450)),
 
-        netObligation:Number(nums[11] ?? 0)
+        sellQty:numberValue(cell(row,450,495)),
+
+        sellValue:numberValue(cell(row,670,720)),
+
+        netQty:numberValue(cell(row,720,750)),
+
+        netObligation:numberValue(cell(row,750,830))
 
     };
 
 }
+
+
+
