@@ -137,7 +137,7 @@ let from: Date;
 if (latestSnap.empty) {
 
   from = new Date();
-  from.setMonth(from.getMonth() - 6);
+  from.setFullYear(from.getFullYear() - 2);
 
 } else {
 
@@ -146,7 +146,9 @@ if (latestSnap.empty) {
   from = new Date(latest);
   from.setDate(from.getDate() + 1);
 
-}    console.log("FROM:", from.toISOString());
+}
+
+console.log("FROM:", from.toISOString());
     console.log("TO:", to.toISOString());
     let raw: any[] = [];
     try {
@@ -265,6 +267,11 @@ console.log("================================");
     return NextResponse.json({ success:false, error:String(error?.message ?? error), stack:error?.stack }, { status:500 });
   }
 }
+
+
+
+
+
 
 
 

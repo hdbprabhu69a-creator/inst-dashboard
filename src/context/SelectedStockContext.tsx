@@ -27,6 +27,30 @@ import {
   MARKET_STRUCTURE_COLLECTION,
 } from "@/src/lib/constants";
 
+const INDEX_SYMBOLS = new Set([
+
+  "NIFTY",
+  "BANKNIFTY",
+  "FINNIFTY",
+  "MIDCPNIFTY",
+  "NIFTYNXT50",
+
+  "AUTO",
+  "COMMODITIES",
+  "CPSE",
+  "ENERGY",
+  "FMCG",
+  "IT",
+  "MEDIA",
+  "METAL",
+  "MNC",
+  "PHARMA",
+  "PSUBANK",
+  "PVTBANK",
+  "REALTY",
+
+]);
+
 const SelectedStockContext =
   createContext<
     SelectedStockContextType | null
@@ -43,16 +67,12 @@ export function SelectedStockProvider({
     setSelectedStock,
   ] = useState(() => {
 
-    if (
-      typeof window !==
-      "undefined"
-    ) {
+    if (typeof window !== "undefined") {
 
       return (
         localStorage.getItem(
           "selectedStock"
-        ) ||
-        DEFAULT_STOCK
+        ) || DEFAULT_STOCK
       );
 
     }
@@ -71,9 +91,7 @@ export function SelectedStockProvider({
   const [
     loading,
     setLoading,
-  ] = useState(
-    true
-  );
+  ] = useState(true);
 
   useEffect(() => {
 
@@ -82,9 +100,7 @@ export function SelectedStockProvider({
       selectedStock
     );
 
-  }, [
-    selectedStock,
-  ]);
+  }, [selectedStock]);
 
   useEffect(() => {
 
@@ -94,52 +110,32 @@ export function SelectedStockProvider({
 
         setLoading(true);
 
+        const collectionName =
+          INDEX_SYMBOLS.has(selectedStock)
+            ? "indexMarketStructure"
+            : MARKET_STRUCTURE_COLLECTION;
+
         const docRef =
           doc(
             db,
-            MARKET_STRUCTURE_COLLECTION,
+            collectionName,
             selectedStock
           );
 
         const snapshot =
-          await getDoc(
-            docRef
-          );
+          await getDoc(docRef);
 
-        if (
-          snapshot.exists()
-        ) {
+        console.log("========================");
+        console.log("COLLECTION:", collectionName);
+        console.log("SYMBOL:", selectedStock);
+        console.log("EXISTS:", snapshot.exists());
+
+        if (snapshot.exists()) {
 
           const data =
             snapshot.data();
 
-          console.log(
-            "================================="
-          );
-
-          console.log(
-            "SELECTED STOCK:",
-            selectedStock
-          );
-
-          console.log(
-            "MONTHLY OHLC:",
-            data.monthlyOHLC
-          );
-
-          console.log(
-            "MONTHLY PIVOT:",
-            data.monthlyPivot
-          );
-
-          console.log(
-            "MONTHLY CPR:",
-            data.monthlyCPR
-          );
-
-          console.log(
-            "================================="
-          );
+          console.log(data);
 
           setMarketStructure(
             data as MarketStructure
@@ -147,46 +143,38 @@ export function SelectedStockProvider({
 
         } else {
 
-          setMarketStructure(
-            null
-          );
+          console.log("DOCUMENT NOT FOUND");
+
+          setMarketStructure(null);
 
         }
 
-      } catch (
-        error
-      ) {
+        console.log("========================");
+
+      } catch (error) {
 
         console.error(
           "MARKET STRUCTURE ERROR:",
           error
         );
 
-        setMarketStructure(
-          null
-        );
+        setMarketStructure(null);
 
       } finally {
 
-        setLoading(
-          false
-        );
+        setLoading(false);
 
       }
 
     }
 
-    if (
-      selectedStock
-    ) {
+    if (selectedStock) {
 
       loadMarketStructure();
 
     }
 
-  }, [
-    selectedStock,
-  ]);
+  }, [selectedStock]);
 
   return (
 

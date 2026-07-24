@@ -1,4 +1,4 @@
-﻿import {
+import {
   collection,
   getDocs,
   query,
@@ -8,6 +8,8 @@
 } from "firebase/firestore";
 
 import { db } from "@/lib/firebase";
+import { resolveAsset } from "@/lib/index/indexResolver";
+import { getIndexHistory } from "@/lib/index/getIndexHistory";
 
 export interface Candle {
   date: string;
@@ -64,3 +66,6 @@ export async function getHistory(
 
   return candles.slice(-lookback);
 }
+
+
+

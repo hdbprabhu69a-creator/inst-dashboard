@@ -5,7 +5,6 @@ async function main(){
     const candles = await loadHistory("SBIN");
 
     console.log("");
-
     console.log("====================================");
     console.log("TREND ENGINE HISTORY TEST");
     console.log("====================================");

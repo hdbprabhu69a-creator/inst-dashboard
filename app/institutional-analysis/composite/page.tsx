@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import CompositeGrid from "../components/engines/CompositeGrid";
@@ -34,21 +34,38 @@ async function loadAnalysis(){
 
       const json = await res.json();
 
+console.log("================================");
+console.log("COMPOSITE API RESPONSE");
+console.log(JSON.stringify(json,null,2));
+console.log("================================");
+
       const deliveryRes = await fetch(
         `/api/institutional-analysis/delivery?symbol=${selected}`
       );
 
       const deliveryJson = await deliveryRes.json();
 
+      const volumeRes = await fetch(
+        `/api/institutional-analysis/volume?symbol=${selected}`
+      );
+
+      const volumeJson = await volumeRes.json();
+
       console.log("COMPOSITE API", json);
       console.log("DELIVERY API", deliveryJson); console.log("DELIVERY ANALYSIS", JSON.stringify(deliveryJson.analysis ?? deliveryJson.data,null,2)); console.log("DELIVERY KEYS", Object.keys(deliveryJson.analysis ?? deliveryJson.data ?? {}));
 
       setSymbol(selected);
 
-      setAnalysis({
+      console.log("DELIVERY RESPONSE",deliveryJson);
+
+setAnalysis({
         ...(json.data ?? {}),
         delivery: Array.isArray(deliveryJson.data) ? deliveryJson.data[0] : (Array.isArray(deliveryJson.analysis) ? deliveryJson.analysis[0] : (deliveryJson.data ?? deliveryJson.analysis ?? null))
-      });
+      ,
+
+  volume:
+    volumeJson.data ?? null
+});
     } finally {
       setLoading(false);
     }
@@ -88,6 +105,28 @@ async function loadAnalysis(){
       : [
 ,
 
+
+  ...(analysis?.trend ? [{
+
+    engine:"TREND",
+
+    daily:analysis.trend.structure ?? "-",
+
+    weekly:analysis.trend.phase ?? "-",
+
+    monthly:analysis.trend.verdict ?? "-",
+
+    position:analysis.trend.phase ?? "-",
+
+    bias:analysis.trend.structure ?? "-",
+
+    alignment:String(analysis.trend.confidence ?? "-"),
+
+    score:analysis.trend.score ?? 0,
+
+    verdict:analysis.trend.verdict ?? "-"
+
+  }] : []),
   ...(analysis?.delivery ? [{
 
     engine:"DELIVERY",
@@ -220,6 +259,28 @@ const cprRows =
     : [
 ,
 
+
+  ...(analysis?.trend ? [{
+
+    engine:"TREND",
+
+    daily:analysis.trend.structure ?? "-",
+
+    weekly:analysis.trend.phase ?? "-",
+
+    monthly:analysis.trend.verdict ?? "-",
+
+    position:analysis.trend.phase ?? "-",
+
+    bias:analysis.trend.structure ?? "-",
+
+    alignment:String(analysis.trend.confidence ?? "-"),
+
+    score:analysis.trend.score ?? 0,
+
+    verdict:analysis.trend.verdict ?? "-"
+
+  }] : []),
   ...(analysis?.delivery ? [{
 
     engine:"DELIVERY",
@@ -339,6 +400,28 @@ const engineRows = [
 
 ,
 
+
+  ...(analysis?.trend ? [{
+
+    engine:"TREND",
+
+    daily:analysis.trend.structure ?? "-",
+
+    weekly:analysis.trend.phase ?? "-",
+
+    monthly:analysis.trend.verdict ?? "-",
+
+    position:analysis.trend.phase ?? "-",
+
+    bias:analysis.trend.structure ?? "-",
+
+    alignment:String(analysis.trend.confidence ?? "-"),
+
+    score:analysis.trend.score ?? 0,
+
+    verdict:analysis.trend.verdict ?? "-"
+
+  }] : []),
   ...(analysis?.delivery ? [{
 
     engine:"DELIVERY",
@@ -412,6 +495,54 @@ const engineRows = [
 
 }] : [])
 
+
+,
+
+  ...(analysis?.volume ? [{
+
+    engine:"VOLUME",
+
+    daily:
+      analysis.volume.volumeTrend ?? "-",
+
+    weekly:
+      analysis.volume.participation ?? "-",
+
+    monthly:
+      analysis.volume.accumulationDistribution ?? "-",
+
+    position:
+      analysis.volume.priceVolumeConfirmation ?? "-",
+
+    bias:
+      analysis.volume.institutionalVerdict ?? "-",
+
+    alignment:
+      analysis.volume.bullAlignment
+        ? "BULL"
+        : analysis.volume.bearAlignment
+        ? "BEAR"
+        : "NEUTRAL",
+
+    score:
+      analysis.volume.institutionalScore ?? 0,
+
+    verdict:
+      analysis.volume.institutionalVerdict ?? "-",
+
+    sma20:
+      analysis.volume.sma20 ?? 0,
+
+    sma50:
+      analysis.volume.sma50 ?? 0,
+
+    sma100:
+      analysis.volume.sma100 ?? 0,
+
+    sma200:
+      analysis.volume.sma200 ?? 0
+
+  }] : [])
 ];
 return (
   <div className="min-h-screen bg-[#0B0F14] text-white p-6 space-y-6">
@@ -452,6 +583,14 @@ return (
   </div>
 );
 }
+
+
+
+
+
+
+
+
 
 
 

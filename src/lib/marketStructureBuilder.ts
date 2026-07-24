@@ -12,9 +12,7 @@ export function buildMarketStructure(
   }
 
   const quote =
-    data.quote[
-      `NSE:${data.symbol}`
-    ];
+    Object.values(data.quote)[0] as any;
 
   if (!quote) {
     return null;

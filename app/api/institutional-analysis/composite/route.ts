@@ -1,103 +1,96 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 
 import { getMarketStructure } from "@/institutional-analysis/repository/marketStructureRepository";
+import { getHistory } from "@/institutional-analysis/repository/historyRepository";
+import { analyzeTrend } from "@/institutional-analysis/engine/priceStructure/analyzeTrend";
+import { volumeAnalysis } from "@/institutional-analysis/engine/volume/volumeAnalysis";
 
+export async function GET(req: Request) {
 
-export async function GET(
-    req:Request
-){
+    try {
 
-    try{
+        const { searchParams } = new URL(req.url);
 
+        const symbol = searchParams.get("symbol");
 
-        const {searchParams}=new URL(req.url);
+        if (!symbol) {
 
-
-        const symbol =
-            searchParams.get("symbol");
-
-
-        if(!symbol){
-
-            return NextResponse.json({
-
-                success:false,
-
-                error:"symbol required"
-
-            },{
-                status:400
-            });
-
-        }
-
-
-
-        const ms:any =
-            await getMarketStructure(
-                symbol.toUpperCase()
+            return NextResponse.json(
+                {
+                    success: false,
+                    error: "symbol required"
+                },
+                {
+                    status: 400
+                }
             );
 
+        }
 
+        const upper = symbol.toUpperCase();
 
-        if(!ms){
+        const ms: any = await getMarketStructure(upper);
 
-            return NextResponse.json({
+        if (!ms) {
 
-                success:false,
-
-                error:"Market structure not found"
-
-            },{
-                status:404
-            });
+            return NextResponse.json(
+                {
+                    success: false,
+                    error: "Market structure not found"
+                },
+                {
+                    status: 404
+                }
+            );
 
         }
 
+        const candles = await getHistory(upper);
 
+        const trend =
+            candles.length >= 30
+                ? analyzeTrend(candles)
+                : null;
+
+        const volume =
+            candles.length >= 20
+                ? volumeAnalysis(candles)
+                : null;
 
         return NextResponse.json({
 
-            success:true,
+            success: true,
 
-            symbol:symbol.toUpperCase(),
+            symbol: upper,
 
-
-            data:{
+            data: {
 
                 cmp: ms.cmp ?? ms.dailyOHLC?.close ?? null,
 
+                pivot: ms.pivot ?? null,
 
-                pivot:
-                    ms.pivot ?? null,
+                cpr: ms.cpr ?? null,
 
+                trend,
 
-                cpr:
-                    ms.cpr ?? null
-
+                volume
 
             }
 
-
         });
 
+    } catch (e: any) {
 
-
-    }catch(e:any){
-
-
-        return NextResponse.json({
-
-            success:false,
-
-            error:e.message
-
-        },{
-            status:500
-        });
-
+        return NextResponse.json(
+            {
+                success: false,
+                error: e.message
+            },
+            {
+                status: 500
+            }
+        );
 
     }
 
 }
-

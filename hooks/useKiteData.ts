@@ -5,56 +5,90 @@ import { fetchMarketData } from "@/services/marketService";
 import { KiteApiResponse } from "@/types/market";
 
 export function useKiteData(symbol: string) {
-  const [data, setData] = useState<KiteApiResponse | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
-  useEffect(() => {
-    const cleanSymbol = symbol?.trim();
+  const [data,setData]=useState<KiteApiResponse|null>(null);
+  const [loading,setLoading]=useState(false);
+  const [error,setError]=useState("");
 
-    if (
+  useEffect(()=>{
+
+    const cleanSymbol=symbol?.trim();
+
+    if(
       !cleanSymbol ||
-      cleanSymbol === "undefined" ||
-      cleanSymbol === "null"
-    ) {
+      cleanSymbol==="undefined" ||
+      cleanSymbol==="null"
+    ){
       setData(null);
       setError("");
       setLoading(false);
       return;
     }
 
-    let isMounted = true;
+    let mounted=true;
 
-    const loadData = async () => {
-      try {
-        const result = await fetchMarketData(cleanSymbol);
+    const loadData=async()=>{
 
-        if (!isMounted) return;
+      try{
+
+        const result=await fetchMarketData(cleanSymbol);
+
+        if(!mounted)return;
 
         setData(result);
         setError("");
-      } catch (err: any) {
-        if (!isMounted) return;
 
-        console.error("KITE HOOK ERROR:", err);
-        setError(err?.message || "Market data unavailable");
+      }catch(err:any){
+
+        if(!mounted)return;
+
+        console.error("KITE HOOK ERROR:",err);
+
+        setError(
+          err?.message ||
+          "Market data unavailable"
+        );
+
       }
+
     };
 
     setLoading(true);
 
-    loadData().finally(() => {
-      if (isMounted) setLoading(false);
+    loadData().finally(()=>{
+
+      if(mounted){
+
+        setLoading(false);
+
+      }
+
     });
 
-    return () => {
-      isMounted = false;
-    };
-  }, [symbol]);
+    const interval=setInterval(()=>{
 
-  return {
+      loadData();
+
+    },1000);
+
+    return()=>{
+
+      mounted=false;
+
+      clearInterval(interval);
+
+    };
+
+  },[symbol]);
+
+  return{
+
     data,
+
     loading,
+
     error,
+
   };
+
 }

@@ -3,167 +3,160 @@
 import { useState } from "react";
 
 import MacroStrip from "@/components/institutional/MacroStrip";
-import SearchBox from "@/components/SearchBox";
-import BrokerConnectionManager from "@/components/BrokerConnectionManager";
 import Link from "next/link";
-import DeliveryImportButton from "@/components/DeliveryImportButton";
-import EodButton from "@/components/EodButton";
-import VerifyButton from "@/components/VerifyButton";
 import BusinesslineFeed from "@/components/institutional/BusinesslineFeed";
 import MajorEventTracker from "@/components/institutional/MajorEventTracker";
 import CorporateAnnouncements from "@/components/institutional/CorporateAnnouncements";
 
-import { SelectedStockProvider } from "@/src/context/SelectedStockContext";
-import MarketSnapshot from "@/components/MarketSnapshot";
+import {
+  SelectedStockProvider,
+  useSelectedStock
+} from "@/src/context/SelectedStockContext";
 
-export default function InstitutionalDesk() {
+
+
+
+function InstitutionalDeskContent() {
+
   const [activePage, setActivePage] =
-    useState("Macro Events");return (
+    useState("Macro Events");
 
-<SelectedStockProvider>
+  const { selectedStock } =
+    useSelectedStock();return (
+
     <main className="min-h-screen bg-black text-white">
 
-  <section className="p-1">
+      <section className="p-1">
 
-    <div className="space-y-1">
+        <div className="space-y-2">
 
+          <MacroStrip />
 
-      <MacroStrip />
+          <div className="flex flex-wrap items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-950 p-2">
 
-            <div className="space-y-1">
+            <Link
+  href="/admin/macro/india"
+  className="px-3 py-1 rounded-lg text-sm bg-amber-600 text-white hover:bg-amber-500 transition"
+>
+  Macro
+</Link>
 
-  <div className="flex justify-between items-center">
-
-    <div className="flex items-center gap-1">
-
-      <SearchBox />
-
-      <Link href="/watchlist" target="_blank" className="px-2 py-0.5 h-6 rounded-md bg-cyan-600 hover:bg-cyan-500 text-white text-[11px] font-medium flex items-center">
-        WATCHLIST
-      </Link>
-
-      <Link href="/institutional-desk" target="_blank" className="px-2 py-0.5 h-6 rounded-md bg-amber-600 hover:bg-amber-500 text-white text-[11px] font-medium flex items-center">
-        INST
-      </Link>
-
-      <Link href="/scanner" className="px-2 py-0.5 h-6 rounded-md bg-green-600 hover:bg-green-500 text-white text-[11px] font-medium flex items-center">
-        SCN
-      </Link>
-
-      <Link href="/chart-analysis" target="_blank" className="px-2 py-0.5 h-6 rounded-md bg-blue-600 hover:bg-blue-500 text-white text-[11px] font-medium flex items-center">
-        CHART
-      </Link>
-
-      <DeliveryImportButton />
-
-      <EodButton />
-
-      <VerifyButton />
-
-      <a href="/api/market-structure-audit" target="_blank" rel="noopener noreferrer" className="px-2 py-0.5 h-6 rounded-md bg-cyan-600 hover:bg-cyan-500 text-white text-[11px] font-medium flex items-center">
-        AUD
-      </a>
-
-    </div>
-
-    <BrokerConnectionManager />
-
-  </div>
-
-  <MarketSnapshot />
-
-</div>
-
-<div className="grid grid-cols-[1fr_240px] gap-4">
-        <div className="space-y-4">
-
-          <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden">
-
-          {activePage === "BusinessLine" && (
-            <BusinesslineFeed />
-          )}
-
-          {activePage === "Macro Events" && (
-            <MajorEventTracker />
-          )}
-
-          {activePage === "Corporate" && (
-            <CorporateAnnouncements />
-          )}
-        </div>
-        </div>
-
-        <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-3 sticky top-4 h-fit">
-          <div className="space-y-2">
-            <button
-              onClick={() =>
-                setActivePage("BusinessLine")
-              }
-              className={`w-full p-2.5 rounded-lg text-left text-sm ${
-                activePage === "BusinessLine"
-                  ? "bg-amber-600 text-white"
-                  : "bg-zinc-900 text-zinc-300"
-              }`}
-            >
-              BusinessLine
-            </button>
 
             <button
-              onClick={() =>
-                setActivePage("Macro Events")
-              }
-              className={`w-full p-2.5 rounded-lg text-left text-sm ${
-                activePage === "Macro Events"
-                  ? "bg-amber-600 text-white"
-                  : "bg-zinc-900 text-zinc-300"
-              }`}
-            >
-              Macro Events
-            </button>
-
-            <button
-              onClick={() =>
-                setActivePage("Corporate")
-              }
-              className={`w-full p-2.5 rounded-lg text-left text-sm ${
-                activePage === "Corporate"
-                  ? "bg-amber-600 text-white"
-                  : "bg-zinc-900 text-zinc-300"
+              onClick={() => setActivePage("Corporate")}
+              className={`px-3 py-1 rounded-lg text-sm ${
+                activePage==="Corporate"
+                ?"bg-amber-600 text-white"
+                :"bg-amber-600 text-white"
               }`}
             >
               Corporate
             </button>
 
-            <button className="w-full p-2.5 rounded-lg bg-zinc-900 text-zinc-300 text-left text-sm">
-              Derivatives
+
+            <button
+              onClick={() => setActivePage("BusinessLine")}
+              className={`px-3 py-1 rounded-lg text-sm ${
+                activePage==="BusinessLine"
+                ?"bg-amber-600 text-white"
+                :"bg-amber-600 text-white"
+              }`}
+            >
+              BusinessLine
             </button>
 
-            <button className="w-full p-2.5 rounded-lg bg-zinc-900 text-zinc-300 text-left text-sm">
-              Auto Sales
-            </button>
 
-            <button className="w-full p-2.5 rounded-lg bg-zinc-900 text-zinc-300 text-left text-sm">
+            <button className="px-3 py-1 rounded-lg text-sm bg-amber-600 text-white">
               Sector Dashboard
             </button>
+
+
+            <Link
+              href="/watchlist"
+              className="px-3 py-1 rounded-lg text-sm bg-amber-600 text-white"
+            >
+              WATCHLIST
+            </Link>
+
+            <div className="flex flex-wrap items-center gap-2 flex-1 min-w-[260px]">
+              <Link
+                href="/"
+                className="px-3 py-1 rounded-lg text-sm bg-amber-600 text-white"
+              >
+                SEARCH STOCK
+              </Link>
+
+              <Link
+                href="/institutional-overview"
+                className="px-3 py-1 rounded-lg text-sm bg-amber-600 text-white hover:bg-amber-500 transition"
+              >
+                OVERVIEW
+              </Link>
+
+              <Link
+                href="/pattern-analysis"
+                className="px-3 py-1 rounded-lg text-sm bg-amber-600 text-white hover:bg-amber-500 transition"
+              >
+                PATTERN ANALYSIS
+              </Link>
+
+              <Link
+                href="/admin/news"
+                className="px-3 py-1 rounded-lg text-sm bg-amber-600 text-white hover:bg-amber-500 transition"
+              >
+                NEWS
+              </Link>
+
+              <Link
+                href="/institutional-analysis/index-regime"
+                className="px-3 py-1 rounded-lg text-sm bg-amber-600 text-white hover:bg-amber-500 transition"
+              >
+                INDEX REGIME
+              </Link>
+
+            </div>
+
           </div>
+
+          <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden">
+
+            {activePage==="BusinessLine" && (
+              <BusinesslineFeed />
+            )}
+
+            {activePage==="Macro Events" && (
+              <MajorEventTracker />
+            )}
+
+            {activePage==="Corporate" && (
+              <CorporateAnnouncements />
+            )}
+
+          </div>
+
         </div>
-      </div>
-    </div>
 
-  </section>
-</main>
+      </section>
 
-  </SelectedStockProvider>
+    </main>
+
   );
 }
 
 
+export default function InstitutionalDesk(){
 
+  return (
 
+    <SelectedStockProvider>
 
+      <InstitutionalDeskContent />
 
+    </SelectedStockProvider>
 
+  );
 
+}
 
 
 

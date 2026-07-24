@@ -1,4 +1,4 @@
-﻿import { PatternDrawing } from "@/lib/chart/render/PatternDrawing";
+﻿import { PatternDrawing } from "./PatternDrawing";
 
 export type Timeframe =
   | "D"
@@ -109,8 +109,7 @@ export type PatternResult = {
 
   points: PatternPoint[];
 
-  drawing?: PatternDrawing;
+drawing?: PatternDrawing;
 
 };
-
 

@@ -1,0 +1,7 @@
+export const INDEX_TOKEN_MAP:Record<string,number>={
+    NIFTY:256265,
+    BANKNIFTY:260105,
+    FINNIFTY:257801,
+    MIDCPNIFTY:288009,
+    NIFTYNXT50:270857,
+};

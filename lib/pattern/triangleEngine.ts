@@ -1,17 +1,17 @@
-import {
-  SwingPoint,
+﻿import { AnalysisContext } from "./analysisContext";
+import { SwingPoint,
   TrendLine,
   PatternResult,
-} from "./types";
+ } from "./types";
 
 import {
   buildTrendLines,
   getBestTrendLine,
 } from "./trendlineEngine";
 
-export function detectAscendingTriangle(
-  swings: SwingPoint[]
-): PatternResult | null {
+export function detectAscendingTriangle(context: AnalysisContext): PatternResult | null {
+
+  const swings = context.swings;
 
   const upper =
     getBestTrendLine(
@@ -50,9 +50,9 @@ export function detectAscendingTriangle(
 
 }
 
-export function detectDescendingTriangle(
-  swings: SwingPoint[]
-): PatternResult | null {
+export function detectDescendingTriangle(context: AnalysisContext): PatternResult | null {
+
+  const swings = context.swings;
 
   const upper =
     getBestTrendLine(
@@ -91,9 +91,9 @@ export function detectDescendingTriangle(
 
 }
 
-export function detectSymTriangle(
-  swings: SwingPoint[]
-): PatternResult | null {
+export function detectSymTriangle(context: AnalysisContext): PatternResult | null {
+
+  const swings = context.swings;
 
   const upper =
     getBestTrendLine(
@@ -245,3 +245,5 @@ function calculateConfidence(
   );
 
 }
+
+

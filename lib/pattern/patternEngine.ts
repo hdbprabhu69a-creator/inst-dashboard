@@ -1,5 +1,4 @@
-import { buildPatternDrawing } from "./PatternDrawingFactory";
-import {
+﻿import {
   Candle,
   PatternResult,
 } from "./types";
@@ -7,6 +6,10 @@ import {
 import {
   detectSwings,
 } from "./swing";
+
+import {
+  createAnalysisContext,
+} from "./analysisContext";
 
 import {
   detectAscendingTriangle,
@@ -47,6 +50,10 @@ import {
   scorePattern,
 } from "./patternScore";
 
+import {
+  analyzePatternResult,
+} from "./analyzePatternResult";
+
 export function analyzePattern(
   candles: Candle[]
 ): PatternResult | null {
@@ -59,23 +66,28 @@ export function analyzePattern(
       candles
     );
 
+  const context =
+    createAnalysisContext(
+      candles
+    );
+
   const candidates: PatternResult[] = [];
 
   const detectors = [
 
     () =>
       detectAscendingTriangle(
-        swings
+        context
       ),
 
     () =>
       detectDescendingTriangle(
-        swings
+        context
       ),
 
     () =>
       detectSymTriangle(
-        swings
+        context
       ),
 
     () =>
@@ -168,15 +180,9 @@ export function analyzePattern(
 
   );
 
-  const best =
-  candidates[0];
-
-best.drawing =
-  buildPatternDrawing(
-    best
-  )!;
-
-return best;
+  return analyzePatternResult(
+    candidates[0]
+  ) as any;
 
 }
 
@@ -192,56 +198,82 @@ export function analyzeAllPatterns(
       candles
     );
 
+  const context =
+    createAnalysisContext(
+      candles
+    );
+
   const results: PatternResult[] = [];
 
-  const detectors = [
+  const patterns = [
 
-    detectAscendingTriangle,
+    detectAscendingTriangle(
+      context
+    ),
 
-    detectDescendingTriangle,
+    detectDescendingTriangle(
+      context
+    ),
 
-    detectSymTriangle,
+    detectSymTriangle(
+      context
+    ),
 
-    detectRisingChannel,
+    detectRisingChannel(
+      swings
+    ),
 
-    detectFallingChannel,
+    detectFallingChannel(
+      swings
+    ),
 
-    detectBullFlag,
+    detectBullFlag(
+      swings
+    ),
 
-    detectBearFlag,
+    detectBearFlag(
+      swings
+    ),
 
-    detectRisingWedge,
+    detectRisingWedge(
+      swings
+    ),
 
-    detectFallingWedge,
+    detectFallingWedge(
+      swings
+    ),
 
-    detectHeadShoulder,
+    detectHeadShoulder(
+      swings
+    ),
 
-    detectInverseHeadShoulder,
+    detectInverseHeadShoulder(
+      swings
+    ),
 
-    detectDoubleTop,
+    detectDoubleTop(
+      swings
+    ),
 
-    detectDoubleBottom,
+    detectDoubleBottom(
+      swings
+    ),
 
-    detectCupHandle,
+    detectCupHandle(
+      swings
+    ),
 
   ];
 
-  for (const detector of detectors) {
-
-    const pattern =
-      detector(
-        swings
-      );
+  for (const pattern of patterns) {
 
     if (!pattern)
       continue;
 
     results.push(
-
       scorePattern(
         pattern
       )
-
     );
 
   }
@@ -257,5 +289,7 @@ export function analyzeAllPatterns(
   );
 
 }
+
+
 
 

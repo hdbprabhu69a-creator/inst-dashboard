@@ -86,7 +86,7 @@ function score(stock: any) {
 
   return Math.min(
     100,
-    Math.round(s)
+   Math.round(s)
   );
 }
 
@@ -124,7 +124,7 @@ export async function GET() {
             ];
           }
         )
-      );
+ );
 const tokenDoc =
   await adminDb
     .collection("settings")
@@ -142,17 +142,16 @@ const kite =
 kite.setAccessToken(
   accessToken
 );
-
 const quotes =
   await kite.getQuote(
     marketSnapshot.docs.map(
       d =>
         `NSE:${d.data().symbol}`
     )
-  );
-      const rows =
+);
+      const rows = await Promise.all(
       marketSnapshot.docs
-        .map((doc) => {
+        .map(async (doc) => {
           const stock =
   doc.data();
 
@@ -275,13 +274,14 @@ dpvt:
             verdict:
               verdict(sc),
           };
-        })
-        .sort(
-          (a, b) =>
-            b.score -
-            a.score
-        );
+              })
+);
 
+rows.sort(
+  (a, b) =>
+    b.score -
+    a.score
+);
     return NextResponse.json({
       success: true,
       count:
@@ -297,6 +297,19 @@ dpvt:
     });
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -40,6 +40,8 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { getCachedAccessToken } from "@/lib/kite/tokenCache";
+import { buildDeliveryData } from "@/lib/market/buildDeliveryData";
+import { loadMarketData } from "@/lib/market/loadMarketData";
 
 export async function GET() {
 if (
@@ -167,12 +169,14 @@ if (
 
     const instrumentMap =
       await loadInstrumentMap();
-
+const sourceCollection = "universe";
+const targetCollection = "marketStructure";
+const includeDelivery = true;
     const snapshot =
       await getDocs(
         collection(
           db,
-          "universe"
+          sourceCollection
         )
       );
 
@@ -183,6 +187,7 @@ if (
           ...doc.data(),
         })
       );
+
 
     let updated = 0;
     let ignored = 0;
@@ -196,392 +201,6 @@ if (
 
       try {
 
-        const symbol =
-          stock.symbol;
-
-        if (
-          symbol.includes(
-            "NIFTY"
-          )
-        ) {
-
-          ignored++;
-
-          ignoredSymbols.push(
-            symbol
-          );
-
-          continue;
-
-        }
-
-        const instrumentToken =
-          instrumentMap.get(
-            stock.kiteSymbol
-          );
-
-        if (
-          !instrumentToken
-        ) {
-failed++;
-
-          failedSymbols.push(
-            stock.symbol
-          );
-
-          continue;
-
-        }
-const candles =
-          await getDailyCandles(
-            kite,
-            Number(
-              instrumentToken
-            )
-          );
-
-        if (
-          !candles ||
-          candles.length < 50
-        ) {
-
-          failed++;
-
-          failedSymbols.push(
-            symbol
-          );
-
-          continue;
-
-        }
-
-        const lastCandle =
-          getCompletedDailyCandle(
-            candles
-          );
-
-        if (!lastCandle) {
-
-          failed++;
-
-          failedSymbols.push(
-            symbol
-          );
-
-          continue;
-
-        }
-
-        const {
-          dailyPivot,
-          dailyCPR,
-          dailyVWAP,
-          totalVolumeDaily,
-          dailyOHLC,
-        } =
-          buildDailyStructure(
-            lastCandle
-          );
-
-        const today =
-          new Date();
-
-        const weeklyData =
-          buildWeeklyStructure(
-            candles,
-            today
-          );
-
-        if (!weeklyData) {
-
-          failed++;
-
-          failedSymbols.push(
-            symbol
-          );
-
-          continue;
-
-        }
-
-        const {
-  weeklyPivot,
-  weeklyCPR,
-  weeklyVWAP,
-  totalVolumeWeekly,
-  weeklyOHLC,
-  weeklyCandles,
-} = weeklyData;
-const completedWeekDates =
-  new Set(
-    weeklyCandles.map(
-      (c: any) =>
-        new Date(c.date)
-          .toISOString()
-          .split("T")[0]
-    )
-  );
-        const monthlyData =
-          buildMonthlyStructure(
-            candles,
-            today
-          );
-
-        if (!monthlyData) {
-
-          failed++;
-
-          failedSymbols.push(
-            symbol
-          );
-
-          continue;
-
-        }
-
-        const {
-          previousMonthCandles,
-          monthlyPivot,
-          monthlyCPR,
-          monthlyVWAP,
-          totalVolumeMonthly,
-          monthlyOHLC,
-        } = monthlyData;
-        const completedMonthDates =
-  new Set(
-    previousMonthCandles.map(
-      (c: any) =>
-        new Date(c.date)
-          .toISOString()
-          .split("T")[0]
-    )
-  );
-const deliverySnapshot =
-  await getDocs(
-    query(
-      collection(
-        db,
-        "delivery_history"
-      ),
-      where(
-        "symbol",
-        "==",
-        symbol
-      )
-    )
-  );
-
-const deliveryRecords =
-  deliverySnapshot.docs.map(
-    (doc) => doc.data()
-  );
-  const latestDelivery =
-  deliveryRecords
-    .sort(
-      (a: any, b: any) =>
-        new Date(b.date).getTime() -
-        new Date(a.date).getTime()
-    )[0];
-
-const totalDeliveryDaily =
-  latestDelivery?.deliveryQty || 0;
-
-const deliveryPctDaily =
-  latestDelivery?.deliveryPct || 0;
-  const weeklyDeliveryRecords =
-  deliveryRecords.filter(
-    (row: any) =>
-      completedWeekDates.has(
-        row.date
-      )
-  );
-
-const totalDeliveryWeekly =
-  weeklyDeliveryRecords.reduce(
-    (sum: number, row: any) =>
-      sum + (row.deliveryQty || 0),
-    0
-  );
-
-const totalWeeklyVolume =
-  weeklyDeliveryRecords.reduce(
-    (sum: number, row: any) =>
-      sum + (row.volume || 0),
-    0
-  );
-
-const deliveryPctWeekly =
-  totalWeeklyVolume > 0
-    ? Number(
-        (
-          totalDeliveryWeekly /
-          totalWeeklyVolume *
-          100
-        ).toFixed(2)
-      )
-    : 0;
-    const monthlyDeliveryRecords =
-  deliveryRecords.filter(
-    (row: any) =>
-      completedMonthDates.has(
-        row.date
-      )
-  );
-
-const totalDeliveryMonthly =
-  monthlyDeliveryRecords.reduce(
-    (sum: number, row: any) =>
-      sum + (row.deliveryQty || 0),
-    0
-  );
-
-const totalMonthlyVolume =
-  monthlyDeliveryRecords.reduce(
-    (sum: number, row: any) =>
-      sum + (row.volume || 0),
-    0
-  );
-
-const deliveryPctMonthly =
-  totalMonthlyVolume > 0
-    ? Number(
-        (
-          totalDeliveryMonthly /
-          totalMonthlyVolume *
-          100
-        ).toFixed(2)
-      )
-    : 0;
-        const swings =
-          buildAllSwings(
-            candles
-          );
-
-        const oneWeekFib =
-  swings.oneWeekSwing
-    ? buildFibLevels(
-        swings.oneWeekSwing.high,
-        swings.oneWeekSwing.low
-      )
-    : null;
-
-const twoWeekFib =
-  swings.twoWeekSwing
-    ? buildFibLevels(
-        swings.twoWeekSwing.high,
-        swings.twoWeekSwing.low
-      )
-    : null;
-
-const oneMonthFib =
-  swings.oneMonthSwing
-    ? buildFibLevels(
-        swings.oneMonthSwing.high,
-        swings.oneMonthSwing.low
-      )
-    : null;
-
-const threeMonthFib =
-  swings.threeMonthSwing
-    ? buildFibLevels(
-        swings.threeMonthSwing.high,
-        swings.threeMonthSwing.low
-      )
-    : null;
-
-const sixMonthFib =
-  swings.sixMonthSwing
-    ? buildFibLevels(
-        swings.sixMonthSwing.high,
-        swings.sixMonthSwing.low
-      )
-    : null;
-
-const oneYearFib =
-  swings.oneYearSwing
-    ? buildFibLevels(
-        swings.oneYearSwing.high,
-        swings.oneYearSwing.low
-      )
-    : null;
-        await setDoc(
-
-          doc(
-            db,
-            "marketStructure",
-            symbol
-          ),
-
-          {
-
-            symbol,
-
-            instrumentToken,
-
-            cmp:
-              candles[
-                candles.length - 1
-              ].close,
-
-            dailyOHLC,
-
-            dailyPivot,
-dailyCPR,
-dailyVWAP,
-totalVolumeDaily,
-
-totalDeliveryDaily,
-deliveryPctDaily,
-
-weeklyPivot,
-weeklyCPR,
-weeklyVWAP,
-totalVolumeWeekly,
-
-totalDeliveryWeekly,
-deliveryPctWeekly,
-
-monthlyPivot,
-monthlyCPR,
-monthlyVWAP,
-totalVolumeMonthly,
-
-totalDeliveryMonthly,
-deliveryPctMonthly,
-            weeklyOHLC,
-            monthlyOHLC,
-
-            ...swings,
-
-            oneWeekFib,
-            twoWeekFib,
-            oneMonthFib,
-            threeMonthFib,
-            sixMonthFib,
-            oneYearFib,
-
-            ...buildMetadata(),
-
-            heatScore: 0,
-            rsScore: 0,
-            volumeScore: 0,
-            deliveryScore: 0,
-            sectorScore: 0,
-            trendScore: 0,
-
-          },
-
-          {
-            merge: true,
-          }
-
-        );
-
-        updated++;
-
-        updatedSymbols.push(
-          symbol
-        );
 
       } catch (error: any) {
 console.log(
@@ -658,6 +277,19 @@ await setDoc(
   }
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -11,6 +11,7 @@ import { structureIntegrity } from "@/institutional-analysis/engine/priceStructu
 import { trendPhase } from "@/institutional-analysis/engine/priceStructure/trendPhase";
 import { trendStrength } from "@/institutional-analysis/engine/priceStructure/trendStrength";
 import { trendConfidence } from "@/institutional-analysis/engine/priceStructure/trendConfidence";
+import { analyzeTrend } from "@/institutional-analysis/engine/priceStructure/analyzeTrend";
 
 export async function GET(){
 
@@ -29,82 +30,15 @@ export async function GET(){
         if(candles.length < 30)
           continue;
 
-        const highs = detectSwingHighs(candles);
-        const lows  = detectSwingLows(candles);
+        const trend=analyzeTrend(candles);
 
-        const swings = mergeSwings(highs,lows);
+rows.push({
 
-        const structure = classifyStructure(swings);
+    symbol:stock.symbol,
 
-        const integrity = structureIntegrity(
-          structure.structure,
-          candles.at(-1)!.close,
-          structure.lastHigherLow,
-          structure.lastLowerHigh
-        );
+    ...trend
 
-        const phase = trendPhase(
-          structure.structure,
-          integrity.intact,
-          structure.higherHighs,
-          structure.higherLows,
-          structure.lowerHighs,
-          structure.lowerLows
-        );
-
-        const strength = trendStrength(
-          structure.higherHighs,
-          structure.higherLows,
-          structure.lowerHighs,
-          structure.lowerLows,
-          integrity.intact
-        );
-
-        const confidence = trendConfidence(
-          strength,
-          integrity.intact,
-          phase
-        );
-
-        rows.push({
-
-          symbol: stock.symbol,
-
-          score: strength.score,
-
-          higherHighs: structure.higherHighs,
-
-          higherLows: structure.higherLows,
-
-          lowerHighs: structure.lowerHighs,
-
-          lowerLows: structure.lowerLows,
-
-          structure: structure.structure,
-
-          phase,
-
-          integrity: integrity.intact,
-
-          trendStrength: strength.score,
-
-trendline:"-",
-
-trendlineTouches:0,
-
-buyZone:false,
-
-risk:"-",
-
-          verdict:
-            strength.score>=80 ? "BUY" :
-            strength.score>=60 ? "ACC" :
-            strength.score>=40 ? "WATCH" :
-            "AVOID",
-
-          confidence: confidence.score
-
-        });
+});
 
       }
       catch{
@@ -147,5 +81,6 @@ risk:"-",
   }
 
 }
+
 
 

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import {
   createChart,
@@ -14,7 +14,7 @@ import { useEffect, useRef, useState } from "react";
 import StockSearchPopup from "@/components/StockSearch/StockSearchPopup";
 
 import { aggregateCandles } from "@/lib/history/aggregateCandles";
-import { detectPatterns } from "@/lib/patterns/analyzePattern";
+import { analyzePattern } from "@/lib/pattern/patternEngine";
 import PatternOverlay from "@/lib/chart/PatternOverlay";
 import PatternInfoOverlay from "@/lib/chart/PatternInfoOverlay";
 import PatternLabels from "@/lib/chart/PatternLabels";
@@ -394,7 +394,7 @@ const togglePattern = () => {
 
     }
 
-    const result = detectPatterns(cleanedCandlesRef.current);
+    const result = analyzePattern(cleanedCandlesRef.current);
 
     setPattern(result);
 
@@ -425,7 +425,7 @@ className="flex items-center gap-1 h-5 px-2 rounded border border-zinc-700 bg-[#
 
         <span className="font-semibold text-[12px] leading-none text-white">{symbol}</span>
 
-        <span className="text-zinc-500">·</span>
+        <span className="text-zinc-500">Â·</span>
 
         <div className="relative inline-block">
 
@@ -583,6 +583,7 @@ pattern={pattern}
 
 
 }
+
 
 
 

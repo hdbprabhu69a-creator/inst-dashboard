@@ -92,8 +92,23 @@ console.log(
       accessToken
     );
 
-    const exchangeSymbol =
-      `NSE:${cleanSymbol}`;
+    const INDEX_SYMBOL_MAP: Record<string,string>={
+
+      NIFTY:"NSE:NIFTY 50",
+      BANKNIFTY:"NSE:NIFTY BANK",
+      FINNIFTY:"NSE:NIFTY FIN SERVICE",
+      MIDCPNIFTY:"NSE:NIFTY MID SELECT",
+      NIFTYNXT50:"NSE:NIFTY NEXT 50",
+
+    };
+
+    const exchangeSymbol=
+
+      INDEX_SYMBOL_MAP[cleanSymbol]
+
+      ?? `NSE:${cleanSymbol}`;
+
+    console.log("REQUESTING:",exchangeSymbol);
 const quote =
       await kite.getQuote([
         exchangeSymbol,
@@ -148,4 +163,5 @@ return NextResponse.json({
     );
   }
 }
+
 

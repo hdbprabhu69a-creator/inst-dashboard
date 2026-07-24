@@ -1,8 +1,9 @@
 ﻿"use client";
 
 import { useMemo } from "react";
-import { detectPatterns } from "@/lib/patternEngine/patternLoader";
+import { analyzePattern } from "@/lib/pattern/patternEngine";
 
 export function usePatternHistory(candles:any[]) {
-    return useMemo(() => detectPatterns(candles), [candles]);
+    return useMemo(() => analyzePattern(candles), [candles]);
 }
+

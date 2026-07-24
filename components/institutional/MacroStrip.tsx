@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 
@@ -74,21 +74,21 @@ export default function MacroStrip(){
 
   return(
 
-    <div className="flex gap-[3px] overflow-x-auto pb-[2px]">
+    <div className="grid grid-cols-5 xl:grid-cols-10 gap-2">
 
       {cards.map((card,index)=>(
 
         <div
           key={index}
-          className="w-[78px] h-[44px] flex-shrink-0 bg-zinc-900 border border-zinc-800 rounded-[3px] px-1 py-[2px]"
+          className="rounded-lg border border-[#26313c] bg-[#10161d] hover:bg-[#18222d] transition-colors px-2 py-2 min-h-[66px] flex flex-col justify-evenly gap-1"
         >
 
-          <div className="text-[7px] uppercase text-zinc-500 leading-none">
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-300">
             {card.title}
           </div>
 
           <div
-            className={`text-[12px] font-semibold leading-none mt-[3px] ${
+            className={`text-[22px] font-bold leading-none ${
               card.change>=0
                 ? "text-green-400"
                 : "text-red-400"
@@ -98,7 +98,7 @@ export default function MacroStrip(){
           </div>
 
           <div
-            className={`text-[8px] leading-none mt-[2px] ${
+            className={`text-[11px] font-semibold tracking-wide ${
               card.change>=0
                 ? "text-green-400"
                 : "text-red-400"
@@ -116,4 +116,26 @@ export default function MacroStrip(){
 
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

@@ -23,6 +23,10 @@ const ENGINE_APIS: Record<string,{run:string;update:string}>={
   "Delivery Analysis":{
     run:"/api/institutional-analysis/delivery",
     update:"/api/institutional-analysis/delivery/update"
+  },
+  "Volume Analysis":{
+    run:"/api/institutional-analysis/volume-universe",
+    update:"/api/institutional-analysis/volume/update?symbol=SBIN"
   }
 };
 export default function InstitutionalAnalysisPage() {
@@ -31,7 +35,8 @@ const [engine,setEngine]=useState("Trend Analysis");
   const [search,setSearch]=useState("");
   const [loading,setLoading]=useState(false);
   const [updating,setUpdating]=useState(false);
-  const [rows,setRows]=useState<any[]>([]);
+  const [tableRows,setTableRows]=useState<any[]>([]);
+const [engineData,setEngineData]=useState<any>(null);
 
   const runEngine = useCallback(async () => {
 
@@ -42,14 +47,26 @@ const [engine,setEngine]=useState("Trend Analysis");
       const endpoint=ENGINE_APIS[engine]?.run;
 
       if(!endpoint){
-        setRows([]);
+        setTableRows([]);
+        setEngineData(null);
         return;
       }
 
       const r=await fetch(endpoint,{cache:"no-store"});
       if(!r.ok) throw new Error(await r.text());
       const j=await r.json();
-      setRows(j.rows ?? j.data ?? []);
+      if(Array.isArray(j.rows)){
+        setTableRows(j.rows);
+        setEngineData(null);
+      }
+      else if(Array.isArray(j.data)){
+        setTableRows(j.data);
+        setEngineData(null);
+      }
+      else{
+        setTableRows([]);
+        setEngineData(j.data ?? null);
+      }
 
     }catch(e){console.error(e);}finally{
       setLoading(false);
@@ -109,11 +126,6 @@ const [engine,setEngine]=useState("Trend Analysis");
     onSelect={setEngine}
   />
 </div>
-
-        <PortfolioEngineSidebar
-          selected={engine}
-          onSelect={setEngine}
-        />
       </aside>
 
       <section className="flex-1 min-w-0 flex flex-col overflow-hidden bg-[#0A0E14]">
@@ -152,9 +164,11 @@ const [engine,setEngine]=useState("Trend Analysis");
           ) : (
             <EngineWorkspace
               engine={engine}
-              rows={rows.filter(r=>
-                r.symbol?.toLowerCase().includes(search.toLowerCase())
-              )}
+              rows={
+                tableRows.filter((r:any)=>
+                  r.symbol?.toLowerCase().includes(search.toLowerCase())
+                )
+              }
               onSelect={()=>{}}
             />
           )}
@@ -168,6 +182,17 @@ const [engine,setEngine]=useState("Trend Analysis");
   );
 
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 
