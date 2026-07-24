@@ -80,7 +80,7 @@ function InstitutionalDeskContent() {
 
             <div className="flex flex-wrap items-center gap-2 flex-1 min-w-[260px]">
               <Link
-                href="/"
+                href="/live-dashboard"
                 className="px-3 py-1 rounded-lg text-sm bg-amber-600 text-white"
               >
                 SEARCH STOCK
@@ -157,6 +157,7 @@ export default function InstitutionalDesk(){
   );
 
 }
+
 
 
 
