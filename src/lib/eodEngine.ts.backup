@@ -233,20 +233,17 @@ export function getPreviousCompletedWeekCandles(
   const now =
     new Date();
 
-  const day =
-    now.getDay();
-
   const daysFromMonday =
-    day === 0
+    now.getDay() === 0
       ? 6
-      : day - 1;
-
+      : now.getDay() - 1;
 
   const startOfCurrentWeek =
     new Date(now);
 
   startOfCurrentWeek.setDate(
-    now.getDate() - daysFromMonday
+    now.getDate() -
+    daysFromMonday
   );
 
   startOfCurrentWeek.setHours(
@@ -256,49 +253,29 @@ export function getPreviousCompletedWeekCandles(
     0
   );
 
-
-  const weekClosed =
-    (
-      day === 6 ||
-      day === 0 ||
-      (
-        day === 5 &&
-        isMarketClosed()
-      )
+  const startOfPreviousWeek =
+    new Date(
+      startOfCurrentWeek
     );
 
-
-  let startDate =
-    new Date(startOfCurrentWeek);
-
-  let endDate =
-    new Date(startOfCurrentWeek);
-
-
-  if (weekClosed) {
-
-    endDate.setDate(
-      endDate.getDate() + 7
-    );
-
-  } else {
-
-    startDate.setDate(
-      startDate.getDate() - 7
-    );
-
-  }
-
+  startOfPreviousWeek.setDate(
+    startOfPreviousWeek.getDate() - 7
+  );
 
   return candles.filter(
-    (c:any)=>{
+    (c: any) => {
 
       const d =
         new Date(c.date);
 
       return (
-        d >= startDate &&
-        d < endDate
+
+        d >=
+          startOfPreviousWeek &&
+
+        d <
+          startOfCurrentWeek
+
       );
 
     }

@@ -2,102 +2,227 @@
 
 import {
   getDocs,
-  collection
+  collection,
 } from "firebase/firestore";
 
 import { db } from "@/lib/firebase";
 
 import {
-  getIndexHistory
+  getIndexHistory,
 } from "@/lib/history/indexHistoryRepository";
 
 import {
-  analyzeIndexRegime
+  analyzeIndexRegime,
 } from "@/lib/institutional/indexRegimeEngine";
+
+import {
+  KiteConnect,
+} from "kiteconnect";
+
+import {
+  adminDb,
+} from "@/lib/firebase-admin";
+
+
+const INDEX_SYMBOL_MAP: Record<string,string> = {
+
+  NIFTY:
+    "NSE:NIFTY 50",
+
+  BANKNIFTY:
+    "NSE:NIFTY BANK",
+
+  FINNIFTY:
+    "NSE:NIFTY FIN SERVICE",
+
+  MIDCPNIFTY:
+    "NSE:NIFTY MID SELECT",
+
+  NIFTYNXT50:
+    "NSE:NIFTY NEXT 50",
+
+};
+
+
+async function getKite(){
+
+  const tokenDoc =
+    await adminDb
+      .collection("settings")
+      .doc("kite")
+      .get();
+
+
+  if(!tokenDoc.exists)
+    return null;
+
+
+  const accessToken =
+    tokenDoc.data()
+      ?.accessToken;
+
+
+  if(!accessToken)
+    return null;
+
+
+  const kite =
+    new KiteConnect({
+
+      api_key:
+        process.env.KITE_API_KEY!
+
+    });
+
+
+  kite.setAccessToken(
+    accessToken
+  );
+
+
+  return kite;
+
+}
+
 
 
 export async function GET(){
 
- try{
-
-   const snapshot =
-     await getDocs(
-       collection(
-         db,
-         "universe_indices"
-       )
-     );
+try{
 
 
-   const results:any[]=[];
+const snapshot =
+  await getDocs(
+    collection(
+      db,
+      "universe_indices"
+    )
+  );
 
 
-   for(const doc of snapshot.docs){
-
-     const data:any =
-       doc.data();
-
-
-     const symbol =
-       data.symbol;
-
-
-     if(!symbol)
-       continue;
+const symbols =
+  snapshot.docs
+  .map(
+    d =>
+      d.data().symbol
+  )
+  .filter(Boolean);
 
 
-     const candles =
-       await getIndexHistory(
-         symbol
-       );
+
+const kite =
+  await getKite();
 
 
-     const regime =
-       analyzeIndexRegime(
-         candles
-       );
+
+let quotes:any = {};
 
 
-     results.push({
+if(kite){
 
-       symbol,
-
-       candles:
-         candles.length,
-
-       data:regime
-
-     });
-
-   }
+ const instruments =
+   symbols.map(
+    s =>
+     INDEX_SYMBOL_MAP[s]
+     ??
+     `NSE:${s}`
+   );
 
 
-   return NextResponse.json({
-
-     success:true,
-
-     total:
-       results.length,
-
-     indices:
-       results
-
-   });
+ const quote =
+   await kite.getQuote(
+     instruments
+   );
 
 
- }
- catch(error:any){
+ quotes =
+   quote;
 
-   return NextResponse.json({
+}
 
-     success:false,
 
-     error:error.message
 
-   },{
-     status:500
-   });
+const results:any[]=[];
 
- }
+
+for(const symbol of symbols){
+
+
+ const candles =
+   await getIndexHistory(
+     symbol
+   );
+
+
+ const instrument =
+   INDEX_SYMBOL_MAP[symbol]
+   ??
+   `NSE:${symbol}`;
+
+
+ const liveCmp =
+   Number(
+     quotes[instrument]
+       ?.last_price
+       ??
+       0
+   );
+
+
+
+ const data =
+   analyzeIndexRegime(
+     candles,
+     liveCmp
+   );
+
+
+
+ results.push({
+
+   symbol,
+
+   candles:
+     candles.length,
+
+   data
+
+ });
+
+
+}
+
+
+
+return NextResponse.json({
+
+ success:true,
+
+ total:
+   results.length,
+
+ indices:
+   results
+
+});
+
+
+}
+catch(error:any){
+
+
+return NextResponse.json({
+
+ success:false,
+
+ error:
+   error.message
+
+},{
+ status:500
+});
+
+
+}
 
 }

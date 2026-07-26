@@ -1,4 +1,4 @@
-import { detectSwingHighs } from "./detectSwingHighs";
+﻿import { detectSwingHighs } from "./detectSwingHighs";
 import { detectSwingLows } from "./detectSwingLows";
 import { mergeSwings } from "./mergeSwings";
 import { classifyStructure } from "./classifyStructure";
@@ -48,20 +48,32 @@ export function analyzeTrend(candles:any[]){
 
     return{
 
-        score:strength.score,
-
-        structure:structure.structure,
+        structure:
+            structure.structure,
 
         phase,
 
-        verdict:
-            strength.score>=80?"BUY":
-            strength.score>=60?"ACC":
-            strength.score>=40?"WATCH":
-            "AVOID",
+        strength,
 
-        confidence:confidence.score
+        confidence,
+
+        integrity,
+
+        lastHigherLow:
+            structure.lastHigherLow,
+
+        lastLowerHigh:
+            structure.lastLowerHigh,
+
+        highs,
+
+        lows
 
     };
 
 }
+
+
+
+
+

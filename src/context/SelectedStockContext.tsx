@@ -112,8 +112,8 @@ export function SelectedStockProvider({
 
         const collectionName =
           INDEX_SYMBOLS.has(selectedStock)
-            ? "indexMarketStructure"
-            : MARKET_STRUCTURE_COLLECTION;
+             ? "index_market_structure"
+              : MARKET_STRUCTURE_COLLECTION;
 
         const docRef =
           doc(

@@ -134,11 +134,7 @@ const candles =
         const today =
           new Date();
 
-        const weeklyData =
-          buildWeeklyStructure(
-            candles,
-            today
-          );
+        const weeklyData=buildWeeklyStructure(candles,today);
 
       if (!weeklyData) {
 
@@ -274,8 +270,7 @@ const oneYearFib =
         swings.oneYearSwing.high,
         swings.oneYearSwing.low
       )
-    : null;
-        await setDoc(
+    : null;        await setDoc(
 
          doc(
     db,
@@ -369,6 +364,11 @@ deliveryPctMonthly,
     }
 
 }
+
+
+
+
+
 
 
 

@@ -1,4 +1,4 @@
-﻿import {
+import {
   Candle,
   PatternResult,
 } from "./types";
@@ -147,24 +147,33 @@ export function analyzePattern(
 
   ];
 
-  for (const detector of detectors) {
+ for (const detector of detectors) {
 
-    const result =
-      detector();
+  const result = detector();
 
-    if (!result)
-      continue;
+  if (!result)
+    continue;
 
-    candidates.push(
+  const structure = null;
 
-      scorePattern(
-        result
-      )
+  const structureScore = 80;
 
-    );
+  const trendScore = 75;
 
-  }
+  const volumeScore = 70;
 
+  candidates.push(
+    scorePattern(
+      result,
+      {
+        structureScore,
+        trendScore,
+        volumeScore,
+      }
+    )
+  );
+
+}
   if (
     candidates.length === 0
   )
@@ -270,9 +279,22 @@ export function analyzeAllPatterns(
     if (!pattern)
       continue;
 
+    const structure = null;
+
+    const structureScore = 80;
+
+    const trendScore = 75;
+
+    const volumeScore = 70;
+
     results.push(
       scorePattern(
-        pattern
+        pattern,
+        {
+          structureScore,
+          trendScore,
+          volumeScore
+        }
       )
     );
 
@@ -289,6 +311,10 @@ export function analyzeAllPatterns(
   );
 
 }
+
+
+
+
 
 
 

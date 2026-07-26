@@ -5,10 +5,13 @@ import {
 } from "./types";
 
 export function scorePattern(
-
-  pattern: PatternResult
-
-): PatternResult {
+  pattern: PatternResult,
+  context?:{
+    structureScore?:number;
+    trendScore?:number;
+    volumeScore?:number;
+  }
+):PatternResult{
 
   let score = 0;
 
@@ -30,6 +33,10 @@ export function scorePattern(
 
   score += scoreStructure(
     pattern
+  );
+
+  score += scoreInstitutionalContext(
+    context
   );
 
   pattern.confidence =
@@ -254,5 +261,48 @@ function scoreStructure(
       return 5;
 
   }
+
+}
+function scoreInstitutionalContext(
+
+  context?:{
+
+    structureScore?:number;
+
+    trendScore?:number;
+
+    volumeScore?:number;
+
+  }
+
+):number{
+
+  if(!context)
+    return 0;
+
+  let score=0;
+
+  if(context.structureScore!=null)
+    score += Math.min(
+      10,
+      context.structureScore*0.10
+    );
+
+  if(context.trendScore!=null)
+    score += Math.min(
+      5,
+      context.trendScore*0.05
+    );
+
+  if(context.volumeScore!=null)
+    score += Math.min(
+      5,
+      context.volumeScore*0.05
+    );
+
+  return Math.min(
+    20,
+    Math.round(score)
+  );
 
 }

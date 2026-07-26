@@ -12,7 +12,7 @@ import {
 
 import {
 
-  getPreviousCompletedWeekCandles,
+  getCompletedWeeklyCandles,
 
   getCompletedMonthlyCandles,
 
@@ -128,7 +128,10 @@ export function buildWeeklyStructure(
   today: Date
 ) {
 
- const weeklyCandles = getPreviousCompletedWeekCandles(candles);
+ const weeklyCandles =
+  getCompletedWeeklyCandles(
+    candles
+  );
 
   if (
     !weeklyCandles ||
@@ -167,7 +170,6 @@ export function buildWeeklyStructure(
     calculateTotalVolume(
       weeklyCandles
     );
-
 
   return {
 
@@ -304,13 +306,3 @@ previousMonthCandles,
   };
 
 }
-
-
-
-
-
-
-
-
-
-

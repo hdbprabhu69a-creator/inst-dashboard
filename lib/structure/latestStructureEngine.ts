@@ -1,4 +1,6 @@
-﻿function findSwings(candles:any[]){
+import { classifyStructure } from "./structureClassifier";
+
+function findSwings(candles:any[]){
 
  const highs:any[]=[];
  const lows:any[]=[];
@@ -89,6 +91,23 @@ export function detectMultiLevelStructure(
 
   const latestLow =
     tradingSwings.lows.at(-1) ?? null;
+  const majorClassification =
+    classifyStructure(
+      majorSwings.highs,
+      majorSwings.lows
+    );
+
+  const intermediateClassification =
+    classifyStructure(
+      intermediateSwings.highs,
+      intermediateSwings.lows
+    );
+
+  const tradingClassification =
+    classifyStructure(
+      tradingSwings.highs,
+      tradingSwings.lows
+    );
 
   return{
 
@@ -98,7 +117,9 @@ export function detectMultiLevelStructure(
 
       lows: majorSwings.lows,
 
-      range: buildRange(major)
+      range: buildRange(major),
+
+      classification: majorClassification
 
     },
 
@@ -108,7 +129,9 @@ export function detectMultiLevelStructure(
 
       lows: intermediateSwings.lows,
 
-      range: buildRange(intermediate)
+      range: buildRange(intermediate),
+
+      classification: intermediateClassification
 
     },
 
@@ -149,6 +172,11 @@ export function detectMultiLevelStructure(
   };
 
 }
+
+
+
+
+
 
 
 

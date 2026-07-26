@@ -1,276 +1,276 @@
-import { NextResponse } from "next/server";
-import { KiteConnect } from "kiteconnect";
+  import { NextResponse } from "next/server";
+  import { KiteConnect } from "kiteconnect";
 
-import {
-  collection,
-  getDocs,
-  doc,
-  getDoc,
-} from "firebase/firestore";
+  import {
+    collection,
+    getDocs,
+    doc,
+    getDoc,
+  } from "firebase/firestore";
 
-import { db } from "@/lib/firebase";
-import { getCachedAccessToken } from "@/lib/kite/tokenCache";
+  import { db } from "@/lib/firebase";
+  import { getCachedAccessToken } from "@/lib/kite/tokenCache";
 
-export async function GET() {
+  export async function GET() {
 
-  try {
+    try {
 
-    const tokenDoc =
-      await getDoc(
-        doc(
-          db,
-          "settings",
-          "kite"
-        )
+      const tokenDoc =
+        await getDoc(
+          doc(
+            db,
+            "settings",
+            "kite"
+          )
+        );
+
+      const accessToken = await getCachedAccessToken();
+
+      if (!accessToken) {
+
+        return NextResponse.json({
+
+          success: false,
+
+          error:
+            "No Access Token",
+
+        });
+
+      }
+
+      const kite =
+        new KiteConnect({
+
+          api_key:
+            process.env.KITE_API_KEY!,
+
+        });
+
+      kite.setAccessToken(
+        accessToken
       );
 
-    const accessToken = await getCachedAccessToken();
+      const snapshot =
+        await getDocs(
+          collection(
+            db,
+            "universe"
+          )
+        );
 
-    if (!accessToken) {
+      const stocks: any[] =
+        snapshot.docs.map(
+          (doc) => ({
 
-      return NextResponse.json({
+            id: doc.id,
 
-        success: false,
+            ...doc.data(),
 
-        error:
-          "No Access Token",
+          })
+        );
 
-      });
+      const stock =
+        stocks.find(
+          (s: any) =>
+            s.symbol ===
+            "SBIN"
+        );
 
-    }
+      if (!stock) {
 
-    const kite =
-      new KiteConnect({
+        return NextResponse.json({
 
-        api_key:
-          process.env.KITE_API_KEY!,
+          success: false,
 
-      });
+          error:
+            "SBIN NOT FOUND",
 
-    kite.setAccessToken(
-      accessToken
-    );
+        });
 
-    const snapshot =
-      await getDocs(
-        collection(
-          db,
-          "universe"
-        )
+      }
+
+      const symbol =
+        stock.symbol;
+
+      const instrumentToken =
+        stock.instrumentToken;
+
+      if (
+        !instrumentToken
+      ) {
+
+        return NextResponse.json({
+
+          success: false,
+
+          error:
+            "SBIN TOKEN MISSING",
+
+        });
+
+      }
+
+      const to =
+        new Date();
+
+      const from =
+        new Date();
+
+      from.setDate(
+        from.getDate() - 400
       );
 
-    const stocks: any[] =
-      snapshot.docs.map(
-        (doc) => ({
+      const candles =
+        await kite.getHistoricalData(
+          Number(
+            instrumentToken
+          ),
+          "day",
+          from,
+          to
+        );
 
-          id: doc.id,
+      if (
+        !candles ||
+        candles.length === 0
+      ) {
 
-          ...doc.data(),
+        return NextResponse.json({
 
-        })
+          success: false,
+
+          error:
+            "NO CANDLES",
+
+        });
+
+      }
+
+      const oneWeekStart =
+        new Date();
+
+      oneWeekStart.setDate(
+        oneWeekStart.getDate() - 7
       );
 
-    const stock =
-      stocks.find(
-        (s: any) =>
-          s.symbol ===
-          "SBIN"
+      oneWeekStart.setHours(
+        0,
+        0,
+        0,
+        0
       );
 
-    if (!stock) {
+      const oneWeekCandles =
+        candles.filter(
+          (c: any) => {
 
-      return NextResponse.json({
+            const d =
+              new Date(
+                c.date
+              );
 
-        success: false,
-
-        error:
-          "SBIN NOT FOUND",
-
-      });
-
-    }
-
-    const symbol =
-      stock.symbol;
-
-    const instrumentToken =
-      stock.instrumentToken;
-
-    if (
-      !instrumentToken
-    ) {
-
-      return NextResponse.json({
-
-        success: false,
-
-        error:
-          "SBIN TOKEN MISSING",
-
-      });
-
-    }
-
-    const to =
-      new Date();
-
-    const from =
-      new Date();
-
-    from.setDate(
-      from.getDate() - 400
-    );
-
-    const candles =
-      await kite.getHistoricalData(
-        Number(
-          instrumentToken
-        ),
-        "day",
-        from,
-        to
-      );
-
-    if (
-      !candles ||
-      candles.length === 0
-    ) {
-
-      return NextResponse.json({
-
-        success: false,
-
-        error:
-          "NO CANDLES",
-
-      });
-
-    }
-
-    const oneWeekStart =
-      new Date();
-
-    oneWeekStart.setDate(
-      oneWeekStart.getDate() - 7
-    );
-
-    oneWeekStart.setHours(
-      0,
-      0,
-      0,
-      0
-    );
-
-    const oneWeekCandles =
-      candles.filter(
-        (c: any) => {
-
-          const d =
-            new Date(
-              c.date
+            return (
+              d >=
+              oneWeekStart
             );
 
-          return (
-            d >=
-            oneWeekStart
-          );
+          }
+        );
 
-        }
-      );
+      const oneWeekHigh =
+        Math.max(
+          ...oneWeekCandles.map(
+            (c: any) =>
+              c.high
+          )
+        );
 
-    const oneWeekHigh =
-      Math.max(
-        ...oneWeekCandles.map(
+      const oneWeekLow =
+        Math.min(
+          ...oneWeekCandles.map(
+            (c: any) =>
+              c.low
+          )
+        );
+
+      const highCandle =
+        oneWeekCandles.find(
           (c: any) =>
-            c.high
-        )
-      );
+            c.high ===
+            oneWeekHigh
+        );
 
-    const oneWeekLow =
-      Math.min(
-        ...oneWeekCandles.map(
+      const lowCandle =
+        oneWeekCandles.find(
           (c: any) =>
-            c.low
-        )
-      );
+            c.low ===
+            oneWeekLow
+        );
 
-    const highCandle =
-      oneWeekCandles.find(
-        (c: any) =>
-          c.high ===
-          oneWeekHigh
-      );
+      const highDate =
+        new Date(
+          highCandle!.date
+        ).toLocaleDateString(
+          "en-GB",
+          {
+            timeZone:
+              "Asia/Kolkata",
+            day: "2-digit",
+            month: "short",
+            year: "2-digit",
+          }
+        );
 
-    const lowCandle =
-      oneWeekCandles.find(
-        (c: any) =>
-          c.low ===
-          oneWeekLow
-      );
+      const lowDate =
+        new Date(
+          lowCandle!.date
+        ).toLocaleDateString(
+          "en-GB",
+          {
+            timeZone:
+              "Asia/Kolkata",
+            day: "2-digit",
+            month: "short",
+            year: "2-digit",
+          }
+        );
 
-    const highDate =
-      new Date(
-        highCandle!.date
-      ).toLocaleDateString(
-        "en-GB",
-        {
-          timeZone:
-            "Asia/Kolkata",
-          day: "2-digit",
-          month: "short",
-          year: "2-digit",
-        }
-      );
+      return NextResponse.json({
 
-    const lowDate =
-      new Date(
-        lowCandle!.date
-      ).toLocaleDateString(
-        "en-GB",
-        {
-          timeZone:
-            "Asia/Kolkata",
-          day: "2-digit",
-          month: "short",
-          year: "2-digit",
-        }
-      );
+        success: true,
 
-    return NextResponse.json({
+        symbol,
 
-      success: true,
+        oneWeekCandles:
+          oneWeekCandles.length,
 
-      symbol,
+        oneWeekHigh,
 
-      oneWeekCandles:
-        oneWeekCandles.length,
+        oneWeekLow,
 
-      oneWeekHigh,
+        highDate,
 
-      oneWeekLow,
+        lowDate,
 
-      highDate,
+        message:
+          "ONE WEEK SWING READY",
 
-      lowDate,
+      });
 
-      message:
-        "ONE WEEK SWING READY",
+    } catch (error: any) {
 
-    });
+      return NextResponse.json({
 
-  } catch (error: any) {
+        success: false,
 
-    return NextResponse.json({
+        error:
+          error.message,
 
-      success: false,
+      });
 
-      error:
-        error.message,
-
-    });
+    }
 
   }
-
-}
 
 

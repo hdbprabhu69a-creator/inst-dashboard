@@ -1,4 +1,4 @@
-﻿import {
+import {
   Candle,
   SwingPoint,
   TrendLine,
@@ -11,6 +11,10 @@ import {
 import {
   buildTrendLines,
 } from "./trendlineEngine";
+
+import {
+  detectMultiLevelStructure,
+} from "@/lib/structure/latestStructureEngine";
 
 export interface MarketContext {
 
@@ -36,18 +40,28 @@ export interface AnalysisContext {
 
   market?: MarketContext;
 
+  structure?: ReturnType<typeof detectMultiLevelStructure>;
+
 }
 
 export function createAnalysisContext(
 
-  candles: Candle[],
+  candles:Candle[],
 
-  market?: MarketContext
+  market?:MarketContext,
+
+  structure?:ReturnType<typeof detectMultiLevelStructure>
 
 ): AnalysisContext {
 
   const swings =
     detectSwings(
+      candles
+    );
+
+  const resolvedStructure =
+    structure ??
+    detectMultiLevelStructure(
       candles
     );
 
@@ -71,7 +85,15 @@ export function createAnalysisContext(
 
     market,
 
+    structure:
+      resolvedStructure,
+
   };
 
 }
+
+
+
+
+
 

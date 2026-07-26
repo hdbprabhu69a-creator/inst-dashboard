@@ -8,82 +8,95 @@ import {
   analyzeIndexRegime,
 } from "@/lib/institutional/indexRegimeEngine";
 
+import {
+  KiteConnect,
+} from "kiteconnect";
 
-function calculateTrend(
-  candles:any[]
+import {
+  adminDb,
+} from "@/lib/firebase-admin";
+
+
+const INDEX_SYMBOL_MAP:Record<string,string> = {
+
+  NIFTY:
+    "NSE:NIFTY 50",
+
+  BANKNIFTY:
+    "NSE:NIFTY BANK",
+
+  FINNIFTY:
+    "NSE:NIFTY FIN SERVICE",
+
+  MIDCPNIFTY:
+    "NSE:NIFTY MID SELECT",
+
+  NIFTYNXT50:
+    "NSE:NIFTY NEXT 50",
+
+};
+
+
+
+async function getLivePrice(
+  symbol:string
 ){
 
-  if(candles.length < 50)
-    return {
-      trend:"INSUFFICIENT_DATA",
-      strength:0,
-      phase:"UNKNOWN"
-    };
+  const tokenDoc =
+    await adminDb
+      .collection("settings")
+      .doc("kite")
+      .get();
 
 
-  const recent =
-    candles.slice(-50);
+  if(!tokenDoc.exists)
+    return 0;
 
 
-  const first =
-    recent[0].close;
-
-  const last =
-    recent[recent.length-1].close;
+  const tokenData =
+    tokenDoc.data();
 
 
-  const change =
-    ((last-first)/first)*100;
+  const accessToken =
+    tokenData?.accessToken;
 
 
-  let trend =
-    "SIDEWAYS";
+  if(!accessToken)
+    return 0;
 
 
-  if(change > 3)
-    trend="UPTREND";
+  const kite =
+    new KiteConnect({
+
+      api_key:
+        process.env.KITE_API_KEY!
+
+    });
 
 
-  if(change < -3)
-    trend="DOWNTREND";
+  kite.setAccessToken(
+    accessToken
+  );
 
 
-  const strength =
-    Math.min(
-      Math.abs(change)*20,
-      100
-    );
+  const instrument =
+    INDEX_SYMBOL_MAP[symbol]
+    ??
+    `NSE:${symbol}`;
 
 
-  let phase =
-    "CONSOLIDATION";
+  const quote =
+    await kite.getQuote([
+      instrument
+    ]);
 
 
-  if(trend==="UPTREND")
-    phase="ACCUMULATION";
-
-
-  if(trend==="DOWNTREND")
-    phase="DISTRIBUTION";
-
-
-  return {
-
-    trend,
-
-    strength:
-      Number(
-        strength.toFixed(2)
-      ),
-
-    phase,
-
-    change:
-      Number(
-        change.toFixed(2)
-      )
-
-  };
+  return Number(
+    quote[instrument]
+      ?.last_price
+      ??
+      0
+  );
 
 }
 
@@ -114,28 +127,46 @@ export async function GET(
    }
 
 
+   const cleanSymbol =
+     symbol.toUpperCase();
+
+
+
    const candles =
      await getIndexHistory(
-       symbol
+       cleanSymbol
      );
 
 
-   const regime =
+
+   const liveCmp =
+     await getLivePrice(
+       cleanSymbol
+     );
+
+
+
+   const data =
      analyzeIndexRegime(
-       candles
+       candles,
+       liveCmp
      );
+
 
 
    return NextResponse.json({
 
      success:true,
 
-     symbol,
+     symbol:
+       cleanSymbol,
+
+     liveCmp,
 
      candles:
        candles.length,
 
-     data:regime
+     data
 
    });
 
@@ -147,7 +178,8 @@ export async function GET(
 
      success:false,
 
-     error:error.message
+     error:
+       error.message
 
    },{
      status:500
@@ -156,5 +188,3 @@ export async function GET(
  }
 
 }
-
-
