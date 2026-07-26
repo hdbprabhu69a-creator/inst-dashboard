@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 
@@ -108,11 +108,19 @@ function InstitutionalDeskContent() {
               </Link>
 
               <Link
-                href="/institutional-analysis/index-regime"
-                className="px-3 py-1 rounded-lg text-sm bg-amber-600 text-white hover:bg-amber-500 transition"
-              >
-                INDEX REGIME
-              </Link>
+  href="/institutional-analysis/index-regime"
+  className="px-3 py-1 rounded-lg text-sm bg-amber-600 text-white hover:bg-amber-500 transition"
+>
+  INDEX REGIME
+</Link>
+
+
+<Link
+  href="/institutional-analysis/decision"
+  className="px-3 py-1 rounded-lg text-sm bg-amber-600 text-white hover:bg-amber-500 transition"
+>
+  DECISION
+</Link>
 
             </div>
 
@@ -157,6 +165,8 @@ export default function InstitutionalDesk(){
   );
 
 }
+
+
 
 
 
