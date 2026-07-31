@@ -1,4 +1,4 @@
-﻿export type HeatmapItem = {
+export type HeatmapItem = {
   symbol: string;
   strength: number; // -100 to +100
   trend: "BULLISH" | "BEARISH" | "NEUTRAL";
@@ -31,3 +31,4 @@ class HeatmapEngine {
 }
 
 export const heatmapEngine = new HeatmapEngine();
+

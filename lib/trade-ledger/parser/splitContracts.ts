@@ -53,3 +53,4 @@ export async function splitContracts(
     return contracts;
 
 }
+

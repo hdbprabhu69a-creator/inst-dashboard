@@ -1,0 +1,190 @@
+﻿import { NextResponse } from "next/server";
+
+import {
+  collection,
+  getDocs,
+  getDoc,
+  doc,
+} from "firebase/firestore";
+
+import { db } from "@/lib/firebase";
+
+import {
+  getHistory,
+} from "@/lib/history/historyRepository";
+
+import {
+  getLivePrice,
+} from "@/lib/kite/getLivePrice";
+
+import {
+  analyzeIndex,
+} from "@/lib/institutional/indexAnalysisEngine";
+
+import {
+  buildIndexDecision,
+} from "@/lib/institutional/indexDecisionEngine";
+
+import {
+  volumeAnalysis,
+} from "@/institutional-analysis/engine/volume/volumeAnalysis";
+
+export async function GET() {
+
+  try {
+
+    const snapshot = await getDocs(
+      collection(
+        db,
+        "marketStructure"
+      )
+    );
+
+    const data = [];
+
+    for (const document of snapshot.docs) {
+
+      const index =
+        document.data();
+
+      const symbol =
+        index.symbol;
+
+
+      const marketStructure = document.data();
+
+      const cmp =
+        await getLivePrice(
+          symbol
+        );
+
+      const history =
+        await getHistory(
+          symbol
+        );
+
+      if (
+        history.length === 0
+      )
+        continue;
+
+            const analysis =
+        analyzeIndex(
+          history,
+          cmp,
+          marketStructure
+        );
+
+      const volume =
+        volumeAnalysis(
+          history
+        );
+
+      const decision =
+        buildIndexDecision({
+
+          symbol,
+
+          cmp:
+            analysis.cmp,
+
+          trend:
+            analysis.trend,
+
+          regime:
+            analysis.trend.regime,
+
+          marketState:
+            analysis.marketState,
+
+          pivot:
+            index.pivot,
+
+          cpr:
+            index.cpr,
+
+          swing:
+            index.swing,
+
+          fib:
+            index.fib,
+
+         trendline:
+  analysis.trendline ?? undefined,
+
+channel:
+  analysis.channel ?? undefined,
+          baseTarget:
+            analysis.baseTarget,
+
+          volumeFlow:
+            volume.volumeFlow,
+
+          deliveryFlow:
+            volume.deliveryFlow});
+
+      data.push(
+        decision
+      );
+
+    }
+
+    return NextResponse.json({
+
+      success:true,
+
+      count:data.length,
+
+      data
+
+    });
+
+  }
+
+  catch(error){
+
+    console.error(error);
+
+    return NextResponse.json({
+
+      success:false,
+
+      error:
+        error instanceof Error
+          ? error.message
+          : "Unknown Error"
+
+    },{
+      status:500
+    });
+
+  }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

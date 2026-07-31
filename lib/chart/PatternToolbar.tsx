@@ -69,3 +69,4 @@ hover:bg-zinc-800
 );
 
 }
+

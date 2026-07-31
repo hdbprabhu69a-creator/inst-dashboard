@@ -1,4 +1,4 @@
-﻿import { PatternResult } from "./types";
+import { PatternResult } from "./types";
 import { PatternDrawing } from "@/lib/chart/render/PatternDrawing";
 import { DrawingBuilder } from "./DrawingBuilder";
 
@@ -14,3 +14,4 @@ export function buildPatternDrawing(
   );
 
 }
+

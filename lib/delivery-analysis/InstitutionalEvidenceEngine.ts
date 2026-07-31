@@ -22,3 +22,4 @@ export class InstitutionalEvidenceEngine {
     return { id: rule.id, name: rule.name, category: rule.category, passed: evaluation.status === "PASS", confidence: evaluation.status === "UNKNOWN" ? 0 : 100, reason: evaluation.reason, currentValue: evaluation.currentValue, expectedValue: rule.expectedValue, weight: rule.weight };
   }
 }
+

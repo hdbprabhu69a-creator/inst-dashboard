@@ -1,4 +1,4 @@
-﻿import { PatternResult } from "./types";
+import { PatternResult } from "./types";
 
 export type LivePatternState = {
   active: PatternResult | null;
@@ -23,3 +23,4 @@ export function getLivePattern(
   // 3. Return ONLY best pattern
   return filtered[0];
 }
+

@@ -1,4 +1,4 @@
-﻿export interface InstrumentInfo {
+export interface InstrumentInfo {
   token:number;
   symbol:string;
   exchange:string;
@@ -16,3 +16,4 @@ export interface ResolverState {
   loaded: boolean;
   lastLoaded?: Date;
 }
+

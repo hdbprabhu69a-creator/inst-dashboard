@@ -1,4 +1,4 @@
-﻿import { PatternResult } from "./types";
+import { PatternResult } from "./types";
 import { PatternAnalysis } from "./patternAnalysis";
 
 export function analyzePatternResult(
@@ -101,3 +101,4 @@ export function analyzePatternResult(
   };
 
 }
+

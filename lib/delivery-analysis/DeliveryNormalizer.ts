@@ -15,3 +15,4 @@ export class DeliveryNormalizer {
     return { ...record, symbol: record.symbol.trim().toUpperCase(), date: new Date(timestamp).toISOString().slice(0, 10), timestamp };
   }
 }
+

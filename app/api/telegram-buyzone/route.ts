@@ -97,7 +97,7 @@ export async function GET() {
 
     let message =
 
-`🔥 BUY ZONE ALERT
+`ðŸ”¥ BUY ZONE ALERT
 
 `;
 

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import LiveChart from "./LiveChart";
@@ -90,3 +90,4 @@ export default function LiveDashboard() {
     </div>
   );
 }
+

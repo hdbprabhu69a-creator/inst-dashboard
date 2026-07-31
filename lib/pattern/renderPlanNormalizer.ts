@@ -1,4 +1,4 @@
-﻿export function normalizeRenderPlan(pattern: any) {
+export function normalizeRenderPlan(pattern: any) {
 
   if (!pattern) return null;
 
@@ -16,3 +16,4 @@
     swings
   };
 }
+

@@ -1,4 +1,4 @@
-﻿type Candle = {
+type Candle = {
   open: number;
   high: number;
   low: number;

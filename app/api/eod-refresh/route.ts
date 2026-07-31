@@ -1,4 +1,4 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
 import {
   doc,
@@ -242,3 +242,4 @@ export async function GET() {
   }
 
 }
+

@@ -1,4 +1,4 @@
-﻿export interface NewsClassification{
+export interface NewsClassification{
     category:string;
     subCategory:string|null;
 }
@@ -95,3 +95,4 @@ return{
 };
 
 }
+

@@ -70,3 +70,4 @@ export interface DetectorRule { evaluate(context: DetectorContext): DetectorResu
 export interface DetectorContext { readonly symbol: string; readonly records: readonly NormalizedDeliveryRecord[]; readonly metrics: readonly DeliveryMetricsSnapshot[]; readonly latestMetrics: DeliveryMetricsSnapshot | null; }
 export interface DeliveryEngineOptions { readonly metricStrategies?: readonly DeliveryMetricStrategy[]; readonly scoringStrategies?: readonly ScoringStrategy[]; readonly trendStrategy?: TrendStrategy; readonly signalStrategy?: SignalStrategy; readonly detectorRules?: readonly DetectorRule[]; }
 
+

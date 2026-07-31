@@ -1,4 +1,4 @@
-﻿export type PredictionRecord = {
+export type PredictionRecord = {
   pattern: string;
   direction: "UP" | "DOWN" | "SIDE";
   confidence: number;
@@ -37,3 +37,4 @@ export function getPatternAccuracy(pattern: string) {
 export function getSystemMemory() {
   return memory;
 }
+

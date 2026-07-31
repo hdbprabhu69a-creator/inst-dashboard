@@ -1,4 +1,4 @@
-﻿type ScannerUpdate = {
+type ScannerUpdate = {
   symbol: string;
   pattern: string;
   action?: "BUY" | "SELL" | "WATCH";
@@ -32,3 +32,4 @@ class ScannerStore {
 }
 
 export const scannerStore = new ScannerStore();
+

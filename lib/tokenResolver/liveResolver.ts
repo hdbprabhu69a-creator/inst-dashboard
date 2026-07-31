@@ -1,4 +1,4 @@
-﻿import { ensureTokenResolver } from "./bootstrap";
+import { ensureTokenResolver } from "./bootstrap";
 import { resolveToken } from "./tokenResolver";
 
 export function getLiveInstrument(symbol:string){
@@ -20,3 +20,4 @@ export function getLiveToken(symbol:string):number{
 export function getLiveExchange(symbol:string):string{
     return getLiveInstrument(symbol).exchange;
 }
+

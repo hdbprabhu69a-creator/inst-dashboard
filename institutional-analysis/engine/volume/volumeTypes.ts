@@ -1,4 +1,4 @@
-export interface VolumeAnalysisResult{
+﻿export interface VolumeAnalysisResult{
 
   currentVolume:number;
 
@@ -45,4 +45,23 @@ export interface VolumeAnalysisResult{
 
   bullAlignment:boolean;
   bearAlignment:boolean;
+  volumeFlow:{
+    avg30:string;
+    avgWeek:string;
+    today:string;
+    slope:string;
+    verdict:string;
+  };
+
+  volumeAnalysis:string[];
+
+  deliveryFlow:{
+    avg20:string;
+    avg10:string;
+    avg5:string;
+    trend:string;
+    verdict:string;
+  };
+
+  deliveryAnalysis:string[];
 }

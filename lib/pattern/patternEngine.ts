@@ -47,10 +47,6 @@ import {
 } from "./cupHandleEngine";
 
 import {
-  scorePattern,
-} from "./patternScore";
-
-import {
   analyzePatternResult,
 } from "./analyzePatternResult";
 
@@ -162,16 +158,7 @@ export function analyzePattern(
 
   const volumeScore = 70;
 
-  candidates.push(
-    scorePattern(
-      result,
-      {
-        structureScore,
-        trendScore,
-        volumeScore,
-      }
-    )
-  );
+  candidates.push(result);
 
 }
   if (
@@ -287,16 +274,7 @@ export function analyzeAllPatterns(
 
     const volumeScore = 70;
 
-    results.push(
-      scorePattern(
-        pattern,
-        {
-          structureScore,
-          trendScore,
-          volumeScore
-        }
-      )
-    );
+    results.push(pattern);
 
   }
 
@@ -311,6 +289,12 @@ export function analyzeAllPatterns(
   );
 
 }
+
+
+
+
+
+
 
 
 

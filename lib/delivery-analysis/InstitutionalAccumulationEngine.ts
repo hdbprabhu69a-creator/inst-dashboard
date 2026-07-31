@@ -89,3 +89,4 @@ export class InstitutionalAccumulationEngine {
   private countAvailable(values: readonly (number | null | undefined)[]): number { return values.filter((value) => typeof value === "number" && Number.isFinite(value)).length; }
   private classify(score: number): InstitutionalAccumulationResult["classification"] { if (score <= 20) return "NONE"; if (score <= 40) return "VERY_WEAK"; if (score <= 60) return "EARLY"; if (score <= 75) return "MODERATE"; if (score <= 90) return "STRONG"; return "VERY_STRONG"; }
 }
+

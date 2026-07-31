@@ -1,4 +1,4 @@
-﻿import {
+import {
  detectBase
 } from "./baseFormationEngine";
 
@@ -104,6 +104,7 @@ export function analyzePatternLifecycle(
  };
 
 }
+
 
 
 

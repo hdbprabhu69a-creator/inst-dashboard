@@ -30,3 +30,4 @@ test("handles zero volume and rejects invalid records", () => {
   assert.equal(zeroVolume.stability, 1);
   assert.throws(() => new DeliveryPersistenceEngine().calculate([{ date: "invalid", deliveryPercent: 10, deliveryQty: 10, volume: 100 }]));
 });
+

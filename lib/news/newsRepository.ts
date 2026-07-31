@@ -1,4 +1,4 @@
-﻿import {adminDb} from "@/lib/firebase-admin";
+import {adminDb} from "@/lib/firebase-admin";
 import {NewsDocument} from "./newsTypes";
 import {classifyNews} from "./classifyNews";
 
@@ -82,6 +82,7 @@ export async function deleteNews(id:string){
         .delete();
 
 }
+
 
 
 

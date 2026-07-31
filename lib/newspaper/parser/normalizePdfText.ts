@@ -2,7 +2,7 @@ export function normalizePdfText(text:string):string{
 
     return text
         .replace(/\r/g,"")
-        .replace(/DELHI·.*?Volume.*?\n/gi,"")
+        .replace(/DELHIÂ·.*?Volume.*?\n/gi,"")
         .replace(/thehindu\s+biiSitief~?'?Sline@/gi,"")
         .replace(/SENSEX.*?\n/gi,"")
         .replace(/USDollar.*?\n/gi,"")
@@ -12,3 +12,4 @@ export function normalizePdfText(text:string):string{
         .trim();
 
 }
+

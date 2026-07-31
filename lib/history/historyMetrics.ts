@@ -25,3 +25,4 @@ export function printHistoryMetrics(m: HistoryMetrics) {
   console.log(`Candles Written: ${m.totalCandles}`);
   console.log("================================");
 }
+

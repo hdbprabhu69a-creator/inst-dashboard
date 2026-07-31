@@ -8,3 +8,4 @@ export abstract class DeliveryDetector implements DetectorRule {
     return this.rule?.evaluate(context) ?? { detector: this.name, detected: false, configured: false, rationale: `TODO: configure an institutional rule for ${this.name}.` };
   }
 }
+

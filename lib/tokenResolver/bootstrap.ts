@@ -1,4 +1,4 @@
-﻿import path from "path";
+import path from "path";
 import { reload, isLoaded } from "./tokenResolver";
 
 let initialized = false;
@@ -16,3 +16,4 @@ export function ensureTokenResolver(): void {
         initializeTokenResolver();
     }
 }
+

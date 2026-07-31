@@ -1,4 +1,4 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { breakoutCompositeEngine } from "@/institutional-analysis/engine/breakout";
 
 export async function GET() {
@@ -64,3 +64,4 @@ export async function GET() {
 
   }
 }
+

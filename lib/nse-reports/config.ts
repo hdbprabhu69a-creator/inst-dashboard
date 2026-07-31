@@ -41,3 +41,4 @@ export const NSE_REPORT_CONFIG = {
 } as const;
 
 export type NseSelectorName = keyof typeof NSE_REPORT_CONFIG.selectors;
+

@@ -11,3 +11,4 @@ export interface AssetInfo{
     type:AssetType;
 
 }
+

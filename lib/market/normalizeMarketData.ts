@@ -17,7 +17,7 @@ export function normalizeMarketData(data: RawCandle[]) {
       const low = Number(c.low);
       const close = Number(c.close);
 
-      // 🔥 FIX 1: SAFE TIME NORMALIZATION
+      // ðŸ”¥ FIX 1: SAFE TIME NORMALIZATION
       let time: number;
 
       if (typeof c.time === "string") {
@@ -26,12 +26,12 @@ export function normalizeMarketData(data: RawCandle[]) {
         time = c.time;
       }
 
-      // 🔥 FIX 2: detect milliseconds → convert to seconds
+      // ðŸ”¥ FIX 2: detect milliseconds â†’ convert to seconds
       if (time > 100000000000) {
         time = Math.floor(time / 1000);
       }
 
-      // 🔥 FIX 3: invalid time guard
+      // ðŸ”¥ FIX 3: invalid time guard
       if (!Number.isFinite(time) || time <= 0) return null;
 
       return {
@@ -44,9 +44,9 @@ export function normalizeMarketData(data: RawCandle[]) {
       };
     })
 
-    // 🔥 FIX 4: remove nulls safely
+    // ðŸ”¥ FIX 4: remove nulls safely
     .filter((c) => c !== null)
 
-    // 🔥 FIX 5: strict sorting (TV order correctness)
+    // ðŸ”¥ FIX 5: strict sorting (TV order correctness)
     .sort((a, b) => a.time - b.time);
 }

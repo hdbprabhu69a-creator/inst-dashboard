@@ -1,4 +1,4 @@
-﻿import { chromium, Browser, BrowserContext, Page } from "playwright";
+import { chromium, Browser, BrowserContext, Page } from "playwright";
 import { DELIVERY_CONFIG } from "./config";
 
 export class BrowserManager {
@@ -71,6 +71,7 @@ export class BrowserManager {
     this.browser = null;
   }
 }
+
 
 
 

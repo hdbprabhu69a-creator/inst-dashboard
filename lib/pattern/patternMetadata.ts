@@ -102,3 +102,4 @@ export function getPatternMetadata(type: PatternType){
   return PATTERN_METADATA[type] ?? PATTERN_METADATA.NONE;
 
 }
+

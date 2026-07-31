@@ -1,4 +1,4 @@
-﻿export function detectBase(
+export function detectBase(
   candles:any[]
 ){
 
@@ -41,3 +41,4 @@
   };
 
 }
+

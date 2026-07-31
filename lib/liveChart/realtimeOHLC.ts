@@ -1,4 +1,4 @@
-﻿import { getLiveCandle,setLiveCandle } from "./liveCandleStore";
+import { getLiveCandle,setLiveCandle } from "./liveCandleStore";
 
 export function updateRealtimeOHLC(price:number){
   const c=getLiveCandle();
@@ -11,3 +11,4 @@ export function updateRealtimeOHLC(price:number){
     close: price
   });
 }
+

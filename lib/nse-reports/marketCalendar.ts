@@ -75,3 +75,4 @@ export async function getNseTradingDayStatus(page: Page, date = new Date()) {
 
   return { isTradingDay: true, reason: "trading-day", date: target.iso } as const;
 }
+

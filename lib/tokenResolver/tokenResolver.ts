@@ -45,3 +45,4 @@ export function hasToken(
 export function allTokens(): InstrumentInfo[] {
   return getAll();
 }
+

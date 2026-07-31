@@ -53,3 +53,4 @@ export async function getPortfolioSnapshot(): Promise<PortfolioSnapshot> {
     lastUpdated: new Date().toISOString(),
   };
 }
+

@@ -1,4 +1,4 @@
-﻿import { performanceEngine } from "./performanceEngine";
+import { performanceEngine } from "./performanceEngine";
 
 class LearningEngine {
 
@@ -30,3 +30,4 @@ class LearningEngine {
 }
 
 export const learningEngine = new LearningEngine();
+

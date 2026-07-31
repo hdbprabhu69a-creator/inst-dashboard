@@ -68,3 +68,4 @@ export class AccumulationRule extends ConfiguredEvidenceRule {
   constructor(configuration: EvidenceRuleConfiguration, private readonly metric: "accumulationScore" | "deliveryStrength" | "volumeStrength" | "priceStrength" | "confidence") { super(configuration); }
   protected selectValue(input: InstitutionalEvidenceInput): number | undefined { return input.accumulation?.[this.metric]; }
 }
+

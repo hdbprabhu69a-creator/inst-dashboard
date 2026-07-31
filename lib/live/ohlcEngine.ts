@@ -1,4 +1,4 @@
-﻿import { LiveTick } from "./liveTypes";
+import { LiveTick } from "./liveTypes";
 
 export interface OHLCState{
   open:number;
@@ -118,6 +118,7 @@ export function subscribeOHLC(
   };
 
 }
+
 
 
 

@@ -22,3 +22,4 @@ export interface GridColumn{
   type?:CellType;
   align?:"left"|"center"|"right";
 }
+

@@ -12,3 +12,4 @@ export async function getKiteClient() {
 
   return kite;
 }
+

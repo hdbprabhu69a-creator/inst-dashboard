@@ -41,3 +41,4 @@ export class SmartMoneyEntryRule implements DetectorRule {
   }
 
 }
+

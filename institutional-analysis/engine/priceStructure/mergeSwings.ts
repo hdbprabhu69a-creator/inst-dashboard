@@ -1,4 +1,4 @@
-﻿import { SwingPoint } from "../../models/priceStructureTypes";
+import { SwingPoint } from "../../models/priceStructureTypes";
 
 export function mergeSwings(
 
@@ -37,3 +37,4 @@ export function mergeSwings(
   return merged;
 
 }
+

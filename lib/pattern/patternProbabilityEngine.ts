@@ -1,4 +1,4 @@
-﻿export function scoreFuturePattern(
+export function scoreFuturePattern(
  patterns:any[],
  features:any
 ){
@@ -65,3 +65,4 @@
 
 
 }
+

@@ -1,4 +1,4 @@
-﻿export function detectTrendChannel(
+export function detectTrendChannel(
  structure:any
 ){
 
@@ -39,3 +39,4 @@
  };
 
 }
+

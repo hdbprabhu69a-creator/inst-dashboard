@@ -36,3 +36,4 @@ export const DELIVERY_CONFIG = {
     DATE_PICKER: 'input[type="date"]'
   }
 } as const;
+

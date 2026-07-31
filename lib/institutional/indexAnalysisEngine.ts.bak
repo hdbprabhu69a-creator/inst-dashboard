@@ -1,0 +1,298 @@
+import {
+  analyzeIndexRegime,
+} from "@/lib/institutional/indexRegimeEngine";
+
+import {
+  detectMarketState,
+} from "@/lib/marketState/stateEngine";
+
+import {
+  analyzeTrend,
+} from "@/institutional-analysis/engine/priceStructure/analyzeTrend";
+
+import {
+  buildTrendLines,
+  getBestTrendLine,
+} from "@/lib/pattern/trendlineEngine";
+
+
+import {
+  detectSwings,
+} from "@/lib/pattern/swingEngine";
+
+import {
+  getBestChannel,
+  getChannelStatus,
+} from "@/lib/pattern/channelEngine";
+
+import {
+  baseTargetEngine,
+} from "@/institutional-analysis/engine/priceStructure/baseTargetEngine";
+
+export function analyzeIndex(
+  history:any[],
+  liveCmp:number,
+  marketStructure:any
+){
+
+  const regime =
+    analyzeIndexRegime(
+      history,
+      liveCmp
+    );
+
+  const trend =
+    analyzeTrend(
+      history
+    );
+
+
+  const marketState =
+    detectMarketState(
+
+      history.map(candle=>({
+
+        date:String(candle.time),
+
+        open:candle.open,
+
+        high:candle.high,
+
+        low:candle.low,
+
+        close:candle.close,
+
+        volume:candle.volume
+
+      }))
+
+    );
+
+
+  const finalTrend = {
+
+    trend:
+
+      trend.structure==="HH_HL"
+      &&
+      regime.regime==="BULLISH"
+
+        ? "CONFIRMED_UPTREND"
+
+      :
+
+      trend.structure==="LH_LL"
+      &&
+      regime.regime==="BEARISH"
+
+        ? "CONFIRMED_DOWNTREND"
+
+      :
+
+      trend.structure==="HH_HL"
+
+        ? "UPTREND"
+
+      :
+
+      trend.structure==="LH_LL"
+
+        ? "DOWNTREND"
+
+      :
+
+        "SIDEWAYS",
+
+
+    structure:
+      trend.structure,
+
+
+    phase:
+      trend.phase,
+
+
+    strength:
+      trend.strength,
+
+
+    confidence:
+      trend.confidence,
+
+
+    regime:
+      regime.regime,
+
+
+    confirmation:
+      regime.confirmation,
+
+
+    indicators:
+      regime.indicators
+
+  };
+
+
+
+ const detectedSwings =
+  detectSwings(history);
+
+const structuralSwings = [
+  marketStructure.oneWeekSwing,
+  marketStructure.twoWeekSwing,
+  marketStructure.oneMonthSwing,
+  marketStructure.threeMonthSwing,
+  marketStructure.sixMonthSwing,
+  marketStructure.oneYearSwing,
+].filter(Boolean);
+
+const institutionalSwings = [...detectedSwings];
+
+for (const swing of structuralSwings) {
+
+  if (swing?.low != null) {
+
+    const exists = institutionalSwings.some(
+      s =>
+        s.type === "LOW" &&
+        Math.abs(s.price - swing.low) < 0.5
+    );
+
+    if (!exists) {
+
+      institutionalSwings.push({
+        type: "LOW",
+        price: swing.low,
+        time: String(swing.lowDate),
+
+        classification: "NONE",
+        index: institutionalSwings.length,
+        strength: 10,
+      });
+
+    }
+
+  }
+
+  if (swing?.high != null) {
+
+    const exists = institutionalSwings.some(
+      s =>
+        s.type === "HIGH" &&
+        Math.abs(s.price - swing.high) < 0.5
+    );
+
+    if (!exists) {
+
+      institutionalSwings.push({
+        type: "HIGH",
+        price: swing.high,
+        time: String(swing.highDate),
+
+        classification: "NONE",
+        index: institutionalSwings.length,
+        strength: 10,
+      });
+
+    }
+
+  }
+
+}
+
+institutionalSwings.sort(
+  (a, b) => new Date(a.time).getTime() - new Date(b.time).getTime()
+);
+
+institutionalSwings.forEach(
+  (s, i) => s.index = i
+);
+  const trendline =
+    getBestTrendLine(
+      buildTrendLines(
+  institutionalSwings,
+        "LOW"
+      )
+    ) ??
+    getBestTrendLine(
+     buildTrendLines(
+  institutionalSwings,
+        "HIGH"
+      )
+    );
+
+  const trendlineInfo =
+    trendline
+      ? {
+          status:
+            liveCmp > trendline.end.price
+              ? "ABOVE"
+              : liveCmp < trendline.end.price
+                ? "BELOW"
+                : "TOUCHING",
+          price:
+            trendline.end.price
+        }
+      : null;
+
+  const channel =
+    getBestChannel(institutionalSwings);
+
+  const channelInfo =
+    channel
+      ? getChannelStatus(
+          liveCmp,
+          channel
+        )
+      : null;
+  const baseTarget =
+    baseTargetEngine({
+
+      cmp:liveCmp,
+
+      swing:
+        marketStructure
+
+    });
+
+
+  return {
+
+  cmp: liveCmp,
+
+  trend: finalTrend,
+
+  marketState,
+
+  trendline: trendlineInfo,
+
+  channel: channelInfo,
+
+  baseTarget
+
+};
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

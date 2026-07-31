@@ -1,4 +1,4 @@
-﻿import { liveEngine } from "./liveEngine";
+import { liveEngine } from "./liveEngine";
 
 let started = false;
 let source: EventSource | null = null;
@@ -56,6 +56,7 @@ source?.close();
     started = false;
 
 }
+
 
 
 

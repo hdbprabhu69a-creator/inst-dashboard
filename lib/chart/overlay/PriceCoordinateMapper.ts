@@ -3,3 +3,4 @@ export class PriceCoordinateMapper{
     return height-((price-min)/(max-min))*height;
   }
 }
+

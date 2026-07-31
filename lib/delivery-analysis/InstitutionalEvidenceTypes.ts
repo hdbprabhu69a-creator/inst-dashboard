@@ -54,3 +54,4 @@ export interface InstitutionalEvidenceRule {
   readonly weight: number;
   evaluate(input: InstitutionalEvidenceInput): InstitutionalEvidenceEvaluation;
 }
+

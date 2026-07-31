@@ -1,4 +1,4 @@
-﻿interface Props{
+interface Props{
     rows:any[];
 }
 
@@ -103,6 +103,7 @@ export default function NewsTable({rows}:Props){
     );
 
 }
+
 
 
 

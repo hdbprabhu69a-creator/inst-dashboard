@@ -21,7 +21,7 @@ export default function InstitutionalHeader() {
         <div className="text-right">
 
           <div className="text-green-400 font-bold">
-            ● LIVE
+            â— LIVE
           </div>
 
           <div className="text-zinc-500 text-sm">

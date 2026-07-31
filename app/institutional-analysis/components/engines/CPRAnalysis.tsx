@@ -48,3 +48,4 @@ export default function CPRAnalysis({rows}:Props){
   return <InstitutionalGrid columns={columns} rows={rows}/>;
 }
 
+

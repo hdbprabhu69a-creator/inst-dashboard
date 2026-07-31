@@ -1,12 +1,11 @@
-﻿"use client";
+"use client";
 
-import { useEffect,useState } from "react";
+import { useEffect, useState } from "react";
 
 function formatDate(value:any){
 
   if(!value)
     return "-";
-
 
   if(value.seconds){
 
@@ -23,7 +22,6 @@ function formatDate(value:any){
 
   }
 
-
   return String(value);
 
 }
@@ -38,21 +36,59 @@ type Decision={
 
   marketState:string;
 
-  strength:any;
-
   phase:string;
 
   structure:string;
 
-  confidence:any;
+  confidence:{
+    score:number;
+    confidence:string;
+  };
 
-  regime?:string;
+  strength:{
+    score:number;
+    strength:string;
+  };
 
-  confirmation?:any;
+  trendline?:{
+    status:string;
+    price:number|null;
+  };
 
-  indicators?:any;
+  channel?:{
+    status:string;
+    upper:number|null;
+    lower:number|null;
+  };
 
-  baseTarget?:any;
+  reasons?:string[];
+
+  baseTarget?:{
+
+    previousBase?:{
+      price:number;
+      date:any;
+    };
+
+    expansionHigh?:{
+      price:number;
+      date:any;
+    };
+
+    markdownLow?:{
+      price:number;
+      date:any;
+    };
+
+    height?:number;
+
+    breakoutLevel?:number;
+
+    status?:string;
+
+    nextTarget?:number;
+
+  };
 
 };
 
@@ -85,7 +121,7 @@ try{
 
 const response=
 await fetch(
-"/api/institutional-analysis/index-decision"
+"/api/institutional-analysis/stock-decision"
 );
 
 const json=
@@ -102,14 +138,12 @@ setLoading(false);
 
 }
 
-}
-
-if(loading){
+}if(loading){
 
 return (
 
 <div
-className="p-6 text-slate-300 bg-[#05070b] min-h-screen">
+className="p-6 text-slate-300 bg-[#0B1220] min-h-screen">
 
 Loading...
 
@@ -126,7 +160,7 @@ className="
 min-h-screen
 p-6
 space-y-6
-bg-[#05070b]
+bg-[#0B1220]
 relative
 overflow-hidden
 "
@@ -162,7 +196,7 @@ className="
 absolute
 inset-0
 pointer-events-none
-opacity-10
+opacity-5
 z-0
 "
 style={{
@@ -177,7 +211,7 @@ backgroundSize:"32px 32px"
 
 
 
-<h1 className="text-3xl font-bold text-cyan-300 text-cyan-300">
+<h1 className="text-3xl font-bold text-cyan-200 text-cyan-200">
 
 Institutional Decision Dashboard
 
@@ -188,8 +222,8 @@ className="
 overflow-auto
 rounded-xl
 border
-border-zinc-800
-bg-[#02080d]/90
+border-slate-700
+bg-slate-900
 backdrop-blur-xl
 shadow-2xl
 ">
@@ -198,44 +232,54 @@ shadow-2xl
 
 <thead
 className="
-bg-[#06131a]
-text-cyan-300
+bg-cyan-950
+text-cyan-200
 sticky
 top-0
 ">
 
 <tr>
 
-<th className="p-2 text-left">
-Index
-</th>
+<th className="p-2">Symbol</th>
 
 <th className="p-2 text-right">
 CMP
 </th>
 
-<th className="p-2 text-left">
-Institutional Structure
+<th className="p-2">
+Trend
 </th>
 
-<th className="p-2 text-left">
+<th className="p-2">
+Market
+</th>
+
+<th className="p-2">
+Trendline
+</th>
+
+<th className="p-2">
+Channel
+</th>
+
+<th className="p-2">
 Previous Base
 </th>
 
-<th className="p-2 text-left">
-Expansion High
+<th className="p-2">
+Expansion
 </th>
 
-<th className="p-2 text-left">
-Markdown Low
+<th className="p-2">
+Markdown
+</th>
+
+<th className="p-2">
+Status
 </th>
 
 <th className="p-2 text-right">
-Height
-</th>
-
-<th className="p-2 text-right">
-Next Target
+Target
 </th>
 
 </tr>
@@ -252,8 +296,8 @@ key={row.symbol}
 
 className="
 border-t
-border-zinc-800
-hover:bg-cyan-400/10
+border-slate-700
+hover:bg-cyan-900/40
 cursor-pointer
 transition
 "
@@ -262,113 +306,107 @@ onClick={()=>setSelected(row)}
 
 >
 
-<td className="p-2 font-bold text-center">
+<td className="p-2 font-bold text-white">
 {row.symbol}
 </td>
 
-
-<td className="p-2 text-right font-semibold">
+<td className="p-2 text-right font-semibold text-slate-100">
 {row.cmp.toFixed(2)}
 </td>
 
+<td className="p-2">
 
-<td
-className="
-p-2
-whitespace-normal
-leading-tight
-min-w-[220px]
-"
->
-
-<div className="font-bold text-cyan-300">
+<div className="font-semibold text-cyan-200">
 {row.trend}
 </div>
 
-<div className="text-xs">
-State:
-{" "}
-{row.marketState}
-</div>
-
-<div className="text-xs">
-Strength:
-{" "}
-{row.strength?.strength ?? "-"}
-</div>
-
-<div className="text-xs">
-Phase:
-{" "}
-{row.phase}
-</div>
-
-<div className="text-xs">
-Structure:
-{" "}
+<div className="text-xs text-slate-300">
 {row.structure}
 </div>
 
 </td>
 
+<td className="p-2">
+
+<div>
+{row.marketState}
+</div>
+
+<div className="text-xs text-slate-300">
+{row.phase}
+</div>
+
+</td>
+
+<td className="p-2">
+
+<div className="font-semibold text-slate-100">
+{row.trendline?.status ?? "-"}
+</div>
+
+<div className="text-xs text-slate-300">
+{row.trendline?.price ?? "-"}
+</div>
+
+</td>
+
+<td className="p-2">
+
+<div className="font-semibold text-slate-100">
+{row.channel?.status ?? "-"}
+</div>
+
+<div className="text-xs text-slate-300">
+U: {row.channel?.upper ?? "-"}
+</div>
+
+<div className="text-xs text-slate-300">
+L: {row.channel?.lower ?? "-"}
+</div>
+
+</td>
 
 <td className="p-2 text-center">
 
-<div className="font-bold text-cyan-300">
+<div className="font-semibold text-cyan-200">
 {row.baseTarget?.previousBase?.price ?? "-"}
 </div>
 
-<div className="text-xs text-slate-500">
+<div className="text-xs text-slate-300">
 {formatDate(row.baseTarget?.previousBase?.date)}
 </div>
 
 </td>
 
-
 <td className="p-2 text-center">
 
-<div className="font-bold text-green-600">
+<div className="font-semibold text-emerald-400">
 {row.baseTarget?.expansionHigh?.price ?? "-"}
 </div>
 
-<div className="text-xs text-slate-500">
-{formatDate(row.baseTarget?.expansionHigh?.date)}
-</div>
-
 </td>
-
 
 <td className="p-2 text-center">
 
-<div className="font-bold text-red-500">
+<div className="font-semibold text-rose-400">
 {row.baseTarget?.markdownLow?.price ?? "-"}
 </div>
 
-<div className="text-xs text-slate-500">
-{formatDate(row.baseTarget?.markdownLow?.date)}
-</div>
+</td>
+
+<td className="p-2 text-center">
+
+<span className="font-semibold text-amber-300">
+{row.baseTarget?.status ?? "-"}
+</span>
 
 </td>
 
-
-<td className="p-2 text-right font-bold">
-
-{row.baseTarget?.height ?? "-"}
-
-</td>
-
-
-<td className="
-p-2
-text-right
-font-bold
-text-green-600
-">
+<td className="p-2 text-right font-bold text-emerald-400">
 
 {row.baseTarget?.nextTarget ?? "-"}
 
 </td>
-
 
 </tr>
 
@@ -382,226 +420,145 @@ text-green-600
 
 {selected && (
 
-<div className="rounded border p-6">
+<div className="rounded-xl border border-slate-700 bg-[#02080d] p-6 mt-6">
 
-<h2 className="text-2xl font-bold mb-6">
-
-{selected.symbol}
-
+<h2 className="text-2xl font-bold text-cyan-200 mb-6">
+{selected.symbol} Institutional Decision
 </h2>
 
-<div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+<div className="grid lg:grid-cols-2 gap-6">
 
-<div>
+<div className="rounded border border-slate-700 p-4">
 
-<div className="text-gray-500">
+<h3 className="font-bold text-cyan-200 mb-4">
+Trend Analysis
+</h3>
 
-CMP
+<table className="w-full text-sm">
 
-</div>
+<tbody>
 
-<div className="font-bold text-cyan-300">
+<tr><td>CMP</td><td className="text-right">{selected.cmp.toFixed(2)}</td></tr>
 
-{selected.cmp.toFixed(2)}
+<tr><td>Trend</td><td className="text-right">{selected.trend}</td></tr>
 
-</div>
+<tr><td>Market State</td><td className="text-right">{selected.marketState}</td></tr>
 
-</div>
+<tr><td>Phase</td><td className="text-right">{selected.phase}</td></tr>
 
-<div>
+<tr><td>Structure</td><td className="text-right">{selected.structure}</td></tr>
 
-<div className="text-gray-500">
+<tr><td>Strength</td><td className="text-right">{selected.strength?.score} ({selected.strength?.strength})</td></tr>
 
-Trend
+<tr><td>Confidence</td><td className="text-right">{selected.confidence?.score} ({selected.confidence?.confidence})</td></tr>
 
-</div>
+</tbody>
 
-<div className="font-bold text-cyan-300">
-
-{selected.trend}
-
-</div>
+</table>
 
 </div>
 
-<div>
+<div className="rounded border border-slate-700 p-4">
 
-<div className="text-gray-500">
+<h3 className="font-bold text-cyan-200 mb-4">
+Trendline & Channel
+</h3>
 
-Strength
+<table className="w-full text-sm">
 
-</div>
+<tbody>
 
-<div className="font-bold text-cyan-300">
+<tr><td>Status</td><td className="text-right">{selected.trendline?.status}</td></tr>
 
-{selected.strength?.strength}
+<tr><td>Trendline</td><td className="text-right">{selected.trendline?.price}</td></tr>
 
-</div>
+<tr><td>Channel</td><td className="text-right">{selected.channel?.status}</td></tr>
 
-</div>
+<tr><td>Upper</td><td className="text-right">{selected.channel?.upper}</td></tr>
 
-<div>
+<tr><td>Lower</td><td className="text-right">{selected.channel?.lower}</td></tr>
 
-<div className="text-gray-500">
+</tbody>
 
-Phase
-
-</div>
-
-<div className="font-bold text-cyan-300">
-
-{selected.phase}
+</table>
 
 </div>
 
-</div>
+<div className="rounded border border-slate-700 p-4">
 
-<div>
+<h3 className="font-bold text-cyan-200 mb-4">
+Base Analysis
+</h3>
 
-<div className="text-gray-500">
+<table className="w-full text-sm">
 
-Structure
+<tbody>
 
-</div>
+<tr><td>Previous Base</td><td className="text-right">{selected.baseTarget?.previousBase?.price}</td></tr>
 
-<div className="font-bold text-cyan-300">
+<tr><td>Expansion High</td><td className="text-right">{selected.baseTarget?.expansionHigh?.price}</td></tr>
 
-{selected.structure}
+<tr><td>Markdown Low</td><td className="text-right">{selected.baseTarget?.markdownLow?.price}</td></tr>
 
-</div>
+<tr><td>Height</td><td className="text-right">{selected.baseTarget?.height}</td></tr>
 
-</div>
+<tr><td>Status</td><td className="text-right">{selected.baseTarget?.status}</td></tr>
 
-<div>
+<tr><td>Target</td><td className="text-right font-bold text-emerald-300">{selected.baseTarget?.nextTarget}</td></tr>
 
-<div className="text-gray-500">
+</tbody>
 
-Market State
-
-</div>
-
-<div className="font-bold text-cyan-300">
-
-{selected.marketState}
+</table>
 
 </div>
 
-</div>
+<div className="rounded border border-slate-700 p-4">
 
-<div>
+<h3 className="font-bold text-cyan-200 mb-4">
+Decision Reasons
+</h3>
 
-<div className="text-gray-500">
+<ul>
 
-Confidence
+{selected.reasons?.map((r,i)=>(
 
-</div>
+<li key={i}>{i+1}. {r}</li>
 
-<div className="font-bold text-cyan-300">
+))}
 
-{
-  typeof selected.confidence === "object"
-    ? `${selected.confidence.score} (${selected.confidence.confidence})`
-    : selected.confidence
-}
+</ul>
 
 </div>
 
 </div>
-
-<div>
-
-<div className="text-gray-500">
-
-Regime
-
-</div>
-
-<div className="font-bold text-cyan-300">
-
-{selected.regime}
-
-</div>
-
-</div>
-
-
-<div>
-
-<div className="text-gray-500">
-Previous Base
-</div>
-
-<div className="font-bold text-cyan-300">
-{selected.baseTarget?.previousBase?.price ?? "-"}
-</div>
-
-</div>
-
-
-<div>
-
-<div className="text-gray-500">
-Target
-</div>
-
-<div className="font-bold text-cyan-300">
-{selected.baseTarget?.target?.price ?? "-"}
-</div>
-
-</div>
-
-
-<div>
-
-<div className="text-gray-500">
-Target Status
-</div>
-
-<div className="font-bold text-cyan-300">
-{selected.baseTarget?.target?.status ?? "-"}
-</div>
-
-</div>
-
-
-<div>
-
-<div className="text-gray-500">
-New Base
-</div>
-
-<div className="font-bold text-cyan-300">
-{selected.baseTarget?.newBase?.price ?? "-"}
-</div>
-
-</div>
-
-
-<div>
-
-<div className="text-gray-500">
-Next Target
-</div>
-
-<div className="font-bold text-cyan-300">
-{selected.baseTarget?.nextTarget?.price ?? "-"}
-</div>
-
-</div>
-
-</div>
-
-
 
 </div>
 
 )}
 
 </div>
+
 </div>
+
 );
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

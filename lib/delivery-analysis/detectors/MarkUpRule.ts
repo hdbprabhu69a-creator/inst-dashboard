@@ -39,3 +39,4 @@ export class MarkUpRule implements DetectorRule {
   }
 
 }
+

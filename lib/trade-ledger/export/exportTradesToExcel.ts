@@ -55,3 +55,4 @@ export async function exportTradesToExcel(
   await workbook.xlsx.writeFile(outputPath);
 
 }
+

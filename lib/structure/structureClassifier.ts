@@ -1,4 +1,4 @@
-﻿import { scoreSwingStrength } from "./swingStrengthEngine";
+import { scoreSwingStrength } from "./swingStrengthEngine";
 
 export function classifyStructure(
  highs:any[],
@@ -120,3 +120,4 @@ export function classifyStructure(
  };
 
 }
+

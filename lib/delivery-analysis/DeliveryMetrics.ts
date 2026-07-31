@@ -26,3 +26,4 @@ class DeliveryPercentileIndex {
   percentile(value: number): number | null { if (!this.count) return null; let index = this.indexOf(value) + 1; let total = 0; while (index > 0) { total += this.tree[index]; index -= index & -index; } return total / this.count; }
   private indexOf(value: number): number { let low = 0; let high = this.values.length - 1; while (low <= high) { const middle = Math.floor((low + high) / 2); const candidate = this.values[middle]; if (candidate === value) return middle; if (candidate < value) low = middle + 1; else high = middle - 1; } throw new Error("Percentile index contains an unexpected value."); }
 }
+

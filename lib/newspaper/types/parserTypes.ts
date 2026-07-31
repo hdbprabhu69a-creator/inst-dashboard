@@ -40,3 +40,4 @@ export interface ParsedNewspaper{
   pages:OCRPage[];
   articles:ParsedArticle[];
 }
+

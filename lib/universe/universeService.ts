@@ -1,4 +1,4 @@
-﻿import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { UniverseStock } from "./types";
 
@@ -14,3 +14,4 @@ export async function getUniverse(): Promise<UniverseStock[]> {
 export function clearUniverseCache() {
   cache = null;
 }
+

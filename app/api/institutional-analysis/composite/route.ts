@@ -1,4 +1,4 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
 import { getMarketStructure } from "@/institutional-analysis/repository/marketStructureRepository";
 import { getHistory } from "@/institutional-analysis/repository/historyRepository";
@@ -94,3 +94,4 @@ export async function GET(req: Request) {
     }
 
 }
+

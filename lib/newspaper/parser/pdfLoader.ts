@@ -45,3 +45,4 @@ export async function getPageCount(
   return pdf.pageCount;
 
 }
+

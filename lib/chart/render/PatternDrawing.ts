@@ -1,4 +1,4 @@
-﻿export interface PatternDrawing {
+export interface PatternDrawing {
 
   pattern: string;
 
@@ -25,4 +25,5 @@
   stopLoss: number;
 
 }
+
 

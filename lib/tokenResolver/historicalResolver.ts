@@ -1,4 +1,4 @@
-﻿import { ensureTokenResolver } from "./bootstrap";
+import { ensureTokenResolver } from "./bootstrap";
 import { resolveToken } from "./tokenResolver";
 import { InstrumentInfo } from "./types";
 
@@ -14,3 +14,4 @@ export function getHistoricalInstrument(symbol:string):InstrumentInfo{
 export function getHistoricalToken(symbol:string):number{
     return getHistoricalInstrument(symbol).token;
 }
+

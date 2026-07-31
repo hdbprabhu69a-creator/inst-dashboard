@@ -1,4 +1,4 @@
-﻿import { PatternResult } from "./types";
+import { PatternResult } from "./types";
 import { PatternDrawing } from "@/lib/chart/render/PatternDrawing";
 
 export class DrawingBuilder {
@@ -41,4 +41,5 @@ export class DrawingBuilder {
   }
 
 }
+
 

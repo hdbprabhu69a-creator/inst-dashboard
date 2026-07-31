@@ -9,3 +9,4 @@ export function getPivotPosition(cmp:number,p:any){
   if(cmp>=p.s3)return "S2";
   return "S3-";
 }
+

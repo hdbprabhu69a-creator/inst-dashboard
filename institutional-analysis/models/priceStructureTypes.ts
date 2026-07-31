@@ -1,4 +1,4 @@
-﻿export type StructureType =
+export type StructureType =
   | "HH_HL"
   | "LH_LL"
   | "RANGE"
@@ -77,3 +77,4 @@ export interface PriceStructureResult {
   reasons: string[];
 
 }
+

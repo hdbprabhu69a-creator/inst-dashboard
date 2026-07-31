@@ -53,3 +53,4 @@ export interface DownloadSession {
   browserLaunched: boolean;
   reportFound: boolean;
 }
+

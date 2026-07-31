@@ -33,3 +33,4 @@ export const TIME=PATTERNS.time;
 export const NUMBER=PATTERNS.number;
 export const NSE=PATTERNS.nse;
 export const BSE=PATTERNS.bse;
+

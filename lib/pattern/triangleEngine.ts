@@ -1,4 +1,4 @@
-﻿import { AnalysisContext } from "./analysisContext";
+import { AnalysisContext } from "./analysisContext";
 import { SwingPoint,
   TrendLine,
   PatternResult,
@@ -245,5 +245,6 @@ function calculateConfidence(
   );
 
 }
+
 
 

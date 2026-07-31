@@ -1,4 +1,4 @@
-﻿export type RenderMarker = {
+export type RenderMarker = {
   time: any;
   price: number;
   color: string;
@@ -18,3 +18,4 @@ export type RenderPlan = {
   lines: RenderLine[];
   markers: RenderMarker[];
 };
+

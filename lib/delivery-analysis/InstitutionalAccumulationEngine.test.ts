@@ -57,3 +57,4 @@ test("rejects invalid composite weights", () => {
   assert.throws(() => new InstitutionalAccumulationEngine({ delivery: 0, volume: 0, price: 0, trend: 0 }));
   assert.throws(() => new InstitutionalAccumulationEngine({ delivery: -1, volume: 1, price: 0, trend: 0 }));
 });
+

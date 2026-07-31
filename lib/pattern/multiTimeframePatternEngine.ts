@@ -1,4 +1,4 @@
-﻿import {
+import {
   analyzePattern
 } from "./patternEngine";
 
@@ -135,3 +135,4 @@ export function analyzeMultiTimeframePattern(
  return results;
 
 }
+

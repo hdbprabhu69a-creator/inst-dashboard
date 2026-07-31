@@ -144,7 +144,7 @@ export async function GET() {
 
       const message =
 
-`🚨 BUYZONE ALERT
+`ðŸš¨ BUYZONE ALERT
 
 ${newAlerts
   .map(
@@ -154,7 +154,7 @@ ${newAlerts
     ) =>
 
 `${index + 1}. ${stock.symbol}
-CMP: ₹${stock.cmp}`
+CMP: â‚¹${stock.cmp}`
 
   )
   .join("\n\n")}
@@ -245,3 +245,4 @@ await sendWhatsApp(
   }
 
 }
+

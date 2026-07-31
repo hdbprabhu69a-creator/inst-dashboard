@@ -17,3 +17,4 @@ export function setLiveCandle(
 ): void {
   liveCandle = candle;
 }
+

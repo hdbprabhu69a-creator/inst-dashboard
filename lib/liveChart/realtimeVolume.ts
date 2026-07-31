@@ -1,4 +1,4 @@
-﻿import { getLiveCandle, setLiveCandle } from "./liveCandleStore";
+import { getLiveCandle, setLiveCandle } from "./liveCandleStore";
 
 export function updateRealtimeVolume(volume:number){
   const candle=getLiveCandle();
@@ -9,3 +9,4 @@ export function updateRealtimeVolume(volume:number){
     volume
   });
 }
+

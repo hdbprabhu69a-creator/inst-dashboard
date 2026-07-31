@@ -14,3 +14,4 @@ export function getPivotAlignment(d:string,w:string,m:string){
   return "MIXED";
 
 }
+

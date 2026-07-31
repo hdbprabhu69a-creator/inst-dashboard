@@ -47,3 +47,4 @@ const columns:GridColumn[]=[
 export default function CPRAnalysis({rows}:Props){
   return <GridTable columns={columns} rows={rows}/>;
 }
+

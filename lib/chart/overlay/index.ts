@@ -1,4 +1,4 @@
-﻿export * from "./OverlayPoint";
+export * from "./OverlayPoint";
 export * from "./OverlayLabel";
 export * from "./OverlayLine";
 
@@ -13,3 +13,4 @@ export * from "./TimeCoordinateMapper";
 export * from "./ChartCoordinateMapper";
 export * from "./OverlayBounds";
 export * from "./OverlayViewport";
+

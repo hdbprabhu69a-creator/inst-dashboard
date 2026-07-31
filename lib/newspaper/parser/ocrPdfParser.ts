@@ -73,3 +73,4 @@ export async function extractPageText(pdfPath:string){
     return pages;
 
 }
+

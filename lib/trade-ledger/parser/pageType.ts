@@ -55,3 +55,4 @@ export function detectPageType(
     return "UNKNOWN";
 
 }
+

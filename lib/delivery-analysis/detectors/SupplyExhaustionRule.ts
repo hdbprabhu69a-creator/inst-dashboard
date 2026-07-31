@@ -53,3 +53,4 @@ implements DetectorRule {
   }
 
 }
+

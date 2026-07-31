@@ -59,3 +59,4 @@ export class InstitutionalBehaviourEngine {
   }
   private toResult(evaluation: BehaviourEvaluation, evidenceConfidence: number): BehaviourResult { return { behaviour: evaluation.behaviour, reason: evaluation.reason, satisfiedEvidence: evaluation.satisfiedEvidence, missingEvidence: evaluation.missingEvidence, confidence: evidenceConfidence * evaluation.completeness / 100, ruleId: evaluation.ruleId }; }
 }
+

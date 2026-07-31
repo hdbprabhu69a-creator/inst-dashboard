@@ -33,3 +33,4 @@ export function getOpeningPosition(
   return "BELOW_S2";
 
 }
+

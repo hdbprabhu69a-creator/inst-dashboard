@@ -1,4 +1,4 @@
-﻿import { PatternResult } from "./types";
+import { PatternResult } from "./types";
 
 export interface PatternAnalysis {
 
@@ -39,3 +39,4 @@ export interface PatternAnalysis {
   raw: PatternResult;
 
 }
+

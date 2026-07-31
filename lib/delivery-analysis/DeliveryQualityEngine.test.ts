@@ -60,3 +60,4 @@ test("rejects incomplete or invalid daily data", () => {
   const incomplete = { date: "2025-01-02", open: 10, high: 20, low: 0, close: 15, volume: 100, deliveryQty: 10 };
   assert.throws(() => new DeliveryQualityEngine().calculate([incomplete as unknown as DeliveryQualityRecord]));
 });
+

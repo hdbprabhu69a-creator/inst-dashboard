@@ -1,4 +1,4 @@
-﻿import {
+import {
   collection,
   getDocs,
   orderBy,
@@ -56,23 +56,30 @@ export async function getHistory(
 
     return {
 
-      time:
-        d.date,
+  time:
+    d.date,
 
-      open:Number(d.open),
+  open:Number(d.open),
 
-      high:Number(d.high),
+  high:Number(d.high),
 
-      low:Number(d.low),
+  low:Number(d.low),
 
-      close:Number(d.close),
+  close:Number(d.close),
 
-      volume:Number(
-        d.volume ?? 0
-      )
+  volume:Number(
+    d.volume ?? 0
+  ),
 
-    };
+  deliveryPercent:Number(
+    d.deliveryPercent ??
+    d.deliveryPct ??
+    0
+  )
+
+};
 
   });
 
 }
+

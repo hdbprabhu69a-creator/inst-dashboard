@@ -1,4 +1,4 @@
-﻿import {
+import {
   collection,
   getDocs,
   orderBy,
@@ -79,3 +79,4 @@ export async function getIndexHistory(
   });
 
 }
+

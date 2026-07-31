@@ -1,4 +1,4 @@
-﻿import { PatternDrawing } from "./PatternDrawing";
+import { PatternDrawing } from "./PatternDrawing";
 
 export type Timeframe =
   | "D"
@@ -40,6 +40,8 @@ export type SwingPoint = {
 
   price: number;
 
+
+
   type: SwingType;
 
   classification: SwingClass;
@@ -61,6 +63,10 @@ export type TrendLine = {
   touches: number;
 
   broken: boolean;
+
+quality: number;
+
+violations: number;
 
 };
 
@@ -96,8 +102,7 @@ export type PatternResult = {
   pattern: PatternType;
 
   confidence: number;
-
-  breakout: number;
+breakout: number;
 
   stoploss: number;
 
@@ -112,4 +117,10 @@ export type PatternResult = {
 drawing?: PatternDrawing;
 
 };
+
+
+
+
+
+
 

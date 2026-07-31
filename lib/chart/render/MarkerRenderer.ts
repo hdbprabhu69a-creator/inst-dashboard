@@ -51,3 +51,4 @@ const last = pattern.trendLines.at(-1);
 
 
 
+

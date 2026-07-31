@@ -18,3 +18,4 @@ export function getCPRVerdict(score:number){
   return "SELL";
 
 }
+

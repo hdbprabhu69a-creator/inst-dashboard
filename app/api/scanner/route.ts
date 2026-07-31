@@ -526,7 +526,7 @@ if (
 ) {
 
   const message =
-    "🔥 BUYZONE ALERT\n\n" +
+    "ðŸ”¥ BUYZONE ALERT\n\n" +
 
     results
       .slice(0, 10)
@@ -623,3 +623,4 @@ else {
   }
 
 }
+

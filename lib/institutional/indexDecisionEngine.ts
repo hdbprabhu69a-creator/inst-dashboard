@@ -23,7 +23,29 @@ type DecisionInput = {
 
   fib?:any;
 
-  baseTarget?:any;
+  trendline?:{
+
+    status:string;
+
+    price:number|null;
+
+  };
+
+  channel?:{
+
+    status:string;
+
+    upper:number|null;
+
+    lower:number|null;
+
+  };
+
+    baseTarget?:any;
+
+  volumeFlow?:any;
+
+  deliveryFlow?:any;
 
 };
 
@@ -171,12 +193,27 @@ return {
 
  reasons,
 
- baseTarget:
-   input.baseTarget
+ trendline: input.trendline,
+
+channel: input.channel,
+
+baseTarget:
+   input.baseTarget,
+
+volumeFlow:
+   input.volumeFlow,
+
+deliveryFlow:
+   input.deliveryFlow
 
 };
-
 }
+
+
+
+
+
+
 
 
 

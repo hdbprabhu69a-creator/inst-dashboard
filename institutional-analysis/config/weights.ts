@@ -1,4 +1,4 @@
-﻿export const ENGINE_WEIGHTS = {
+export const ENGINE_WEIGHTS = {
   trend: 15,
   structure: 15,
   delivery: 15,
@@ -12,3 +12,4 @@
   news: 5,
   macro: 5,
 } as const;
+

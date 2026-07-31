@@ -81,6 +81,7 @@ export const STOCK_UNIVERSE = [
   "KARURVYSYA",
   "CUB",
   "TMB",
+  "THANGAMAYL",
   "TITAN",
   "VOLTAS",
   "DIXON",
@@ -99,3 +100,5 @@ export const STOCK_UNIVERSE = [
   "EIDPARRY",
   "GNFC",
 ];
+
+

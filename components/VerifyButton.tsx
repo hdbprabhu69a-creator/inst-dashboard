@@ -211,25 +211,25 @@ ${actualDailyPivot}`
 Stock:
 ${selectedStock}
 
-✓ Firebase Record
+âœ“ Firebase Record
 
-✓ Daily Structure
-✓ Weekly Structure
-✓ Monthly Structure
+âœ“ Daily Structure
+âœ“ Weekly Structure
+âœ“ Monthly Structure
 
-✓ 1W Swing
-✓ 2W Swing
-✓ 1M Swing
-✓ 3M Swing
-✓ 6M Swing
-✓ 1Y Swing
+âœ“ 1W Swing
+âœ“ 2W Swing
+âœ“ 1M Swing
+âœ“ 3M Swing
+âœ“ 6M Swing
+âœ“ 1Y Swing
 
-✓ 1W Fib
-✓ 2W Fib
-✓ 1M Fib
-✓ 3M Fib
-✓ 6M Fib
-✓ 1Y Fib
+âœ“ 1W Fib
+âœ“ 2W Fib
+âœ“ 1M Fib
+âœ“ 3M Fib
+âœ“ 6M Fib
+âœ“ 1Y Fib
 
 INST Dashboard Structure Verified`
       );

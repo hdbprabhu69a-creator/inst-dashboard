@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import SymbolSearch from "@/components/institutional/SymbolSearch";
@@ -277,6 +277,7 @@ Swing Lows
   );
 
 }
+
 
 
 

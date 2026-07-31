@@ -50,3 +50,4 @@ const chartData = rows.map((r:any)=>({ time:r.date, open:Number(r.open), high:Nu
   };
 }
 
+

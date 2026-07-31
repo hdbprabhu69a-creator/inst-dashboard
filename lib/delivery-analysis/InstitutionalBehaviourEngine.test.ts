@@ -61,3 +61,4 @@ test("evaluates large evidence sequences without accessing source-engine metrics
   assert.equal(states.length, 10_000);
   assert.ok(states.every((state) => state.behaviour === "BUILDING"));
 });
+

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import { getUniverse } from "@/lib/universe/universeService";
@@ -14,3 +14,4 @@ export function useUniverse() {
 
   return { stocks, loading };
 }
+

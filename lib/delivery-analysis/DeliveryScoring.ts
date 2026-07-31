@@ -10,3 +10,4 @@ export class DeliveryScoring {
     })) as Readonly<Record<ScoreName, ScoreResult>>;
   }
 }
+

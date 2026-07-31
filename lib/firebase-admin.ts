@@ -21,3 +21,4 @@ const app =
       });
 
 export const adminDb = getFirestore(app);
+

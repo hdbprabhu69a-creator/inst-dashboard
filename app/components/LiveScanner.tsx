@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import { scannerStore } from "@/lib/data/scannerStore";
@@ -72,3 +72,4 @@ export default function LiveScanner() {
   );
 
 }
+

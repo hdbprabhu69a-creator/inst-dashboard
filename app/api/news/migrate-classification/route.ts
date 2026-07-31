@@ -1,4 +1,4 @@
-﻿import {NextResponse} from "next/server";
+import {NextResponse} from "next/server";
 import {adminDb} from "@/lib/firebase-admin";
 import {classifyNews} from "@/lib/news/classifyNews";
 
@@ -53,3 +53,4 @@ export async function POST(){
     });
 
 }
+

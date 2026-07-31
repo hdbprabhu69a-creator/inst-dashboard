@@ -1,4 +1,4 @@
-﻿import { useMemo } from "react";
+import { useMemo } from "react";
 import { PatternResult } from "@/lib/pattern/types";
 import { buildRenderPlan } from "./buildRenderPlan";
 
@@ -13,3 +13,4 @@ export function useRenderPlan(pattern: PatternResult | null) {
   }, [pattern]);
 
 }
+

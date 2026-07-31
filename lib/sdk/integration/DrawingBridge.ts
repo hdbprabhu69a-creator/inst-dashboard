@@ -1,4 +1,4 @@
-﻿import { PatternResult } from "@/lib/pattern/types";
+import { PatternResult } from "@/lib/pattern/types";
 import { buildPatternDrawing } from "@/lib/pattern/PatternDrawingFactory";
 
 export function bridgePattern(
@@ -13,3 +13,4 @@ export function bridgePattern(
   );
 
 }
+

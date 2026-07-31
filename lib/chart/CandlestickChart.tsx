@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import {
   createChart,
@@ -583,6 +583,7 @@ pattern={pattern}
 
 
 }
+
 
 
 

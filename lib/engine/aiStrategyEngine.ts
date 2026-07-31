@@ -1,4 +1,4 @@
-﻿import { learningEngine } from "./learningEngine";
+import { learningEngine } from "./learningEngine";
 import { performanceEngine } from "./performanceEngine";
 
 export type Strategy = {
@@ -64,3 +64,4 @@ class AIStrategyEngine {
 }
 
 export const aiStrategyEngine = new AIStrategyEngine();
+

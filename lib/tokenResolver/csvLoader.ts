@@ -1,4 +1,4 @@
-﻿import fs from "fs";
+import fs from "fs";
 import path from "path";
 import { InstrumentInfo } from "./types";
 
@@ -30,3 +30,4 @@ export function loadInstrumentCsv(file:string):InstrumentInfo[]{
     const csv=fs.readFileSync(path.resolve(file),"utf8");
     return parseInstrumentCsv(csv);
 }
+

@@ -1,4 +1,4 @@
-﻿import { InstrumentInfo, SymbolMap, TokenMap } from "./types";
+import { InstrumentInfo, SymbolMap, TokenMap } from "./types";
 
 const symbolMap: SymbolMap = new Map();
 const tokenMap: TokenMap = new Map();
@@ -31,3 +31,4 @@ export function getByToken(token: number): InstrumentInfo | null {
 export function getAll(): InstrumentInfo[] {
     return [...symbolMap.values()];
 }
+

@@ -1,4 +1,4 @@
-﻿import { PatternResult } from "./types";
+import { PatternResult } from "./types";
 
 export type MarketBias = "BULLISH" | "BEARISH" | "NEUTRAL";
 
@@ -51,3 +51,4 @@ export function generateSignal(p: PatternResult): Signal {
     strength,
   };
 }
+

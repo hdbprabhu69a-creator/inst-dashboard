@@ -1,4 +1,4 @@
-﻿type TradeRecord = {
+type TradeRecord = {
   symbol: string;
   pattern: string;
   result: "WIN" | "LOSS";
@@ -26,3 +26,4 @@ class PerformanceEngine {
 }
 
 export const performanceEngine = new PerformanceEngine();
+

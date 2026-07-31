@@ -1,4 +1,4 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
 import { getUniverse } from "@/institutional-analysis/repository/universeRepository";
 import { getHistory } from "@/institutional-analysis/repository/historyRepository";
@@ -66,3 +66,4 @@ export async function GET() {
   });
 
 }
+

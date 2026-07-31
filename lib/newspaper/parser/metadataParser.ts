@@ -26,7 +26,7 @@ export function parseMetadata(text:string):NewspaperMetadata{
         clean.match(/^([A-Z]+)/)?.[1] ?? "";
 
     const date=
-        clean.match(/(?:MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY)\s*[·•]?\s*(.*?)(?=\s+[fF]\s+\d+|\s+Pages)/i)?.[1]?.trim() ?? "";
+        clean.match(/(?:MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY)\s*[Â·â€¢]?\s*(.*?)(?=\s+[fF]\s+\d+|\s+Pages)/i)?.[1]?.trim() ?? "";
 
     const pages=
         Number(
@@ -54,3 +54,4 @@ export function parseMetadata(text:string):NewspaperMetadata{
     };
 
 }
+

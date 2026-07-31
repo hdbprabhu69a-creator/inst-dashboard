@@ -59,3 +59,4 @@ export interface ContractNote{
     summary:ContractSummary;
 
 }
+

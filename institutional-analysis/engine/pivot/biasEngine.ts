@@ -6,3 +6,4 @@ export function getPivotBias(cmp:number,p:any){
   if(cmp<p.pivot) return "BEARISH";
   return "NEUTRAL";
 }
+

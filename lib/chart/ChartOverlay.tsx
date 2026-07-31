@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import SDKPatternRenderer from "./SDKPatternRenderer";
 import { IChartApi } from "lightweight-charts";
@@ -29,3 +29,4 @@ export default function ChartOverlay({
   );
 
 }
+

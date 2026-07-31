@@ -9,3 +9,4 @@ export function splitContractNotes(
   return matches ?? [];
 
 }
+

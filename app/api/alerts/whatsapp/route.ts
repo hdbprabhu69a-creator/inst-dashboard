@@ -11,7 +11,7 @@ export async function GET() {
     const body = new URLSearchParams({
       From: from,
       To: to,
-      Body: "INST Dashboard Test Alert 🚀",
+      Body: "INST Dashboard Test Alert ðŸš€",
     });
 
     const response = await fetch(

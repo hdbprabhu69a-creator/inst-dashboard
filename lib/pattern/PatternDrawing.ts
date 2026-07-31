@@ -1,4 +1,4 @@
-﻿export interface DrawingPoint {
+export interface DrawingPoint {
   index: number;
   price: number;
 }
@@ -14,3 +14,4 @@ export interface PatternDrawing {
   targets: number[];
   stopLoss?: number;
 }
+

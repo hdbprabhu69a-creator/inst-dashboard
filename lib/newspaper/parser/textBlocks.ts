@@ -9,3 +9,4 @@ export function splitIntoBlocks(text:string):string[]{
         .filter(x=>x.length>20);
 
 }
+

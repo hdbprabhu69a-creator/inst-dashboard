@@ -1,4 +1,4 @@
-﻿export interface InstitutionalAnalysis {
+export interface InstitutionalAnalysis {
 
   symbol: string;
 
@@ -45,3 +45,4 @@
   opportunities: string[];
 
 }
+

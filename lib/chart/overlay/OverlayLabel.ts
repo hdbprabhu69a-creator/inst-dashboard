@@ -1,5 +1,6 @@
-﻿export interface OverlayLabel {
+export interface OverlayLabel {
   text:string;
   x:number;
   y:number;
 }
+

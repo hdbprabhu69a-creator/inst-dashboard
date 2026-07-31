@@ -1,4 +1,4 @@
-﻿import { PatternResult } from "./types";
+import { PatternResult } from "./types";
 import { MarketRegime } from "./marketRegime";
 
 export type Prediction = {
@@ -65,3 +65,4 @@ export function predictNextMove(
     failureRisk,
   };
 }
+

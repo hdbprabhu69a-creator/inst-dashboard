@@ -3,8 +3,11 @@ import { CorporateAnnouncement } from "./types";
 
 export function filterUniverse(
   data: CorporateAnnouncement[]
-) {
-  return data.filter((item) =>
-    STOCK_UNIVERSE.includes(item.stock)
+){
+
+  return data.filter(item =>
+    STOCK_UNIVERSE.includes(item.symbol)
   );
+
 }
+

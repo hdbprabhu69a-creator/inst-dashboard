@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import VolumeGrid from "@/institutional-analysis/components/VolumeGrid";
@@ -50,4 +50,5 @@ export default function VolumePage() {
   return <VolumeGrid data={[data]} />;
 
 }
+
 

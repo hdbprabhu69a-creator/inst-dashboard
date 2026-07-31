@@ -18,3 +18,4 @@ export function parseInteger(value: string | undefined): number {
 export function clean(value: string): string {
   return value.replace(/\s+/g, " ").trim();
 }
+

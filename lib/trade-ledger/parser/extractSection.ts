@@ -21,3 +21,4 @@ export function extractSection(
   return rest.substring(0, e);
 
 }
+

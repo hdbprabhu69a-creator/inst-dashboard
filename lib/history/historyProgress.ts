@@ -17,3 +17,4 @@ export function logHistoryDownload(symbol: string) {
 export function logHistoryComplete(symbol: string, candles: number) {
   console.log(`DONE  : ${symbol} (${candles} candles)`);
 }
+

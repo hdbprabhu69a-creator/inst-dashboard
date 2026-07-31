@@ -3,3 +3,4 @@ export interface OverlayTextStyle{
  bold:boolean;
  color:string;
 }
+

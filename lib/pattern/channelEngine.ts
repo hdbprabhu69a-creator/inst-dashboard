@@ -1,5 +1,6 @@
 import {
   PatternResult,
+  PatternType,
   SwingPoint,
   TrendLine,
 } from "./types";
@@ -228,3 +229,137 @@ function buildChannel(
   };
 
 }
+export function getBestChannel(
+  swings: SwingPoint[]
+){
+
+  const upper =
+    getBestTrendLine(
+      buildTrendLines(
+        swings,
+        "HIGH"
+      )
+    );
+
+  const lower =
+    getBestTrendLine(
+      buildTrendLines(
+        swings,
+        "LOW"
+      )
+    );
+
+  if(!upper || !lower)
+    return null;
+
+  const pattern: PatternType = "CHANNEL";
+
+
+  return {
+
+    pattern,
+
+    confidence:
+      Math.min(
+        60 +
+        upper.touches * 5 +
+        lower.touches * 5,
+        100
+      ),
+
+    breakout:
+      upper.end.price,
+
+    stoploss:
+      lower.end.price,
+
+    target:
+      upper.end.price +
+      (upper.end.price - lower.end.price),
+
+    swings:[
+      upper.start,
+      upper.end,
+      lower.start,
+      lower.end
+    ],
+
+    trendLines:[
+      upper,
+      lower
+    ],
+
+    points:[
+      {
+        label:"A",
+        swing:upper.start
+      },
+      {
+        label:"B",
+        swing:lower.start
+      },
+      {
+        label:"C",
+        swing:upper.end
+      },
+      {
+        label:"D",
+        swing:lower.end
+      }
+    ]
+
+  };
+
+}
+
+
+export function getChannelStatus(
+  cmp:number,
+  channel:PatternResult
+){
+
+  const line1 =
+    channel.trendLines[0];
+
+  const line2 =
+    channel.trendLines[1];
+
+  const price1 =
+    line1.end.price;
+
+  const price2 =
+    line2.end.price;
+
+  const upperPrice =
+    Math.max(
+      price1,
+      price2
+    );
+
+  const lowerPrice =
+    Math.min(
+      price1,
+      price2
+    );
+
+  return {
+
+    upper: upperPrice,
+
+    lower: lowerPrice,
+
+    status:
+      cmp > upperPrice
+        ? "BREAKOUT"
+        : cmp < lowerPrice
+          ? "BREAKDOWN"
+          : "INSIDE"
+
+  };
+
+}
+
+
+
+
+

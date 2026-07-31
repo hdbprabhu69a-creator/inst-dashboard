@@ -52,3 +52,4 @@ implements ScoringStrategy {
   }
 
 }
+

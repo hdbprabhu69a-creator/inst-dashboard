@@ -1,4 +1,4 @@
-﻿import { InstitutionalAnalysis } from "../models/institutionalTypes";
+import { InstitutionalAnalysis } from "../models/institutionalTypes";
 
 export function calculateInstitutionalScore(
   stock: InstitutionalAnalysis
@@ -23,3 +23,4 @@ export function calculateInstitutionalScore(
     Math.min(100, score)
   );
 }
+

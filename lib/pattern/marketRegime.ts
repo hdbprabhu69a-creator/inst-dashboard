@@ -1,4 +1,4 @@
-﻿import { Candle } from "./types";
+import { Candle } from "./types";
 
 export type MarketRegime = "BULL" | "BEAR" | "RANGE";
 
@@ -25,3 +25,4 @@ export function detectMarketRegime(candles: Candle[]): MarketRegime {
 
   return "RANGE";
 }
+

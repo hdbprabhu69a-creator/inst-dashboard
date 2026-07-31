@@ -10,3 +10,4 @@ export const GridTheme={
   alignment:"text-emerald-300",
   probability:"text-yellow-300"
 };
+

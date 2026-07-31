@@ -1,4 +1,19 @@
-﻿import {
+import {
+  buildInstitutionalTrendline,
+} from "@/lib/institutional/institutionalTrendlineEngine";
+
+import {
+  getInstitutionalTrendlineStatus,
+} from "@/lib/institutional/institutionalTrendlineStatus";
+
+import {
+  buildInstitutionalChannel,
+} from "@/lib/institutional/institutionalChannelEngine";
+
+import {
+  getInstitutionalChannelStatus,
+} from "@/lib/institutional/institutionalChannelStatus";
+import {
   analyzeIndexRegime,
 } from "@/lib/institutional/indexRegimeEngine";
 
@@ -9,6 +24,7 @@ import {
 import {
   analyzeTrend,
 } from "@/institutional-analysis/engine/priceStructure/analyzeTrend";
+
 
 import {
   baseTargetEngine,
@@ -116,10 +132,41 @@ export function analyzeIndex(
     indicators:
       regime.indicators
 
-  };
+  };const rawTrendline =
+  buildInstitutionalTrendline(
+    marketStructure,
+    trend.structure
+  );
+
+console.log("================================");
+console.log("RAW TRENDLINE");
+console.log(rawTrendline);
+console.log("================================");
 
 
-  const baseTarget =
+
+const channel =
+  buildInstitutionalChannel(
+    marketStructure,
+    trend.structure
+  );
+
+const trendlineInfo =
+  rawTrendline
+    ? getInstitutionalTrendlineStatus(
+        liveCmp,
+        rawTrendline
+      )
+    : null;
+
+const channelInfo =
+  channel
+    ? getInstitutionalChannelStatus(
+        liveCmp,
+        channel
+      )
+    : null;
+const baseTarget =
     baseTargetEngine({
 
       cmp:liveCmp,
@@ -132,17 +179,50 @@ export function analyzeIndex(
 
   return {
 
-    cmp:liveCmp,
+  cmp: liveCmp,
 
-    trend:finalTrend,
+  trend: finalTrend,
 
-    marketState,
+  marketState,
 
-    baseTarget
+  trendline: trendlineInfo,
 
-  };
+  channel: channelInfo,
 
+  baseTarget
+
+};
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

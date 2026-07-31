@@ -1,4 +1,4 @@
-import { VolumeAnalysisResult } from "./volumeTypes";
+﻿import { VolumeAnalysisResult } from "./volumeTypes";
 
 export function volumeAnalysis(records:any[]):VolumeAnalysisResult{
 
@@ -208,13 +208,11 @@ const deliveryCurrent=
     avgVolume20,
     avgVolume50,
 
-
     avgDelivery5,
     avgDelivery10,
     avgDelivery20,
 
     relativeVolume,
-    
 
     volumeTrend,
 
@@ -249,11 +247,64 @@ const deliveryCurrent=
     above200,
 
     bullAlignment,
-    bearAlignment
+    bearAlignment,
+
+    volumeFlow:{
+
+      avg30:avgVolume20.toFixed(2),
+
+      avgWeek:avgVolume5.toFixed(2),
+
+      today:currentVolume.toFixed(0),
+
+      slope:volumeTrend,
+
+      verdict:
+        volumeTrend==="Increasing"
+          ?"Expanding"
+          :volumeTrend==="Decreasing"
+          ?"Drying Up"
+          :"Stable"
+
+    },
+
+    volumeAnalysis:[],
+
+    deliveryFlow:{
+
+      avg20:avgDelivery20.toFixed(2),
+
+      avg10:avgDelivery10.toFixed(2),
+
+      avg5:avgDelivery5.toFixed(2),
+
+      trend:
+        avgDelivery5 > avgDelivery10 && avgDelivery10 > avgDelivery20
+          ? "Increasing"
+          : avgDelivery5 < avgDelivery10 && avgDelivery10 < avgDelivery20
+          ? "Decreasing"
+          : "Stable",
+
+      verdict:
+        volumeTrend==="Increasing"
+          ?"Expanding"
+          :volumeTrend==="Decreasing"
+          ?"Drying Up"
+          :"Stable"
+
+    },
+
+    deliveryAnalysis:[]
 
   };
 
 }
+
+
+
+
+
+
 
 
 

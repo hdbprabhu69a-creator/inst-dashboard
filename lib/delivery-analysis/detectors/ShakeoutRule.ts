@@ -39,3 +39,4 @@ export class ShakeoutRule implements DetectorRule {
   }
 
 }
+

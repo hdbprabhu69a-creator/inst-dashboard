@@ -4,3 +4,4 @@ export interface OverlayRectangle {
  width:number;
  height:number;
 }
+

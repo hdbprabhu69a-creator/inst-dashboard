@@ -34,3 +34,4 @@ const columns:GridColumn[]=[
 export default function PivotAnalysis({rows}:Props){
   return <InstitutionalGrid columns={columns} rows={rows}/>;
 }
+

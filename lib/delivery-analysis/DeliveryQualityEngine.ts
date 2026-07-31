@@ -20,12 +20,12 @@ export interface DeliveryQualityRecord {
  * `participationRatio = deliveryPercent / 100`; and relative measures divide the
  * current value by its prior rolling mean. All zero-denominator ratios are zero.
  * Expansion and contraction are the positive and negative parts of the previous-day
- * percentage change. Quality indices are unweighted products: delivery efficiency ×
- * delivery intensity, and relative volume × price efficiency.
+ * percentage change. Quality indices are unweighted products: delivery efficiency Ã—
+ * delivery intensity, and relative volume Ã— price efficiency.
  *
  * `priceEfficiency = |close - open| / (high - low)`; acceptance is the close's
  * normalized location in its range; rejection is `1 - priceEfficiency`; alignment
- * is `(close - open) / range × (deliveryPercent change / 100)`. Compression and
+ * is `(close - open) / range Ã— (deliveryPercent change / 100)`. Compression and
  * stability are `|mean| / (|mean| + populationStdDev)` for delivery quantity and
  * delivery percent respectively. Consistency is the dominant-direction share of
  * non-flat adjacent delivery-percent changes in the rolling window.
@@ -128,3 +128,4 @@ class RollingQualityState {
   private standardDeviation(squareSum: number, mean: number, count: number): number { return Math.sqrt(Math.max(0, squareSum / count - mean ** 2)); }
   private stability(mean: number, deviation: number): number { return mean === 0 && deviation === 0 ? 1 : Math.abs(mean) / (Math.abs(mean) + deviation); }
 }
+

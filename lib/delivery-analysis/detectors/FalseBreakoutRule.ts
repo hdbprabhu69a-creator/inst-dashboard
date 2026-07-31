@@ -39,3 +39,4 @@ export class FalseBreakoutRule implements DetectorRule {
   }
 
 }
+

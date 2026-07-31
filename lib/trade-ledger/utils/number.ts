@@ -17,3 +17,4 @@ export function isNegative(
   return value.includes("(");
 
 }
+

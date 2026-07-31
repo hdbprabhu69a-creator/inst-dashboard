@@ -39,3 +39,4 @@ export function parseTradeLedger(
   return notes;
 
 }
+

@@ -23,3 +23,4 @@ export function getSymbolFromToken(token:number):string|undefined {
     return tokenMap!.get(Number(token));
 
 }
+

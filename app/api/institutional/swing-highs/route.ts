@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 import { getHistory } from "@/institutional-analysis/repository/historyRepository";
 import { detectSwingHighs } from "@/institutional-analysis/engine/priceStructure/detectSwingHighs";
@@ -52,3 +52,4 @@ export async function GET(request: NextRequest) {
   }
 
 }
+

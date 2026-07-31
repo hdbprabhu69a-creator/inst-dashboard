@@ -39,3 +39,4 @@ export class MarkDownRule implements DetectorRule {
   }
 
 }
+

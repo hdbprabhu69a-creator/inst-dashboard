@@ -1,4 +1,4 @@
-﻿import { subscribe } from "./liveEngine";
+import { subscribe } from "./liveEngine";
 import { resolveToken } from "../tokenResolver";
 
 type Tick = {
@@ -117,3 +117,4 @@ export async function resolveSymbol(symbol: string) {
 export function getCurrentTick(symbol: string) {
   return symbolManager.getCurrentTick(symbol);
 }
+

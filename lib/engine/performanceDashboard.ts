@@ -1,4 +1,4 @@
-﻿import { performanceEngine } from "./performanceEngine";
+import { performanceEngine } from "./performanceEngine";
 
 export class PerformanceDashboard {
 
@@ -15,3 +15,4 @@ export class PerformanceDashboard {
 }
 
 export const performanceDashboard = new PerformanceDashboard();
+

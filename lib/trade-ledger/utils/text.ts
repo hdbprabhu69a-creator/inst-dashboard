@@ -9,3 +9,4 @@ export function normalizeText(
     .trim();
 
 }
+

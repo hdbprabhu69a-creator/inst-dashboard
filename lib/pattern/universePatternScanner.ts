@@ -1,4 +1,4 @@
-﻿import {
+import {
  analyzePattern
 } from "./patternEngine";
 
@@ -91,3 +91,4 @@ export async function scanPatternUniverse(
 
 
 }
+

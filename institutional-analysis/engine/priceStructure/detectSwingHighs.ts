@@ -1,4 +1,4 @@
-﻿import { Candle } from "../../repository/historyRepository";
+import { Candle } from "../../repository/historyRepository";
 import { SwingPoint } from "../../models/priceStructureTypes";
 
 export function detectSwingHighs(
@@ -45,3 +45,4 @@ export function detectSwingHighs(
   return swings;
 
 }
+

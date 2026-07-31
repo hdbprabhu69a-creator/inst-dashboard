@@ -25,3 +25,4 @@ export interface TradeRecord{
     total:number;
 
 }
+

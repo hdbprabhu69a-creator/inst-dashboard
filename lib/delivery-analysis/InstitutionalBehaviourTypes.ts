@@ -43,3 +43,4 @@ export interface BehaviourResult {
   readonly confidence: number;
   readonly ruleId: string | null;
 }
+

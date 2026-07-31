@@ -6,3 +6,4 @@ export class DeliveryRanking {
     return results.map((result) => ({ result, value: result.scores[score].value })).sort((left, right) => (right.value ?? -Infinity) - (left.value ?? -Infinity) || left.result.symbol.localeCompare(right.result.symbol)).map((item, index) => ({ symbol: item.result.symbol, rank: index + 1, score: item.value, result: item.result }));
   }
 }
+

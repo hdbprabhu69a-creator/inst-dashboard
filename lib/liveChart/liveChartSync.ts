@@ -1,4 +1,4 @@
-﻿import { getLiveCandle } from "./liveCandleStore";
+import { getLiveCandle } from "./liveCandleStore";
 
 export function synchronizeChartCandles(history:any[]){
     const live=getLiveCandle();
@@ -15,3 +15,4 @@ export function synchronizeChartCandles(history:any[]){
 
     return candles;
 }
+

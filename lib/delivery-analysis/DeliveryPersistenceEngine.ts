@@ -113,3 +113,4 @@ class RollingPersistenceState {
   private addAggregates(record: NormalizedPersistenceRecord, multiplier: 1 | -1): void { this.deliveryPercentSum += record.deliveryPercent * multiplier; this.deliveryPercentSquareSum += record.deliveryPercent * record.deliveryPercent * multiplier; this.deliveryQuantitySum += record.deliveryQty * multiplier; this.volumeSum += record.volume * multiplier; }
   private addDirection(change: number, multiplier: 1 | -1): void { if (change > 0) this.risingCount += multiplier; else if (change < 0) this.fallingCount += multiplier; }
 }
+

@@ -126,3 +126,4 @@ export async function downloadNseFiiDiiReport(): Promise<NseReportDownloadResult
     await browser.close().catch(() => undefined);
   }
 }
+

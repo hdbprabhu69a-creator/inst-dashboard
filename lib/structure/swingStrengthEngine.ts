@@ -1,4 +1,4 @@
-﻿export interface Swing{
+export interface Swing{
 
  index:number;
 
@@ -54,3 +54,4 @@ export function scoreSwingStrength(
  };
 
 }
+

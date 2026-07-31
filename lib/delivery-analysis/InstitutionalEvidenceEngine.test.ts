@@ -56,3 +56,4 @@ test("is deterministic across a large sequence of independent evaluations", () =
   assert.deepEqual(engine.evaluate(allValueInput(1)), engine.evaluate(allValueInput(1)));
   assert.equal(results[9_999].total, 6);
 });
+

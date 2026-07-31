@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import LiveScanner from "./LiveScanner";
@@ -78,3 +78,4 @@ export default function InstitutionalDashboard() {
     </div>
   );
 }
+

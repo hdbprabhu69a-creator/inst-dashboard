@@ -36,3 +36,4 @@ export interface NewsDocument{
     updatedAt?:any;
 
 }
+

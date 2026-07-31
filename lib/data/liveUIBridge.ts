@@ -1,4 +1,4 @@
-﻿type Listener = (data: any) => void;
+type Listener = (data: any) => void;
 
 class LiveUIBridge {
 
@@ -15,3 +15,4 @@ class LiveUIBridge {
 }
 
 export const liveUIBridge = new LiveUIBridge();
+

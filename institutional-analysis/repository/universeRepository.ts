@@ -1,4 +1,4 @@
-﻿import {
+import {
   collection,
   getDocs
 } from "firebase/firestore";
@@ -50,3 +50,4 @@ export async function getUniverse(): Promise<UniverseStock[]> {
   return stocks;
 
 }
+

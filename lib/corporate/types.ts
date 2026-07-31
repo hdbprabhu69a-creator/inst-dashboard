@@ -1,9 +1,30 @@
 export interface CorporateAnnouncement {
-  date: string;
-  time: string;
-  stock: string;
-  type: string;
-  summary: string;
-  source: "NSE" | "BSE";
-  attachment?: string;
+
+  seq_id: string;
+
+  symbol: string;
+
+  sm_name: string;
+
+  smIndustry: string;
+
+  sm_isin: string;
+
+  desc: string;
+
+  attchmntText: string;
+
+  attchmntFile: string;
+
+  an_dt: string;
+
+  exchdisstime: string;
+
+  sort_date: string;
+
+  fileSize: string;
+
+  hasXbrl: boolean;
+
 }
+

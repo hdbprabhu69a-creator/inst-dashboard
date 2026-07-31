@@ -1,4 +1,4 @@
-﻿export const PRICE_STRUCTURE_CONFIG = {
+export const PRICE_STRUCTURE_CONFIG = {
 
   // 6 Months Daily History
   lookbackCandles: 126,
@@ -26,3 +26,4 @@
   weakStructureScore: 50,
 
 } as const;
+

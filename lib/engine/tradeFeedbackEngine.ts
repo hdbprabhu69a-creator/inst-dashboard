@@ -1,4 +1,4 @@
-﻿import { performanceEngine } from "./performanceEngine";
+import { performanceEngine } from "./performanceEngine";
 import { learningEngine } from "./learningEngine";
 
 export type TradeOutcome = {
@@ -36,3 +36,4 @@ export class TradeFeedbackEngine {
 }
 
 export const tradeFeedbackEngine = new TradeFeedbackEngine();
+

@@ -1,4 +1,4 @@
-﻿type Tick = {
+type Tick = {
   symbol: string;
   lastPrice: number;
 
@@ -310,6 +310,7 @@ export function subscribeCandles(
     cb
   );
 }
+
 
 
 

@@ -70,6 +70,8 @@ export function buildTrendLines(
         );
 
       let touches = 2;
+let quality = 2;
+let violations = 0;
 
       let broken = false;
 
@@ -100,19 +102,12 @@ export function buildTrendLines(
 
         if (
 
-          isNearLine(
-
-            p.price,
-
-            expected,
-
-            0.6
-
-          )
+          isNearLine(p.price, expected, Math.max(expected * 0.003, 0.5))
 
         ) {
 
           touches++;
+quality += (p.strength ?? 1);
 
         }
 
@@ -168,7 +163,12 @@ export function buildTrendLines(
 
       ) {
 
-        lines.push({
+        const span = end.index - start.index;
+
+if (span < 20)
+    continue;
+
+lines.push({
 
           start,
 
@@ -181,6 +181,10 @@ export function buildTrendLines(
           touches,
 
           broken,
+
+quality,
+
+violations,
 
         });
 
@@ -202,50 +206,18 @@ export function rankTrendLines(
 
 ): TrendLine[] {
 
-  return lines.sort(
+  return lines.sort((a,b)=>{
 
-    (a, b) => {
+    if(b.quality!==a.quality)
+        return b.quality-a.quality;
 
-      if (
+    if(b.touches!==a.touches)
+        return b.touches-a.touches;
 
-        b.touches !==
+    return b.end.index-a.end.index;
 
-        a.touches
-
-      ) {
-
-        return (
-
-          b.touches -
-
-          a.touches
-
-        );
-
-      }
-
-      return (
-
-        Math.abs(
-
-          a.slope
-
-        ) -
-
-        Math.abs(
-
-          b.slope
-
-        )
-
-      );
-
-    }
-
-  );
-
+});
 }
-
 export function getBestTrendLine(
 
   lines: TrendLine[]
@@ -263,3 +235,12 @@ export function getBestTrendLine(
   return lines[0];
 
 }
+
+
+
+
+
+
+
+
+

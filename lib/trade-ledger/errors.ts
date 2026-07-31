@@ -6,3 +6,4 @@ export class TradeLedgerParseError extends Error {
   }
 
 }
+

@@ -12,3 +12,4 @@ export const parserConfig = {
   }
 
 } as const;
+

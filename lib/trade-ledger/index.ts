@@ -21,3 +21,4 @@ export * from "./parser/importContractNote";
 
 export * from "./parser/splitContractNotes";
 export * from "./export/exportTradesToExcel";
+

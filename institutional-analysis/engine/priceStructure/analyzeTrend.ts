@@ -1,4 +1,4 @@
-﻿import { detectSwingHighs } from "./detectSwingHighs";
+import { detectSwingHighs } from "./detectSwingHighs";
 import { detectSwingLows } from "./detectSwingLows";
 import { mergeSwings } from "./mergeSwings";
 import { classifyStructure } from "./classifyStructure";
@@ -72,6 +72,7 @@ export function analyzeTrend(candles:any[]){
     };
 
 }
+
 
 
 

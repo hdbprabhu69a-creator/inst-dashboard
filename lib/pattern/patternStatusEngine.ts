@@ -1,4 +1,4 @@
-﻿export function getPatternStatus(
+export function getPatternStatus(
 
  cmp:number,
 
@@ -53,3 +53,4 @@
  return "FORMING";
 
 }
+

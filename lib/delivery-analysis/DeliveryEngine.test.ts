@@ -32,3 +32,4 @@ test("returns a reusable batch ranking even when scoring is intentionally unconf
   assert.equal(batch.analyses.length, 2);
   assert.deepEqual(batch.ranking.map((entry) => entry.symbol), ["AAA", "BBB"]);
 });
+

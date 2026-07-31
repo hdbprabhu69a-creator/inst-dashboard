@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getHistory } from "@/institutional-analysis/repository/historyRepository";
 
 export async function GET(request: NextRequest) {
@@ -54,3 +54,4 @@ export async function GET(request: NextRequest) {
   }
 
 }
+

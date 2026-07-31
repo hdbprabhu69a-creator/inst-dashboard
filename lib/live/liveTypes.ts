@@ -1,4 +1,4 @@
-﻿export interface LiveTick {
+export interface LiveTick {
   symbol: string;
 
   token: number;
@@ -14,4 +14,5 @@
 
   time: number;
 }
+
 

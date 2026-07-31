@@ -1,4 +1,4 @@
-﻿import { ensureTokenResolver } from "./bootstrap";
+import { ensureTokenResolver } from "./bootstrap";
 import { resolveSymbol, resolveToken } from "./tokenResolver";
 
 export function getWebSocketToken(symbol:string):number{
@@ -18,3 +18,4 @@ export function getWebSocketSymbol(token:number):string{
     }
     return info.symbol;
 }
+

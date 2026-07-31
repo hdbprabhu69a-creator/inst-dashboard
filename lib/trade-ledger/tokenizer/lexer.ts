@@ -12,3 +12,4 @@ export abstract class Lexer{
   abstract tokenize():Token[];
 
 }
+

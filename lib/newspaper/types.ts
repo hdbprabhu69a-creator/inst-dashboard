@@ -11,3 +11,4 @@ export type ParsedPage = {
 export type ParsedIssue = {
   pages: ParsedPage[];
 };
+

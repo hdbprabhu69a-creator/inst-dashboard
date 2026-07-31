@@ -45,3 +45,4 @@ export function normalizeAnnexureText(text:string):string{
     .trim();
 
 }
+

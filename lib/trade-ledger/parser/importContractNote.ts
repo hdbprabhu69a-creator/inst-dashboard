@@ -16,3 +16,4 @@ export async function importContractNote(
   return parseTradeLedger(text);
 
 }
+

@@ -1,4 +1,4 @@
-﻿export function projectPatternTargets(
+export function projectPatternTargets(
  pattern:string,
  breakout:number,
  height:number
@@ -65,3 +65,4 @@
  };
 
 }
+

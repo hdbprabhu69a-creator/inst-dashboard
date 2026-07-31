@@ -1,4 +1,4 @@
-﻿import { IChartApi } from "lightweight-charts";
+import { IChartApi } from "lightweight-charts";
 
 type SeriesRef = {
   id: string;
@@ -35,3 +35,4 @@ export class PatternSeriesManager {
   }
 
 }
+

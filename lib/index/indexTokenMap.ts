@@ -5,3 +5,4 @@ export const INDEX_TOKEN_MAP:Record<string,number>={
     MIDCPNIFTY:288009,
     NIFTYNXT50:270857,
 };
+

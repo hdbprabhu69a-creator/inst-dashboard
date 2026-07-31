@@ -23,7 +23,7 @@ export default function ImportPdfButton() {
         form.append("file", file);
 
         setLoading(true);
-        setStatus("⏳ Importing contract note...");
+        setStatus("â³ Importing contract note...");
 
         try {
 
@@ -40,7 +40,7 @@ export default function ImportPdfButton() {
             if (result.success) {
 
                 setStatus(
-                    `✅ Imported Successfully
+                    `âœ… Imported Successfully
 
 Contract Note : ${result.contractNoteNo}
 
@@ -50,7 +50,7 @@ Trades Imported : ${result.trades}`
             } else {
 
                 setStatus(
-                    `❌ Import Failed
+                    `âŒ Import Failed
 
 ${result.error ?? result.message ?? "Unknown error"}`
                 );
@@ -60,7 +60,7 @@ ${result.error ?? result.message ?? "Unknown error"}`
         } catch (error) {
 
             setStatus(
-                `❌ ${error instanceof Error ? error.message : "Import failed"}`
+                `âŒ ${error instanceof Error ? error.message : "Import failed"}`
             );
 
         } finally {

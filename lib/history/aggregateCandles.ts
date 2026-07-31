@@ -1,4 +1,4 @@
-﻿export type HistoryCandle = {
+export type HistoryCandle = {
   time: number;
   open: number;
   high: number;
@@ -82,3 +82,4 @@ export function aggregateCandles(
     .sort((a,b)=>a.time-b.time);
 
 }
+

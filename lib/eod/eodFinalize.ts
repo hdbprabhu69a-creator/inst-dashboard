@@ -1,4 +1,4 @@
-﻿import { getLiveCandle } from "@/lib/liveChart/liveCandleStore";
+import { getLiveCandle } from "@/lib/liveChart/liveCandleStore";
 
 export function finalizeEODCandle(){
   const candle=getLiveCandle();
@@ -10,3 +10,4 @@ export function finalizeEODCandle(){
     finalizedAt:Date.now()
   };
 }
+

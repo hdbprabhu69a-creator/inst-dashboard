@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect,useMemo,useRef,useState } from "react";
 import { STOCK_UNIVERSE } from "@/lib/universe";
@@ -262,6 +262,7 @@ setListOpen(false);
 );
 
 }
+
 
 
 

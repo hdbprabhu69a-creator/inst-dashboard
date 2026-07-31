@@ -1,4 +1,4 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { getUniverse } from "@/institutional-analysis/repository/universeRepository";
 
 export async function GET() {
@@ -16,3 +16,4 @@ export async function GET() {
   });
 
 }
+
