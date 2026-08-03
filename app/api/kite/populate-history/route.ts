@@ -115,7 +115,18 @@ console.log(`[${index}/${snapshot.docs.length}] ${stockDoc.data().symbol}`);
       skippedStocks++;
       continue;
     }
-    const to = new Date();
+    const to=new Date();
+
+to.setDate(
+to.getDate()-1
+);
+
+to.setHours(
+23,
+59,
+59,
+999
+);
 
 const historyRef = collection(
   db,
@@ -143,8 +154,11 @@ if (latestSnap.empty) {
 
   const latest = latestSnap.docs[0].data().date;
 
-  from = new Date(latest);
-  from.setDate(from.getDate() + 1);
+  from=new Date(latest);
+
+from.setDate(
+from.getDate()-5
+);
 
 }
 
@@ -267,6 +281,7 @@ console.log("================================");
     return NextResponse.json({ success:false, error:String(error?.message ?? error), stack:error?.stack }, { status:500 });
   }
 }
+
 
 
 

@@ -1,152 +1,104 @@
+import {
+  getPreviousCompletedWeekCandles,
+getPreviousTwoCompletedWeekCandles,
+
+getCompletedMonthlyCandles,
+getPreviousThreeCompletedMonthCandles,
+getPreviousSixCompletedMonthCandles,
+getPreviousTwelveCompletedMonthCandles,
+} from "@/src/lib/eodEngine";
+
+
+
 export function buildSwing(
-  candles: any[]
-) {
+  candles:any[]
+){
 
-  if (
-    !candles ||
-    candles.length === 0
-  ) {
+  if(!candles?.length)
     return null;
-  }
 
-  const highCandle =
-    candles.reduce(
-      (prev, current) =>
-        current.high > prev.high
-          ? current
-          : prev
+  const highCandle=
+    candles.reduce((a,b)=>
+      b.high>a.high?b:a
     );
 
-  const lowCandle =
-    candles.reduce(
-      (prev, current) =>
-        current.low < prev.low
-          ? current
-          : prev
+  const lowCandle=
+    candles.reduce((a,b)=>
+      b.low<a.low?b:a
     );
 
-  return {
+  return{
 
-    high:
-      highCandle.high,
+    high:highCandle.high,
 
-    low:
-      lowCandle.low,
+    low:lowCandle.low,
 
-    range:
-      Number(
-        (
-          highCandle.high -
-          lowCandle.low
-        ).toFixed(2)
-      ),
+    range:Number(
+      (
+        highCandle.high-
+        lowCandle.low
+      ).toFixed(2)
+    ),
 
-    highDate:
-      highCandle.date,
+    highDate:highCandle.date,
 
-    lowDate:
-      lowCandle.date,
+    lowDate:lowCandle.date,
 
   };
-
-}
-
-export function getPeriodCandles(
-  candles: any[],
-  days: number
-) {
-
-  if (
-    !candles ||
-    candles.length === 0
-  ) {
-    return [];
-  }
-
-  const endDate =
-    new Date(
-      candles[
-        candles.length - 1
-      ].date
-    );
-
-  const startDate =
-    new Date(endDate);
-
-  startDate.setDate(
-    startDate.getDate() -
-    days
-  );
-
-  return candles.filter(
-    (c: any) => {
-
-      const d =
-        new Date(c.date);
-
-      return (
-        d >= startDate
-      );
-
-    }
-  );
 
 }
 
 export function buildAllSwings(
-  candles: any[]
-) {
+  candles:any[]
+){
 
-  return {
+  const oneWeek=
+    getPreviousCompletedWeekCandles(candles);
+
+  const twoWeek=
+getPreviousTwoCompletedWeekCandles(
+candles
+);
+
+const oneMonth=
+    getCompletedMonthlyCandles(candles);
+
+  const threeMonth=
+getPreviousThreeCompletedMonthCandles(
+candles
+);
+
+  const sixMonth=
+getPreviousSixCompletedMonthCandles(
+candles
+);
+
+  const oneYear=
+getPreviousTwelveCompletedMonthCandles(
+candles
+);
+
+  return{
 
     oneWeekSwing:
-      buildSwing(
-        getPeriodCandles(
-          candles,
-          7
-        )
-      ),
+      buildSwing(oneWeek),
 
     twoWeekSwing:
-      buildSwing(
-        getPeriodCandles(
-          candles,
-          14
-        )
-      ),
+      buildSwing(twoWeek),
 
     oneMonthSwing:
-      buildSwing(
-        getPeriodCandles(
-          candles,
-          30
-        )
-      ),
+      buildSwing(oneMonth),
 
     threeMonthSwing:
-      buildSwing(
-        getPeriodCandles(
-          candles,
-          90
-        )
-      ),
+      buildSwing(threeMonth),
 
     sixMonthSwing:
-      buildSwing(
-        getPeriodCandles(
-          candles,
-          180
-        )
-      ),
+      buildSwing(sixMonth),
 
     oneYearSwing:
-      buildSwing(
-        getPeriodCandles(
-          candles,
-          365
-        )
-      ),
+      buildSwing(oneYear),
 
   };
 
 }
+

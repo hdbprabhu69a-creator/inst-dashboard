@@ -305,3 +305,103 @@ export function getPreviousCompletedWeekCandles(
   );
 
 }
+
+export function getPreviousTwoCompletedWeekCandles(
+  candles:any[]
+){
+
+  const oneWeek=
+    getPreviousCompletedWeekCandles(candles);
+
+  if(!oneWeek.length)
+    return [];
+
+  const start=
+    new Date(oneWeek[0].date);
+
+  start.setDate(
+    start.getDate()-7
+  );
+
+  const end=
+    new Date(
+      oneWeek[
+        oneWeek.length-1
+      ].date
+    );
+
+  return candles.filter((c:any)=>{
+
+    const d=new Date(c.date);
+
+    return d>=start && d<=end;
+
+  });
+
+}
+
+function getCompletedMonths(
+  candles:any[],
+  months:number
+){
+
+  const now=new Date();
+
+  let month=now.getMonth()-1;
+  let year=now.getFullYear();
+
+  if(month<0){
+
+    month=11;
+
+    year--;
+
+  }
+
+  const start=new Date(year,month-months+1,1);
+
+  const end=new Date(year,month+1,1);
+
+  return candles.filter((c:any)=>{
+
+    const d=new Date(c.date);
+
+    return d>=start && d<end;
+
+  });
+
+}
+
+export function getPreviousThreeCompletedMonthCandles(
+  candles:any[]
+){
+
+  return getCompletedMonths(
+    candles,
+    3
+  );
+
+}
+
+export function getPreviousSixCompletedMonthCandles(
+  candles:any[]
+){
+
+  return getCompletedMonths(
+    candles,
+    6
+  );
+
+}
+
+export function getPreviousTwelveCompletedMonthCandles(
+  candles:any[]
+){
+
+  return getCompletedMonths(
+    candles,
+    12
+  );
+
+}
+
