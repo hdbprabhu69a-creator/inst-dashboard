@@ -178,230 +178,52 @@ export function getCompletedWeeklyCandles(
 
 }
 
-export function getCompletedMonthlyCandles(
-  candles: any[]
-) {
-
-  const now =
-    new Date();
-
-  //
-  // ALWAYS USE LAST
-  // COMPLETED MONTH
-  //
-
-  let month =
-    now.getMonth() - 1;
-
-  let year =
-    now.getFullYear();
-
-  if (
-    month < 0
-  ) {
-
-    month = 11;
-
-    year--;
-
-  }
-
-  return candles.filter(
-    (c: any) => {
-
-      const d =
-        new Date(c.date);
-
-      return (
-
-        d.getMonth() ===
-          month &&
-
-        d.getFullYear() ===
-          year
-
-      );
-
-    }
-  );
-
-}
 export function getPreviousCompletedWeekCandles(
-  candles: any[]
-) {
+  candles:any[]
+){
+  if(!candles?.length) return [];
 
-  const now =
-    new Date();
-
-  const day =
-    now.getDay();
-
-  const daysFromMonday =
-    day === 0
-      ? 6
-      : day - 1;
-
-
-  const startOfCurrentWeek =
-    new Date(now);
-
-  startOfCurrentWeek.setDate(
-    now.getDate() - daysFromMonday
-  );
-
-  startOfCurrentWeek.setHours(
-    0,
-    0,
-    0,
-    0
-  );
-
-
-  const weekClosed =
-    (
-      day === 6 ||
-      day === 0 ||
-      (
-        day === 5 &&
-        isMarketClosed()
-      )
-    );
-
-
-  let startDate =
-    new Date(startOfCurrentWeek);
-
-  let endDate =
-    new Date(startOfCurrentWeek);
-
-
-  if (weekClosed) {
-
-    endDate.setDate(
-      endDate.getDate() + 7
-    );
-
-  } else {
-
-    startDate.setDate(
-      startDate.getDate() - 7
-    );
-
-  }
-
-
-  return candles.filter(
-    (c:any)=>{
-
-      const d =
-        new Date(c.date);
-
-      return (
-        d >= startDate &&
-        d < endDate
-      );
-
-    }
-  );
-
+  return candles.slice(-5);
 }
 
 export function getPreviousTwoCompletedWeekCandles(
   candles:any[]
 ){
+  if(!candles?.length) return [];
 
-  const oneWeek=
-    getPreviousCompletedWeekCandles(candles);
-
-  if(!oneWeek.length)
-    return [];
-
-  const start=
-    new Date(oneWeek[0].date);
-
-  start.setDate(
-    start.getDate()-7
-  );
-
-  const end=
-    new Date(
-      oneWeek[
-        oneWeek.length-1
-      ].date
-    );
-
-  return candles.filter((c:any)=>{
-
-    const d=new Date(c.date);
-
-    return d>=start && d<=end;
-
-  });
-
+  return candles.slice(-10);
 }
 
-function getCompletedMonths(
-  candles:any[],
-  months:number
+export function getCompletedMonthlyCandles(
+  candles:any[]
 ){
+  if(!candles?.length) return [];
 
-  const now=new Date();
-
-  let month=now.getMonth()-1;
-  let year=now.getFullYear();
-
-  if(month<0){
-
-    month=11;
-
-    year--;
-
-  }
-
-  const start=new Date(year,month-months+1,1);
-
-  const end=new Date(year,month+1,1);
-
-  return candles.filter((c:any)=>{
-
-    const d=new Date(c.date);
-
-    return d>=start && d<end;
-
-  });
-
+  return candles.slice(-21);
 }
 
 export function getPreviousThreeCompletedMonthCandles(
   candles:any[]
 ){
+  if(!candles?.length) return [];
 
-  return getCompletedMonths(
-    candles,
-    3
-  );
-
+  return candles.slice(-63);
 }
 
 export function getPreviousSixCompletedMonthCandles(
   candles:any[]
 ){
+  if(!candles?.length) return [];
 
-  return getCompletedMonths(
-    candles,
-    6
-  );
-
+  return candles.slice(-126);
 }
 
 export function getPreviousTwelveCompletedMonthCandles(
   candles:any[]
 ){
+  if(!candles?.length) return [];
 
-  return getCompletedMonths(
-    candles,
-    12
-  );
-
+  return candles.slice(-252);
 }
+
 

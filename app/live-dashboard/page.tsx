@@ -106,7 +106,7 @@ return (
     items-center
   "
 >
-  ? HOME
+   HOME
 </Link>
 
                 <Link

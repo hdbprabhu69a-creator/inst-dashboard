@@ -1,37 +1,142 @@
 import cron from "node-cron";
 
-const API="http://localhost:3000/api/institutional/eod-update";
+import {
+  runPendingEODIfRequired,
+} from "@/lib/startup/eodRecovery";
 
-cron.schedule(
-  "40 15 * * 1-5",
-  async()=>{
+const EOD_API = "http://localhost:3000/api/institutional/eod-update";
 
-    try{
+const HISTORY_API = "http://localhost:3000/api/kite/populate-history";
 
-      const r=await fetch(API);
-      const j=await r.json();
+//
+// Startup Recovery
+//
+(async () => {
 
-      console.log(
-        "EOD UPDATE",
-        new Date().toISOString(),
-        j
+  try {
+
+    console.log(
+      "Checking for pending History..."
+    );
+
+    const historyResponse =
+      await fetch(HISTORY_API);
+
+    if (!historyResponse.ok) {
+
+      throw new Error(
+        `History HTTP ${historyResponse.status}`
       );
 
-    }catch(e){
+    }
+
+    await historyResponse.json();
+
+    console.log(
+      "History recovery completed."
+    );
+
+    console.log(
+      "Checking for pending EOD..."
+    );
+
+    await runPendingEODIfRequired();
+
+    console.log(
+      "Startup EOD recovery completed."
+    );
+
+  } catch (error) {
+
+    console.error(
+      "Startup recovery failed:",
+      error
+    );
+
+  }
+
+})();
+
+//
+// Daily Scheduler
+//
+cron.schedule(
+
+  "40 15 * * 1-5",
+
+  async () => {
+
+    try {
+
+      console.log(
+        "Running scheduled History..."
+      );
+
+      const historyResponse =
+        await fetch(HISTORY_API);
+
+      if (!historyResponse.ok) {
+
+        throw new Error(
+          `History HTTP ${historyResponse.status}`
+        );
+
+      }
+
+      await historyResponse.json();
+
+      console.log(
+        "History update completed."
+      );
+
+      console.log(
+        "Running scheduled EOD..."
+      );
+
+      const eodResponse =
+        await fetch(EOD_API);
+
+      if (!eodResponse.ok) {
+
+        throw new Error(
+          `EOD HTTP ${eodResponse.status}`
+        );
+
+      }
+
+      const result =
+        await eodResponse.json();
+
+      console.log(
+        "Scheduled EOD Completed:",
+        result
+      );
+
+    } catch (error) {
 
       console.error(
-        "EOD FAILED",
-        e
+        "Scheduled Recovery Failed:",
+        error
       );
 
     }
 
   },
+
   {
-    timezone:"Asia/Kolkata"
+
+    timezone: "Asia/Kolkata",
+
   }
+
 );
 
-console.log(
-  "Institutional EOD Scheduler Running"
-);
+console.log(`
+====================================
+Institutional Scheduler Started
+Startup Recovery : ENABLED
+History API      : ${HISTORY_API}
+EOD API          : ${EOD_API}
+Cron             : Weekdays 3:40 PM IST
+====================================
+`);

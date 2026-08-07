@@ -60,8 +60,8 @@ export default function BrokerConnectionManager({
         );
 
       setStatusTime(
-        `${weekday} ${day}-${month} â€¢ ${time}`
-      );
+  `${weekday} ${day}-${month} • ${time}`
+);
 
     };
 
@@ -97,20 +97,20 @@ export default function BrokerConnectionManager({
 
   const statusConfig = {
 
-    connected: {
-      icon: "ðŸŸ¢",
+   connected: {
+  icon: "🟢",
       text: "LIVE",
       color: "text-green-400",
     },
 
     disconnected: {
-      icon: "ðŸ”´",
+  icon: "🔴",
       text: "OFFLINE",
       color: "text-red-400",
     },
 
     expired: {
-      icon: "ðŸŸ¡",
+      icon: "🟡",
       text: "EXPIRED",
       color: "text-yellow-400",
     },
@@ -135,7 +135,7 @@ export default function BrokerConnectionManager({
         {current.icon}
         {" "}
         {current.text}
-        {" â€¢ "}
+        {" • "}
         {statusTime}
       </p>
 
