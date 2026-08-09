@@ -1,65 +1,202 @@
-import cron from "node-cron";
+﻿import cron from "node-cron";
 
 import {
   runPendingEODIfRequired,
-} from "@/lib/startup/eodRecovery";
+} from "../lib/startup/eodRecovery";
 
-const EOD_API = "http://localhost:3000/api/institutional/eod-update";
+const BASE_URL =
+  "http://localhost:3000";
 
-const HISTORY_API = "http://localhost:3000/api/kite/populate-history";
+const HISTORY_API =
+  `${BASE_URL}/api/kite/populate-history`;
 
-//
-// Startup Recovery
-//
-(async () => {
 
-  try {
+/*
+ * AUTO POWER
+ *
+ * Wait until Next.js is actually ready.
+ *
+ * This is important because this scheduler can
+ * start at the same time as npm run dev/start.
+ */
+async function waitForServer(
+  retries = 30,
+  delayMs = 2000
+) {
 
-    console.log(
-      "Checking for pending History..."
-    );
+  for (
+    let attempt = 1;
+    attempt <= retries;
+    attempt++
+  ) {
 
-    const historyResponse =
-      await fetch(HISTORY_API);
+    try {
 
-    if (!historyResponse.ok) {
+      const response =
+        await fetch(
+          `${BASE_URL}/live-dashboard`,
+          {
+            cache: "no-store",
+          }
+        );
 
-      throw new Error(
-        `History HTTP ${historyResponse.status}`
-      );
+      if (
+        response.ok
+      ) {
 
+        console.log(
+          "[AUTO POWER] Next.js server ready."
+        );
+
+        return true;
+      }
+
+    } catch {
+      // Server is still starting.
     }
 
-    await historyResponse.json();
-
     console.log(
-      "History recovery completed."
+      `[AUTO POWER] Waiting for Next.js... ${attempt}/${retries}`
     );
 
-    console.log(
-      "Checking for pending EOD..."
-    );
-
-    await runPendingEODIfRequired();
-
-    console.log(
-      "Startup EOD recovery completed."
-    );
-
-  } catch (error) {
-
-    console.error(
-      "Startup recovery failed:",
-      error
+    await new Promise(
+      (resolve) =>
+        setTimeout(
+          resolve,
+          delayMs
+        )
     );
 
   }
 
-})();
+  return false;
 
-//
-// Daily Scheduler
-//
+}
+
+
+/*
+ * AUTO POWER
+ *
+ * Populate history before EOD.
+ */
+async function updateHistory() {
+
+  console.log(
+    "[AUTO POWER] Updating history..."
+  );
+
+  const response =
+    await fetch(
+      HISTORY_API,
+      {
+        cache: "no-store",
+      }
+    );
+
+  if (
+    !response.ok
+  ) {
+
+    throw new Error(
+      `History HTTP ${response.status}`
+    );
+
+  }
+
+  const result =
+    await response.json();
+
+  console.log(
+    "[AUTO POWER] History completed:",
+    result
+  );
+
+  return result;
+
+}
+
+
+/*
+ * AUTO POWER
+ *
+ * Complete startup recovery.
+ *
+ * This is what catches an EOD missed because
+ * the machine/server was switched off.
+ */
+async function runStartupRecovery() {
+
+  console.log(
+    "============================================"
+  );
+
+  console.log(
+    "[AUTO POWER] STARTUP RECOVERY"
+  );
+
+  console.log(
+    "============================================"
+  );
+
+  const ready =
+    await waitForServer();
+
+  if (!ready) {
+
+    throw new Error(
+      "Next.js server did not become ready."
+    );
+
+  }
+
+  /*
+   * First make sure Firestore history contains
+   * the latest completed trading day.
+   */
+  await updateHistory();
+
+  /*
+   * Then compare latest market date with
+   * settings/eodStatus.lastRunDate.
+   */
+  const result =
+    await runPendingEODIfRequired();
+
+  console.log(
+    "[AUTO POWER] Startup recovery result:",
+    result
+  );
+
+}
+
+
+/*
+ * AUTO POWER
+ *
+ * Start recovery when this scheduler starts.
+ */
+void runStartupRecovery()
+  .catch(
+    (error) => {
+
+      console.error(
+        "[AUTO POWER] Startup recovery failed:",
+        error
+      );
+
+    }
+  );
+
+
+/*
+ * DAILY BACKUP SCHEDULER
+ *
+ * 15:40 IST
+ * Monday-Friday
+ *
+ * Even if startup recovery already ran,
+ * runPendingEODIfRequired() prevents a duplicate.
+ */
 cron.schedule(
 
   "40 15 * * 1-5",
@@ -69,53 +206,31 @@ cron.schedule(
     try {
 
       console.log(
-        "Running scheduled History..."
-      );
-
-      const historyResponse =
-        await fetch(HISTORY_API);
-
-      if (!historyResponse.ok) {
-
-        throw new Error(
-          `History HTTP ${historyResponse.status}`
-        );
-
-      }
-
-      await historyResponse.json();
-
-      console.log(
-        "History update completed."
+        "============================================"
       );
 
       console.log(
-        "Running scheduled EOD..."
+        "[AUTO POWER] 15:40 SCHEDULED CHECK"
       );
 
-      const eodResponse =
-        await fetch(EOD_API);
+      console.log(
+        "============================================"
+      );
 
-      if (!eodResponse.ok) {
-
-        throw new Error(
-          `EOD HTTP ${eodResponse.status}`
-        );
-
-      }
+      await updateHistory();
 
       const result =
-        await eodResponse.json();
+        await runPendingEODIfRequired();
 
       console.log(
-        "Scheduled EOD Completed:",
+        "[AUTO POWER] Scheduled result:",
         result
       );
 
     } catch (error) {
 
       console.error(
-        "Scheduled Recovery Failed:",
+        "[AUTO POWER] Scheduled recovery failed:",
         error
       );
 
@@ -124,19 +239,22 @@ cron.schedule(
   },
 
   {
-
-    timezone: "Asia/Kolkata",
-
+    timezone:
+      "Asia/Kolkata",
   }
 
 );
 
-console.log(`
-====================================
-Institutional Scheduler Started
-Startup Recovery : ENABLED
-History API      : ${HISTORY_API}
-EOD API          : ${EOD_API}
-Cron             : Weekdays 3:40 PM IST
-====================================
-`);
+
+console.log(
+  "[AUTO POWER] EOD Scheduler Running"
+);
+
+console.log(
+  "[AUTO POWER] Startup recovery enabled"
+);
+
+console.log(
+  "[AUTO POWER] Daily 15:40 IST recovery enabled"
+);
+

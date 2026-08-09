@@ -3,15 +3,10 @@ import { collection, getDocs } from "firebase/firestore";
 
 import { db } from "@/lib/firebase";
 
-import { getLivePrices } from "@/lib/kite/getLivePrices";
-
 export async function GET() {
-
   try {
-
     const [marketSnapshot, heatmapSnapshot] =
       await Promise.all([
-
         getDocs(
           collection(
             db,
@@ -25,75 +20,41 @@ export async function GET() {
             "heatmap_cache"
           )
         ),
-
       ]);
-
 
     const sectorMap =
       new Map<string, string>();
 
-
-    heatmapSnapshot.docs.forEach(doc => {
-
-      const data: any =
-        doc.data();
+    heatmapSnapshot.docs.forEach((doc) => {
+      const data: any = doc.data();
 
       sectorMap.set(
-
         data.symbol ?? doc.id,
-
-        data.sector ??
-        "UNKNOWN"
-
+        data.sector ?? "UNKNOWN"
       );
-
     });
-
-
-    const symbols =
-      marketSnapshot.docs.map(
-        doc => doc.id
-      );
-
-
-    const livePrices =
-      await getLivePrices(
-        symbols
-      );
-
 
     const stocks =
       marketSnapshot.docs
-
-        .map(doc => {
-
-          const data: any =
-            doc.data();
+        .map((doc) => {
+          const data: any = doc.data();
 
           return {
-
-            symbol:
-              doc.id,
+            symbol: doc.id,
 
             sector:
-              sectorMap.get(
-                doc.id
-              ) ??
+              sectorMap.get(doc.id) ??
               "UNKNOWN",
 
             ...data,
 
+            // Static CMP only.
+            // Live CMP is handled separately.
             liveCmp:
-              livePrices[
-                doc.id
-              ] ??
               data.cmp ??
               0,
-
           };
-
         })
-
         .sort(
           (a: any, b: any) =>
             a.symbol.localeCompare(
@@ -101,41 +62,20 @@ export async function GET() {
             )
         );
 
-
     return NextResponse.json({
-
       success: true,
-
-      total:
-        stocks.length,
-
+      total: stocks.length,
       stocks,
-
     });
-
-  }
-
-  catch (error: any) {
-
+  } catch (error: any) {
     return NextResponse.json(
-
       {
-
         success: false,
-
-        error:
-          error.message,
-
+        error: error.message,
       },
-
       {
-
         status: 500,
-
       }
-
     );
-
   }
-
 }

@@ -28,12 +28,6 @@ import {
 
 import { db } from "@/lib/firebase";
 
-import {
-  calculatePivot,
-  calculateCPR,
-  calculateVWAP,
-} from "@/src/lib/marketStructure";
-
 export interface ProcessAssetContext {
   kite: Connect;
 
@@ -115,7 +109,87 @@ export async function processAsset(
       };
     }
 
-    
+    const today = new Date();
+
+    const weeklyData =
+      buildWeeklyStructure(
+        candles,
+        today
+      );
+
+    if (!weeklyData) {
+      return {
+        status: "failed",
+        symbol,
+      };
+    }
+
+    const {
+      weeklyPivot,
+      weeklyCPR,
+      weeklyVWAP,
+      totalVolumeWeekly,
+      weeklyOHLC,
+      weeklyCandles,
+    } = weeklyData;
+
+    const completedWeekDates =
+      new Set(
+        weeklyCandles.map(
+          (c: any) =>
+            new Date(c.date)
+              .toISOString()
+              .split("T")[0]
+        )
+      );
+
+    const monthlyData =
+      buildMonthlyStructure(
+        candles,
+        today
+      );
+
+    if (!monthlyData) {
+      return {
+        status: "failed",
+        symbol,
+      };
+    }
+
+    const {
+      previousMonthCandles,
+      monthlyPivot,
+      monthlyCPR,
+      monthlyVWAP,
+      totalVolumeMonthly,
+      monthlyOHLC,
+    } = monthlyData;
+
+    const completedMonthDates =
+      new Set(
+        previousMonthCandles.map(
+          (c: any) =>
+            new Date(c.date)
+              .toISOString()
+              .split("T")[0]
+        )
+      );
+
+    const {
+      totalDeliveryDaily,
+      deliveryPctDaily,
+
+      totalDeliveryWeekly,
+      deliveryPctWeekly,
+
+      totalDeliveryMonthly,
+      deliveryPctMonthly,
+    } = await buildDeliveryData(
+      symbol,
+      completedWeekDates,
+      completedMonthDates,
+      context.includeDelivery
+    );
 
     /*
      * AUTO POWER
@@ -176,365 +250,6 @@ console.log(
   `S1: ${dailyPivot?.s1 ?? "-"} | ` +
   `R1: ${dailyPivot?.r1 ?? "-"}`
 );
-
-/*
- * AUTO POWER
- *
- * WEEKLY + MONTHLY STRUCTURE
- *
- * Source:
- * Firestore persisted completed daily history.
- *
- * Weekly:
- * Current completed calendar week.
- *
- * Monthly:
- * Previous completed calendar month.
- */
-
-/* =========================
-   WEEKLY STRUCTURE
-   ========================= */
-
-const latestStructureDate =
-  new Date(
-    lastCandle.date
-  );
-
-const latestDay =
-  latestStructureDate.getDay();
-
-const daysFromMonday =
-  latestDay === 0
-    ? 6
-    : latestDay - 1;
-
-const weekStart =
-  new Date(
-    latestStructureDate
-  );
-
-weekStart.setDate(
-  latestStructureDate.getDate() -
-  daysFromMonday
-);
-
-weekStart.setHours(
-  0,
-  0,
-  0,
-  0
-);
-
-const weekEnd =
-  new Date(
-    weekStart
-  );
-
-weekEnd.setDate(
-  weekEnd.getDate() + 7
-);
-
-const weeklyCandlesForStructure =
-  structureCandles.filter(
-    (c: any) => {
-
-      const d =
-        new Date(c.date);
-
-      return (
-        d >= weekStart &&
-        d < weekEnd
-      );
-
-    }
-  );
-
-if (
-  weeklyCandlesForStructure.length === 0
-) {
-
-  return {
-    status: "failed",
-    symbol,
-  };
-
-}
-
-const weeklyHigh =
-  Math.max(
-    ...weeklyCandlesForStructure.map(
-      (c: any) => Number(c.high)
-    )
-  );
-
-const weeklyLow =
-  Math.min(
-    ...weeklyCandlesForStructure.map(
-      (c: any) => Number(c.low)
-    )
-  );
-
-const weeklyClose =
-  Number(
-    weeklyCandlesForStructure[
-      weeklyCandlesForStructure.length - 1
-    ].close
-  );
-
-const weeklyVolume =
-  weeklyCandlesForStructure.reduce(
-    (sum: number, c: any) =>
-      sum + Number(c.volume ?? 0),
-    0
-  );
-
-const weeklyVWAP =
-  calculateVWAP(
-    weeklyCandlesForStructure
-  );
-
-const weeklyPivot =
-  calculatePivot(
-    weeklyHigh,
-    weeklyLow,
-    weeklyClose
-  );
-
-const weeklyCPR =
-  calculateCPR(
-    weeklyHigh,
-    weeklyLow,
-    weeklyClose
-  );
-
-const totalVolumeWeekly =
-  weeklyVolume;
-
-const weeklyOHLC = {
-
-  high:
-    weeklyHigh,
-
-  low:
-    weeklyLow,
-
-  close:
-    weeklyClose,
-
-  volume:
-    totalVolumeWeekly,
-
-  vwap:
-    weeklyVWAP,
-
-};
-
-console.log(
-  `[AUTO POWER WEEKLY] ${symbol} | ` +
-  `FROM: ${weeklyCandlesForStructure[0]?.date ?? "-"} | ` +
-  `TO: ${
-    weeklyCandlesForStructure[
-      weeklyCandlesForStructure.length - 1
-    ]?.date ?? "-"
-  } | ` +
-  `HIGH: ${weeklyHigh} | ` +
-  `LOW: ${weeklyLow} | ` +
-  `CLOSE: ${weeklyClose} | ` +
-  `PIVOT: ${weeklyPivot.pivot}`
-);
-
-/* =========================
-   MONTHLY STRUCTURE
-   ========================= */
-
-const latestYear =
-  latestStructureDate.getFullYear();
-
-const latestMonth =
-  latestStructureDate.getMonth();
-
-const previousMonthStart =
-  new Date(
-    latestYear,
-    latestMonth - 1,
-    1
-  );
-
-previousMonthStart.setHours(
-  0,
-  0,
-  0,
-  0
-);
-
-const currentMonthStart =
-  new Date(
-    latestYear,
-    latestMonth,
-    1
-  );
-
-currentMonthStart.setHours(
-  0,
-  0,
-  0,
-  0
-);
-
-const previousMonthCandlesForStructure =
-  structureCandles.filter(
-    (c: any) => {
-
-      const d =
-        new Date(c.date);
-
-      return (
-        d >= previousMonthStart &&
-        d < currentMonthStart
-      );
-
-    }
-  );
-
-if (
-  previousMonthCandlesForStructure.length === 0
-) {
-
-  return {
-    status: "failed",
-    symbol,
-  };
-
-}
-
-const monthlyHigh =
-  Math.max(
-    ...previousMonthCandlesForStructure.map(
-      (c: any) => Number(c.high)
-    )
-  );
-
-const monthlyLow =
-  Math.min(
-    ...previousMonthCandlesForStructure.map(
-      (c: any) => Number(c.low)
-    )
-  );
-
-const monthlyClose =
-  Number(
-    previousMonthCandlesForStructure[
-      previousMonthCandlesForStructure.length - 1
-    ].close
-  );
-
-const monthlyVolume =
-  previousMonthCandlesForStructure.reduce(
-    (sum: number, c: any) =>
-      sum + Number(c.volume ?? 0),
-    0
-  );
-
-const monthlyVWAP =
-  calculateVWAP(
-    previousMonthCandlesForStructure
-  );
-
-const monthlyPivot =
-  calculatePivot(
-    monthlyHigh,
-    monthlyLow,
-    monthlyClose
-  );
-
-const monthlyCPR =
-  calculateCPR(
-    monthlyHigh,
-    monthlyLow,
-    monthlyClose
-  );
-
-const totalVolumeMonthly =
-  monthlyVolume;
-
-const monthlyOHLC = {
-
-  high:
-    monthlyHigh,
-
-  low:
-    monthlyLow,
-
-  close:
-    monthlyClose,
-
-  volume:
-    totalVolumeMonthly,
-
-  vwap:
-    monthlyVWAP,
-
-};
-
-console.log(
-  `[AUTO POWER MONTHLY] ${symbol} | ` +
-  `FROM: ${
-    previousMonthCandlesForStructure[0]?.date ?? "-"
-  } | ` +
-  `TO: ${
-    previousMonthCandlesForStructure[
-      previousMonthCandlesForStructure.length - 1
-    ]?.date ?? "-"
-  } | ` +
-  `HIGH: ${monthlyHigh} | ` +
-  `LOW: ${monthlyLow} | ` +
-  `CLOSE: ${monthlyClose} | ` +
-  `PIVOT: ${monthlyPivot.pivot}`
-);
-
-/* =========================
-   DELIVERY
-   ========================= */
-
-const completedWeekDates =
-  new Set<string>(
-    weeklyCandlesForStructure.map(
-      (c: any) =>
-        new Date(c.date)
-          .toISOString()
-          .split("T")[0]
-    )
-  );
-
-const completedMonthDates =
-  new Set<string>(
-    previousMonthCandlesForStructure.map(
-      (c: any) =>
-        new Date(c.date)
-          .toISOString()
-          .split("T")[0]
-    )
-  );
-
-const {
-  totalDeliveryDaily,
-  deliveryPctDaily,
-
-  totalDeliveryWeekly,
-  deliveryPctWeekly,
-
-  totalDeliveryMonthly,
-  deliveryPctMonthly,
-
-} =
-  await buildDeliveryData(
-    symbol,
-    completedWeekDates,
-    completedMonthDates,
-    context.includeDelivery
-  );
-
 const swings=buildAllSwings(swingCandles); console.log(`[AUTO POWER SWING] ${symbol} | 1W HIGH: ${swings.oneWeekSwing?.high??"-"} | 1W HIGH DATE: ${swings.oneWeekSwing?.highDate??"-"}`); const oneWeekFib =
       swings.oneWeekSwing
         ? buildFibLevels(
@@ -670,6 +385,4 @@ const swings=buildAllSwings(swingCandles); console.log(`[AUTO POWER SWING] ${sym
     };
   }
 }
-
-
 

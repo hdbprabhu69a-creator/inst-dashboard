@@ -1,178 +1,332 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 
-import { getUniverse } from "@/institutional-analysis/repository/universeRepository";
-import { updateEngine,getMarketStructure } from "@/institutional-analysis/repository/marketStructureRepository";
+import {
+  getUniverse
+} from "@/institutional-analysis/repository/universeRepository";
+
+import {
+  updateEngine,
+  getMarketStructure
+} from "@/institutional-analysis/repository/marketStructureRepository";
+
 import { analyzeCPR } from "@/institutional-analysis/engine/cpr/cprAnalysisEngine";
+
 import { getPivotPosition } from "@/institutional-analysis/engine/pivot/positionEngine";
 import { getPivotBias } from "@/institutional-analysis/engine/pivot/biasEngine";
 import { getPivotAlignment } from "@/institutional-analysis/engine/pivot/alignmentEngine";
 import { getPivotScore } from "@/institutional-analysis/engine/pivot/scoreEngine";
 import { getPivotVerdict } from "@/institutional-analysis/engine/pivot/verdictEngine";
+
 import { trendStrength } from "@/institutional-analysis/engine/priceStructure/trendStrength";
 import { trendPhase } from "@/institutional-analysis/engine/priceStructure/trendPhase";
 import { trendConfidence } from "@/institutional-analysis/engine/priceStructure/trendConfidence";
-import { DeliveryEngine } from "@/lib/delivery-analysis/DeliveryEngine";
-import { getHistory } from "@/institutional-analysis/repository/historyRepository";
-import { getDeliveryAnalysis } from "@/institutional-analysis/repository/deliveryAnalysisRepository";
 
-export async function GET(){
+import { generateMarketStructure } from "@/lib/market/generateMarketStructure";
 
-  const results:any[]=[];
+export async function GET() {
 
-  try{
+  const results: any[] = [];
 
-    const universe=await getUniverse();
+  try {
 
-    for(const stock of universe){
+    /*
+     * AUTO POWER
+     *
+     * FIRST:
+     * Rebuild latest market structure from Kite
+     * and Firestore history.
+     */
 
-      const symbol=stock.symbol;
+    console.log(
+      "[AUTO POWER] Updating stock market structure..."
+    );
 
-      try{
+    const stockResult =
+      await generateMarketStructure({
+        sourceCollection: "universe",
+        targetCollection: "marketStructure",
+        includeDelivery: true,
+      });
 
-        const data=await getMarketStructure(symbol);
+    console.log(
+      "[AUTO POWER] Stock market structure:",
+      stockResult
+    );
 
-if(data){
+    if (!stockResult.success) {
 
-  const cpr=analyzeCPR(data);
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            "Stock market structure update failed",
+          details: stockResult,
+        },
+        {
+          status: 500,
+        }
+      );
 
-  await updateEngine(
-    symbol,
-    "cpr",
-    cpr
-  );
+    }
 
+    /*
+     * AUTO POWER
+     *
+     * Rebuild index market structure.
+     */
 
-  const dailyPosition=getPivotPosition(
-    data.cmp,
-    data.dailyPivot
-  );
+    console.log(
+      "[AUTO POWER] Updating index market structure..."
+    );
 
-  const weeklyPosition=getPivotPosition(
-    data.cmp,
-    data.weeklyPivot
-  );
+    const indexResult =
+      await generateMarketStructure({
+        sourceCollection:
+          "universe_indices",
+        targetCollection:
+          "index_market_structure",
+        includeDelivery: false,
+      });
 
-  const monthlyPosition=getPivotPosition(
-    data.cmp,
-    data.monthlyPivot
-  );
+    console.log(
+      "[AUTO POWER] Index market structure:",
+      indexResult
+    );
 
-  const pivotBias=getPivotBias(
-    data.cmp,
-    data.dailyPivot
-  );
+    if (!indexResult.success) {
 
-  const pivotAlignment=getPivotAlignment(
-    dailyPosition,
-    weeklyPosition,
-    monthlyPosition
-  );
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            "Index market structure update failed",
+          details: indexResult,
+        },
+        {
+          status: 500,
+        }
+      );
 
-  const pivotScore=getPivotScore(
-    dailyPosition,
-    weeklyPosition,
-    monthlyPosition,
-    pivotAlignment
-  );
+    }
 
-  const pivot={
-    dailyPosition,
-    weeklyPosition,
-    monthlyPosition,
-    bias:pivotBias,
-    alignment:pivotAlignment,
-    score:pivotScore,
-    verdict:getPivotVerdict(pivotScore),
-    updatedAt:new Date().toISOString()
-  };
+    /*
+     * SECOND:
+     *
+     * Run institutional engines
+     * on the newly generated data.
+     */
 
-  await updateEngine(
-    symbol,
-    "pivot",
-    pivot
-  );
+    console.log(
+      "[AUTO POWER] Running institutional engines..."
+    );
 
+    const universe =
+      await getUniverse();
 
-  const strength=trendStrength(
-    data.higherHighs ?? 0,
-    data.higherLows ?? 0,
-    data.lowerHighs ?? 0,
-    data.lowerLows ?? 0,
-    data.integrity ?? false
-  );
+    for (
+      const stock of universe
+    ) {
 
-  const phase=trendPhase(
-    data.structure ?? "SIDEWAYS",
-    data.integrity ?? false,
-    data.higherHighs ?? 0,
-    data.higherLows ?? 0,
-    data.lowerHighs ?? 0,
-    data.lowerLows ?? 0
-  );
+      const symbol =
+        stock.symbol;
 
-  const confidence=trendConfidence(
-    strength,
-    data.integrity ?? false,
-    phase
-  );
+      try {
 
-  const trend={
-    strength,
-    phase,
-    confidence,
-    updatedAt:new Date().toISOString()
-  };
+        const data =
+          await getMarketStructure(
+            symbol
+          );
 
-  await updateEngine(
-    symbol,
-    "trend",
-    trend
-  );
+        if (data) {
 
-}
+          const cpr =
+            analyzeCPR(data);
+
+          await updateEngine(
+            symbol,
+            "cpr",
+            cpr
+          );
+
+          const dailyPosition =
+            getPivotPosition(
+              data.cmp,
+              data.dailyPivot
+            );
+
+          const weeklyPosition =
+            getPivotPosition(
+              data.cmp,
+              data.weeklyPivot
+            );
+
+          const monthlyPosition =
+            getPivotPosition(
+              data.cmp,
+              data.monthlyPivot
+            );
+
+          const pivotBias =
+            getPivotBias(
+              data.cmp,
+              data.dailyPivot
+            );
+
+          const pivotAlignment =
+            getPivotAlignment(
+              dailyPosition,
+              weeklyPosition,
+              monthlyPosition
+            );
+
+          const pivotScore =
+            getPivotScore(
+              dailyPosition,
+              weeklyPosition,
+              monthlyPosition,
+              pivotAlignment
+            );
+
+          const pivot = {
+
+            dailyPosition,
+            weeklyPosition,
+            monthlyPosition,
+
+            bias:
+              pivotBias,
+
+            alignment:
+              pivotAlignment,
+
+            score:
+              pivotScore,
+
+            verdict:
+              getPivotVerdict(
+                pivotScore
+              ),
+
+            updatedAt:
+              new Date().toISOString(),
+
+          };
+
+          await updateEngine(
+            symbol,
+            "pivot",
+            pivot
+          );
+
+          const strength =
+            trendStrength(
+              data.higherHighs ?? 0,
+              data.higherLows ?? 0,
+              data.lowerHighs ?? 0,
+              data.lowerLows ?? 0,
+              data.integrity ?? false
+            );
+
+          const phase =
+            trendPhase(
+              data.structure ??
+                "SIDEWAYS",
+              data.integrity ??
+                false,
+              data.higherHighs ?? 0,
+              data.higherLows ?? 0,
+              data.lowerHighs ?? 0,
+              data.lowerLows ?? 0
+            );
+
+          const confidence =
+            trendConfidence(
+              strength,
+              data.integrity ??
+                false,
+              phase
+            );
+
+          const trend = {
+
+            strength,
+
+            phase,
+
+            confidence,
+
+            updatedAt:
+              new Date().toISOString(),
+
+          };
+
+          await updateEngine(
+            symbol,
+            "trend",
+            trend
+          );
+
+        }
 
         results.push({
+
           symbol,
-          status:"updated"
+
+          status:
+            "updated",
+
         });
 
-      }catch(e){
+      } catch (error) {
 
         results.push({
+
           symbol,
-          status:"failed",
-          error:String(e)
+
+          status:
+            "failed",
+
+          error:
+            String(error),
+
         });
 
       }
 
     }
 
+    console.log(
+      "[AUTO POWER] COMPLETE"
+    );
+
     return NextResponse.json({
-      success:true,
-      count:results.length,
-      results
+
+      success: true,
+
+      count:
+        results.length,
+
+      results,
+
     });
 
-  }catch(e){
+  } catch (error) {
+
+    console.error(
+      "[AUTO POWER] FAILED",
+      error
+    );
 
     return NextResponse.json(
       {
-        success:false,
-        error:String(e)
+        success: false,
+        error: String(error),
       },
       {
-        status:500
+        status: 500,
       }
     );
 
   }
 
 }
-
-
-
-
-
-
-

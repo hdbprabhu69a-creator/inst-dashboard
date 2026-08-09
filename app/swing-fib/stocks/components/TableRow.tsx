@@ -7,14 +7,14 @@ import FibCells from "./FibCells";
 import PivotCells from "./PivotCells";
 import VolumeDeliveryRows from "./VolumeDeliveryRows";
 
-interface Props{
-  row:Stock;
-  index:number;
-  swingFilter:string;
-  volPeriod:string;
-  history:any[];
-  num:(v:any)=>string;
-  dt:(v:any)=>string;
+interface Props {
+  row: Stock;
+  index: number;
+  swingFilter: string;
+  volPeriod: string;
+  history: any[];
+  num: (v: any) => string;
+  dt: (v: any) => string;
 }
 
 export default function TableRow({
@@ -25,81 +25,56 @@ export default function TableRow({
   history,
   num,
   dt,
-}:Props){
+}: Props) {
+  if (swingFilter === "VOLDEL") {
+    return (
+      <VolumeDeliveryRows
+        row={row}
+        history={history}
+        index={index}
+        num={num}
+      />
+    );
+  }
 
-if(swingFilter==="VOLDEL"){
+  return (
+    <tr
+      className={`${
+        index % 2 === 0
+          ? "bg-black"
+          : "bg-zinc-950"
+      } hover:bg-zinc-900`}
+    >
+      <td className="sticky left-0 z-40 border border-zinc-800 bg-inherit px-0.5 py-0.5 text-center font-bold text-cyan-300 whitespace-nowrap">
+        {row.symbol}
+      </td>
 
-return(
+      <td className="sticky left-[90px] z-40 border border-zinc-800 bg-inherit px-0.5 py-0.5 text-center font-bold text-lime-300 whitespace-nowrap">
+        {num(row.liveCmp ?? row.cmp)}
+      </td>
 
-<VolumeDeliveryRows
+      <SwingCells
+        row={row}
+        swingFilter={swingFilter}
+        num={num}
+        dt={dt}
+      />
 
-row={row}
+      {swingFilter !== "PIVOT" && (
+        <FibCells
+          row={row}
+          swingFilter={swingFilter}
+          num={num}
+        />
+      )}
 
-history={history}
-
-index={index}
-
-num={num}
-
-/>
-
-);
-
+      {swingFilter === "PIVOT" && (
+        <PivotCells
+          row={row}
+          swingFilter={swingFilter}
+          num={num}
+        />
+      )}
+    </tr>
+  );
 }
-
-return(
-
-<tr
-className={`${
-index%2===0
-?"bg-black"
-:"bg-zinc-950"
-} hover:bg-zinc-900`}
->
-
-<td className="sticky left-0 z-40 border border-zinc-800 bg-inherit px-0.5 py-0.5 text-center font-bold text-cyan-300 whitespace-nowrap">
-{row.symbol}
-</td>
-
-<td className="sticky left-[90px] z-40 border border-zinc-800 bg-inherit px-0.5 py-0.5 text-center font-bold text-lime-300 whitespace-nowrap">
-{num(row.liveCmp??row.cmp)}
-</td>
-
-<SwingCells
-row={row}
-swingFilter={swingFilter}
-num={num}
-dt={dt}
-/>
-
-{swingFilter!=="PIVOT" && (
-
-<FibCells
-row={row}
-swingFilter={swingFilter}
-num={num}
-/>
-
-)}
-
-<PivotCells
-row={row}
-swingFilter={swingFilter}
-num={num}
-/>
-
-</tr>
-
-);
-
-}
-
-
-
-
-
-
-
-
-
-

@@ -1,44 +1,72 @@
-"use client";
+﻿"use client";
 
 import {
   useSelectedStock,
 } from "@/src/context/SelectedStockContext";
 
 function formatDate(
-  timestamp: any
+timestamp: any
 ) {
 
-  if (!timestamp?.seconds) {
-    return "-";
-  }
+if (!timestamp) {
+return "-";
+}
 
-  const date =
+let date: Date;
+
+if (
+  typeof timestamp?.seconds === "number"
+) {
+
+  date =
     new Date(
       timestamp.seconds * 1000
     );
 
-  const day =
-    date
-      .getDate()
-      .toString()
-      .padStart(2, "0");
+} else if (
+  typeof timestamp?.toDate === "function"
+) {
 
-  const months = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ];
+  date =
+    timestamp.toDate();
 
-  return `${day}-${months[date.getMonth()]}`;
+} else {
+
+  date =
+    new Date(timestamp);
+
+}
+
+if (
+  Number.isNaN(
+    date.getTime()
+  )
+) {
+return "-";
+}
+
+const day =
+date
+.getDate()
+.toString()
+.padStart(2, "0");
+
+const months = [
+"Jan",
+"Feb",
+"Mar",
+"Apr",
+"May",
+"Jun",
+"Jul",
+"Aug",
+"Sep",
+"Oct",
+"Nov",
+"Dec",
+];
+
+return `${day}-${months[date.getMonth()]}`;
 
 }
 
@@ -220,3 +248,4 @@ export default function SwingTable() {
   );
 
 }
+

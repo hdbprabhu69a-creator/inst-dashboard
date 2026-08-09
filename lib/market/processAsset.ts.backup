@@ -1,0 +1,368 @@
+﻿import { Connect } from "kiteconnect";
+
+import {
+  buildDailyStructure,
+  buildWeeklyStructure,
+  buildMonthlyStructure,
+  buildFibLevels,
+} from "@/src/lib/marketStructureEngine";
+
+import { buildAllSwings } from "@/src/lib/swingEngine";
+
+import { getCompletedDailyCandle } from "@/src/lib/eodEngine";
+
+import { getDailyCandles } from "@/src/lib/kiteData";
+
+import { buildMetadata } from "@/src/lib/marketMetadata";
+
+import { buildDeliveryData } from "@/lib/market/buildDeliveryData";
+
+import {
+  collection,
+  doc,
+  getDocs,
+  orderBy,
+  query,
+  setDoc,
+} from "firebase/firestore";
+
+import { db } from "@/lib/firebase";
+
+export interface ProcessAssetContext {
+  kite: Connect;
+
+  instrumentMap: Map<string, number>;
+
+  targetCollection: string;
+
+  includeDelivery: boolean;
+
+  skipNiftySymbols: boolean;
+}
+
+export interface ProcessAssetResult {
+  status: "updated" | "ignored" | "failed";
+
+  symbol: string;
+}
+
+export async function processAsset(
+  stock: any,
+  context: ProcessAssetContext
+): Promise<ProcessAssetResult> {
+  try {
+    const symbol = stock.symbol;
+
+    if (
+      context.skipNiftySymbols &&
+      symbol.includes("NIFTY")
+    ) {
+      return {
+        status: "ignored",
+        symbol,
+      };
+    }
+
+    const instrumentToken =
+      context.instrumentMap.get(
+        stock.kiteSymbol
+      );
+
+    if (!instrumentToken) {
+      return {
+        status: "failed",
+        symbol,
+      };
+    }
+
+    const candles =
+      await getDailyCandles(
+        context.kite,
+        Number(instrumentToken)
+      );
+
+    /*
+     * AUTO POWER DIAGNOSTIC
+     *
+     * This confirms exactly what candle data
+     * processAsset receives from Kite.
+     */
+    console.log(
+      `[PROCESS ASSET] ${symbol} | CANDLE COUNT: ${
+        candles?.length ?? 0
+      } | FIRST: ${
+        candles?.[0]?.date ?? "-"
+      } | LAST: ${
+        candles?.[candles.length - 1]?.date ?? "-"
+      } | LAST HIGH: ${
+        candles?.[candles.length - 1]?.high ?? "-"
+      }`
+    );
+
+    if (
+      !candles ||
+      candles.length < 50
+    ) {
+      return {
+        status: "failed",
+        symbol,
+      };
+    }
+
+    const lastCandle =
+      getCompletedDailyCandle(
+        candles
+      );
+
+    if (!lastCandle) {
+      return {
+        status: "failed",
+        symbol,
+      };
+    }
+
+    console.log(
+      `[PROCESS ASSET] ${symbol} | COMPLETED CANDLE: ${
+        lastCandle.date
+      } | HIGH: ${
+        lastCandle.high
+      } | CLOSE: ${
+        lastCandle.close
+      }`
+    );
+
+    const {
+      dailyPivot,
+      dailyCPR,
+      dailyVWAP,
+      totalVolumeDaily,
+      dailyOHLC,
+    } = buildDailyStructure(
+      lastCandle
+    );
+
+    const today = new Date();
+
+    const weeklyData =
+      buildWeeklyStructure(
+        candles,
+        today
+      );
+
+    if (!weeklyData) {
+      return {
+        status: "failed",
+        symbol,
+      };
+    }
+
+    const {
+      weeklyPivot,
+      weeklyCPR,
+      weeklyVWAP,
+      totalVolumeWeekly,
+      weeklyOHLC,
+      weeklyCandles,
+    } = weeklyData;
+
+    const completedWeekDates =
+      new Set(
+        weeklyCandles.map(
+          (c: any) =>
+            new Date(c.date)
+              .toISOString()
+              .split("T")[0]
+        )
+      );
+
+    const monthlyData =
+      buildMonthlyStructure(
+        candles,
+        today
+      );
+
+    if (!monthlyData) {
+      return {
+        status: "failed",
+        symbol,
+      };
+    }
+
+    const {
+      previousMonthCandles,
+      monthlyPivot,
+      monthlyCPR,
+      monthlyVWAP,
+      totalVolumeMonthly,
+      monthlyOHLC,
+    } = monthlyData;
+
+    const completedMonthDates =
+      new Set(
+        previousMonthCandles.map(
+          (c: any) =>
+            new Date(c.date)
+              .toISOString()
+              .split("T")[0]
+        )
+      );
+
+    const {
+      totalDeliveryDaily,
+      deliveryPctDaily,
+
+      totalDeliveryWeekly,
+      deliveryPctWeekly,
+
+      totalDeliveryMonthly,
+      deliveryPctMonthly,
+    } = await buildDeliveryData(
+      symbol,
+      completedWeekDates,
+      completedMonthDates,
+      context.includeDelivery
+    );
+
+    /*
+     * AUTO POWER
+     *
+     * History was populated before EOD.
+     * Use Firestore history for swings so the
+     * swing engine uses the persisted candles.
+     */
+
+    let swingCandles = candles; try { const historyRef=collection(db,"universe",stock.id,"history"); const historySnap=await getDocs(query(historyRef,orderBy("date","asc"))); if(!historySnap.empty){ swingCandles=historySnap.docs.map(historyDoc=>{const h=historyDoc.data();return {date:h.date,open:Number(h.open),high:Number(h.high),low:Number(h.low),close:Number(h.close),volume:Number(h.volume??0)};}).sort((a,b)=>new Date(a.date).getTime()-new Date(b.date).getTime()); const latest=swingCandles[swingCandles.length-1]; console.log(`[AUTO POWER HISTORY] ${symbol} | COUNT: ${swingCandles.length} | LATEST: ${latest?.date??"-"} | HIGH: ${latest?.high??"-"}`); } } catch(historyError){ console.error(`[AUTO POWER HISTORY] ${symbol}`,historyError); } const swings=buildAllSwings(swingCandles); console.log(`[AUTO POWER SWING] ${symbol} | 1W HIGH: ${swings.oneWeekSwing?.high??"-"} | 1W HIGH DATE: ${swings.oneWeekSwing?.highDate??"-"}`); const oneWeekFib =
+      swings.oneWeekSwing
+        ? buildFibLevels(
+            swings.oneWeekSwing.high,
+            swings.oneWeekSwing.low
+          )
+        : null;
+
+    const twoWeekFib =
+      swings.twoWeekSwing
+        ? buildFibLevels(
+            swings.twoWeekSwing.high,
+            swings.twoWeekSwing.low
+          )
+        : null;
+
+    const oneMonthFib =
+      swings.oneMonthSwing
+        ? buildFibLevels(
+            swings.oneMonthSwing.high,
+            swings.oneMonthSwing.low
+          )
+        : null;
+
+    const threeMonthFib =
+      swings.threeMonthSwing
+        ? buildFibLevels(
+            swings.threeMonthSwing.high,
+            swings.threeMonthSwing.low
+          )
+        : null;
+
+    const sixMonthFib =
+      swings.sixMonthSwing
+        ? buildFibLevels(
+            swings.sixMonthSwing.high,
+            swings.sixMonthSwing.low
+          )
+        : null;
+
+    const oneYearFib =
+      swings.oneYearSwing
+        ? buildFibLevels(
+            swings.oneYearSwing.high,
+            swings.oneYearSwing.low
+          )
+        : null;
+
+    await setDoc(
+      doc(
+        db,
+        context.targetCollection,
+        symbol
+      ),
+      {
+        symbol,
+
+        instrumentToken,
+
+        cmp:
+          lastCandle.close,
+
+        dailyOHLC,
+
+        dailyPivot,
+        dailyCPR,
+        dailyVWAP,
+        totalVolumeDaily,
+
+        totalDeliveryDaily,
+        deliveryPctDaily,
+
+        weeklyPivot,
+        weeklyCPR,
+        weeklyVWAP,
+        totalVolumeWeekly,
+
+        totalDeliveryWeekly,
+        deliveryPctWeekly,
+
+        monthlyPivot,
+        monthlyCPR,
+        monthlyVWAP,
+        totalVolumeMonthly,
+
+        totalDeliveryMonthly,
+        deliveryPctMonthly,
+
+        weeklyOHLC,
+        monthlyOHLC,
+
+        ...swings,
+
+        oneWeekFib,
+        twoWeekFib,
+        oneMonthFib,
+        threeMonthFib,
+        sixMonthFib,
+        oneYearFib,
+
+        ...buildMetadata(),
+
+        heatScore: 0,
+        rsScore: 0,
+        volumeScore: 0,
+        deliveryScore: 0,
+        sectorScore: 0,
+        trendScore: 0,
+      },
+      {
+        merge: true,
+      }
+    );
+
+    console.log(
+      `[MARKET STRUCTURE] ${symbol} UPDATED`
+    );
+
+    return {
+      status: "updated",
+      symbol,
+    };
+
+  } catch (error) {
+    console.error(
+      `[PROCESS ASSET] ${stock.symbol}`,
+      error
+    );
+
+    return {
+      status: "failed",
+      symbol: stock.symbol,
+    };
+  }
+}
