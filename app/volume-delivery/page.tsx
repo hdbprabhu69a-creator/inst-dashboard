@@ -1,244 +1,684 @@
-"use client";
+﻿"use client";
 
-import React, { Fragment, useEffect, useMemo, useState } from "react";
+import React, {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+
 import { STOCK_UNIVERSE } from "@/lib/universe";
 
-const symbols: string[] = STOCK_UNIVERSE;
+const symbols: string[] =
+  STOCK_UNIVERSE;
 
 interface Candle {
   time: string;
+  
+  high: number;
+  low: number;
   volume: number;
+  close: number;
   deliveryQty?: number;
+  state?: string;
+  id?: string;
 }
 
-
 function formatVolume(value: number) {
-
   if (value >= 1000000000)
-    return (value / 1000000000).toFixed(2) + "B";
+    return (
+      value / 1000000000
+    ).toFixed(2) + "B";
 
   if (value >= 1000000)
-    return (value / 1000000).toFixed(2) + "M";
+    return (
+      value / 1000000
+    ).toFixed(2) + "M";
 
   if (value >= 1000)
-    return (value / 1000).toFixed(1) + "K";
+    return (
+      value / 1000
+    ).toFixed(1) + "K";
 
   return value.toString();
-
 }
 
 function formatDelivery(value?: number) {
-
-  if (value == null || isNaN(value))
+  if (
+    value == null ||
+    isNaN(value)
+  ) {
     return "";
+  }
 
   if (value >= 1000000000)
-    return (value / 1000000000).toFixed(2) + "B";
+    return (
+      value / 1000000000
+    ).toFixed(2) + "B";
 
   if (value >= 1000000)
-    return (value / 1000000).toFixed(2) + "M";
+    return (
+      value / 1000000
+    ).toFixed(2) + "M";
 
   if (value >= 1000)
-    return (value / 1000).toFixed(1) + "K";
+    return (
+      value / 1000
+    ).toFixed(1) + "K";
 
   return value.toFixed(0);
-
 }
 
+function formatDeliveryPercent(
+  deliveryQty?: number,
+  volume?: number
+) {
+  if (
+    deliveryQty == null ||
+    volume == null ||
+    volume <= 0 ||
+    isNaN(deliveryQty) ||
+    isNaN(volume)
+  ) {
+    return "0.00%";
+  }
+
+  return (
+    (deliveryQty / volume) *
+    100
+  ).toFixed(2) + "%";
+}
+
+function formatClose(value?: number) {
+  if (
+    value == null ||
+    isNaN(value)
+  ) {
+    return "";
+  }
+
+  return Number(value).toFixed(2);
+}
 
 export default function VolumeDeliveryPage() {
 
-  const [data, setData] = useState<Record<string, Candle[]>>({});
-  const [search, setSearch] = useState("");
-  const [sectorFilter, setSectorFilter] = useState("ALL");
-  const [sectorMap, setSectorMap] = useState<Record<string,string>>({});
-const [fromDate,setFromDate]=useState("");
-const [toDate,setToDate]=useState("");
-const [loading, setLoading] = useState(true);
+  const [data, setData] =
+    useState<Record<string, Candle[]>>({});
 
+  const [search, setSearch] =
+    useState("");
+
+  const [sectorFilter, setSectorFilter] =
+    useState("ALL");
+
+  const [sectorMap, setSectorMap] =
+    useState<Record<string, string>>({});
+
+  const [fromDate, setFromDate] =
+    useState("");
+
+  const [toDate, setToDate] =
+    useState("");
+
+  const [loading, setLoading] =
+    useState(false);
+
+  
+  const [savedState, setSavedState] =
+    useState<Record<string, boolean>>({});const loadedSymbols =
+    useRef<Set<string>>(new Set());
+
+  /*
+   * Load sector information only once.
+   *
+   * IMPORTANT:
+   * No stock history is loaded here.
+   */
   useEffect(() => {
 
-    async function load() {
+    let cancelled = false;
 
-      const result: Record<string, Candle[]> = {};
+    async function loadSectors() {
 
-      const deliveryRes = await fetch("/api/delivery-history");
-      const deliveryJson = await deliveryRes.json();
+      try {
 
-      const deliveryMap = new Map<string, number>();
+        const res =
+          await fetch(
+            "/api/swing-fib/stocks"
+          );
 
-      for (const row of (deliveryJson.data ?? [])) {
-        deliveryMap.set(
-          `${row.symbol}_${row.date}`,
-          Number(row.deliveryQty ?? 0)
-        );
+        if (!res.ok) {
+          return;
+        }
+
+        const json =
+          await res.json();
+
+        const sectors:
+          Record<string, string> = {};
+
+        (
+          json.stocks ?? []
+        ).forEach((row: any) => {
+
+          sectors[row.symbol] =
+            row.sector ?? "";
+
+        });
+
+        if (!cancelled) {
+          setSectorMap(sectors);
+        }
+
+      } catch {
+        // Sector information is optional.
       }
-
-      const stockRes = await fetch("/api/swing-fib/stocks");
-      const stockJson = await stockRes.json();
-
-      const sectors: Record<string,string> = {};
-
-      (stockJson.stocks ?? []).forEach((row:any)=>{
-
-        sectors[row.symbol] = row.sector ?? "";
-
-      });
-
-      setSectorMap(sectors);
-
-      await Promise.allSettled(
-
-        symbols.map(async (symbol) => {
-
-          try {
-
-            const res = await fetch(
-              `/api/history?symbol=${encodeURIComponent(symbol)}`
-            );
-
-            if (!res.ok)
-              throw new Error(symbol);
-
-            const json = await res.json();
-
-            result[symbol] =
-              Array.isArray(json)
-                ? json
-                    .slice(-30)
-                    .reverse()
-                    .map((c:any)=>({
-                      ...c,
-                      deliveryQty:
-                        deliveryMap.get(`${symbol}_${c.time}`) ?? 0,
-                    }))
-                : [];
-
-          } catch {
-
-            result[symbol] = [];
-
-          }
-
-        })
-
-      );
-
-      setData(result);
-      setLoading(false);
 
     }
 
-    load();
+    loadSectors();
+
+    return () => {
+      cancelled = true;
+    };
 
   }, []);
 
-  const sectorList = useMemo(() => [
+  /*
+   * LOAD ONLY THE SEARCHED STOCK.
+   *
+   * No STOCK_UNIVERSE.map().
+   * No loading all stock histories.
+   */
+  useEffect(() => {
 
-    "ALL",
+    const symbol =
+      search
+        .trim()
+        .toUpperCase();
 
-    ...Array.from(
-      new Set(
-        Object.values(sectorMap).filter(Boolean)
+    if (!symbol) {
+      setLoading(false);
+      return;
+    }
+
+    const matchedSymbol =
+  symbols.find(
+    (s) =>
+      s.toUpperCase() ===
+      symbol
+  ) ?? "";
+
+if (!matchedSymbol) {
+  setLoading(false);
+  return;
+}
+    /*
+     * Already loaded:
+     * do not make another Firestore/API request.
+     */
+    if (
+      loadedSymbols.current.has(
+        matchedSymbol
       )
-    ).sort()
+    ) {
+      setLoading(false);
+      return;
+    }
 
-  ], [sectorMap]);
+    let cancelled = false;
 
-  const stocks = useMemo(() => {
+    async function loadSymbol() {
 
-    return symbols.filter(symbol=>{
+      setLoading(true);
 
-      const matchSearch =
-        symbol.toLowerCase().includes(
-          search.toLowerCase()
+      try {
+
+        /*
+         * Only TWO requests:
+         *
+         * 1. selected stock OHLC/volume history
+         * 2. selected stock delivery history
+         *
+         * They run in parallel.
+         */
+        const [
+          historyRes,
+          deliveryRes,
+        ] = await Promise.all([
+          fetch(
+            `/api/history?symbol=${encodeURIComponent(
+              matchedSymbol
+            )}`
+          ),
+
+          fetch(
+            `/api/delivery-history?symbol=${encodeURIComponent(
+              matchedSymbol
+            )}`
+          ),
+        ]);
+
+        if (
+          !historyRes.ok ||
+          !deliveryRes.ok
+        ) {
+          throw new Error(
+            "Failed to load stock history"
+          );
+        }
+
+        const historyJson =
+          await historyRes.json();
+
+        const deliveryJson =
+          await deliveryRes.json();
+
+        const deliveryMap =
+          new Map<
+            string,
+            {
+              id: string;
+              deliveryQty: number;
+              state: string;
+            }
+          >();
+
+        for (
+          const row of
+            deliveryJson.data ?? []
+        ) {
+
+          deliveryMap.set(
+            String(row.date),
+            {
+              id: String(
+                row.id ?? ""
+              ),
+
+              deliveryQty:
+                Number(
+                  row.deliveryQty ?? 0
+                ),
+
+              state:
+                String(
+                  row.state ?? ""
+                ),
+            }
+          );
+
+        }
+
+        const candles: Candle[] =
+          Array.isArray(historyJson)
+            ? historyJson
+                .map((c: any) => {
+
+                  const time =
+                    String(
+                      c.time ??
+                      c.date ??
+                      ""
+                    );
+
+                  return {
+                    time,
+
+                  high:
+                    Number(
+                      c.high ?? 0
+                    ),
+
+                  low:
+                    Number(
+                      c.low ?? 0
+                    ),
+
+                 
+
+                    volume:
+                      Number(
+                        c.volume ?? 0
+                      ),
+
+                    close:
+                      Number(
+                        c.close ?? 0
+                      ),
+
+                    deliveryQty:
+                      deliveryMap.get(
+                        time
+                      )?.deliveryQty ?? 0,
+
+                    state:
+                      deliveryMap.get(
+                        time
+                      )?.state ?? "",
+
+                    id:
+                      deliveryMap.get(
+                        time
+                      )?.id,
+                  };
+
+                })
+                .filter(
+                  (c) => !!c.time
+                )
+                .sort(
+                  (
+                    a,
+                    b
+                  ) =>
+                    b.time.localeCompare(
+                      a.time
+                    )
+                )
+            : [];
+
+        if (cancelled) {
+          return;
+        }
+
+        setData(
+          (previous) => ({
+            ...previous,
+            [matchedSymbol]:
+              candles,
+          })
         );
 
-      const matchSector =
-        sectorFilter==="ALL" ||
-        sectorMap[symbol]===sectorFilter;
+        loadedSymbols.current.add(
+          matchedSymbol
+        );
 
-      return matchSearch && matchSector;
+      } catch {
 
-    });
+        if (!cancelled) {
 
-  }, [search,sectorFilter,sectorMap]);
+          setData(
+            (previous) => ({
+              ...previous,
+              [matchedSymbol]: [],
+            })
+          );
 
-  const dates = useMemo(() => {
+        }
 
-    for (const symbol of stocks) {
+      } finally {
 
-      const candles=data[symbol];
-
-      if(candles?.length){
-
-        return candles
-          .map(c=>c.time)
-          .filter(date=>{
-
-            if(fromDate && date<fromDate)
-              return false;
-
-            if(toDate && date>toDate)
-              return false;
-
-            return true;
-
-          });
+        if (!cancelled) {
+          setLoading(false);
+        }
 
       }
 
     }
 
-    return [];
+    /*
+     * Small debounce so typing
+     * "SBIN" does not generate
+     * four requests.
+     */
+    const timer =
+      setTimeout(
+        loadSymbol,
+        400
+      );
 
-  },[stocks,data,fromDate,toDate]);
+    return () => {
+
+      cancelled = true;
+
+      clearTimeout(timer);
+
+    };
+
+  }, [search]);
+
+  const sectorList =
+    useMemo(
+      () => [
+        "ALL",
+
+        ...Array.from(
+          new Set(
+            Object.values(
+              sectorMap
+            ).filter(Boolean)
+          )
+        ).sort(),
+      ],
+      [sectorMap]
+    );
+
+  const selectedSymbol =
+    search
+      .trim()
+      .toUpperCase();
+
+  const selectedStocks =
+    useMemo(() => {
+
+      if (!selectedSymbol) {
+        return [];
+      }
+
+      const matched =
+        symbols.find(
+          (symbol) =>
+            symbol.toUpperCase() ===
+            selectedSymbol
+        );
+
+      if (!matched) {
+        return [];
+      }
+
+      if (
+        sectorFilter !== "ALL" &&
+        sectorMap[matched] !==
+          sectorFilter
+      ) {
+        return [];
+      }
+
+      return [matched];
+
+    }, [
+      selectedSymbol,
+      sectorFilter,
+      sectorMap,
+    ]);
+
+  /*
+   * Date filtering is completely
+   * client-side.
+   *
+   * Changing dates = ZERO requests.
+   */
+  const rows = useMemo(() => {
+
+    const result: {
+      symbol: string;
+      time: string;
+       high: number;
+  low: number;
+      volume: number;
+      deliveryQty: number;
+      close: number;
+      state: string;
+      id?: string;
+    }[] = [];
+
+    for (
+      const symbol of
+        selectedStocks
+    ) {
+
+      const candles =
+        data[symbol] ?? [];
+
+      candles
+        .filter((c) => {
+
+          if (
+            fromDate &&
+            c.time < fromDate
+          ) {
+            return false;
+          }
+
+          if (
+            toDate &&
+            c.time > toDate
+          ) {
+            return false;
+          }
+
+          return true;
+
+        })
+        .forEach((c) => {
+
+          result.push({
+
+            symbol,
+
+            time: c.time,
+
+                  high:
+                    Number(
+                      c.high ?? 0
+                    ),
+
+                  low:
+                    Number(
+                      c.low ?? 0
+                    ),
+
+                  
+
+            volume:
+              Number(
+                c.volume ?? 0
+              ),
+
+            deliveryQty:
+              Number(
+                c.deliveryQty ?? 0
+              ),
+
+            close:
+              Number(
+                c.close ?? 0
+              ),
+
+            state:
+              c.state ?? "",
+
+            id:
+              c.id,
+
+          });
+
+        });
+
+    }
+
+    return result.sort(
+      (a, b) =>
+        b.time.localeCompare(
+          a.time
+        )
+    );
+
+  }, [
+    selectedStocks,
+    data,
+    fromDate,
+    toDate,
+  ]);
 
   return (
 
-    <div className="p-6">
+    <div className="px-6 pt-2 pb-4">
 
-      <h1 className="text-3xl font-bold mb-6">
-        Universe Volume & Delivery
-      </h1>
-
-      <div className="mb-6 flex items-center gap-4">
+      <div className="mb-2 flex items-center gap-3">
 
         <input
-          className="border rounded px-3 py-2 w-72"
+          className="border rounded px-3 py-1 w-72"
           placeholder="Search Stock..."
           value={search}
-          onChange={(e)=>setSearch(e.target.value)}
+          onChange={(e) =>
+            setSearch(
+              e.target.value
+            )
+          }
         />
+
+        {selectedSymbol && (
+          <div className="font-bold text-lg text-cyan-700 min-w-[90px]">
+            {selectedSymbol}
+          </div>
+        )}
 
         <select
           value={sectorFilter}
-          onChange={(e)=>setSectorFilter(e.target.value)}
-          className="border rounded px-3 py-2"
+          onChange={(e) =>
+            setSectorFilter(
+              e.target.value
+            )
+          }
+          className="border rounded px-3 py-1"
         >
-          {sectorList.map((sector)=>(
-            <option key={sector} value={sector}>
-              {sector}
-            </option>
-          ))}
+
+          {sectorList.map(
+            (sector) => (
+
+              <option
+                key={sector}
+                value={sector}
+              >
+                {sector}
+              </option>
+
+            )
+          )}
+
         </select>
 
-<input
-type="date"
-value={fromDate}
-onChange={(e)=>setFromDate(e.target.value)}
-className="border rounded px-3 py-2"
-/>
+        <input
+          type="date"
+          value={fromDate}
+          onChange={(e) =>
+            setFromDate(
+              e.target.value
+            )
+          }
+          className="border rounded px-3 py-1"
+        />
 
-<input
-type="date"
-value={toDate}
-onChange={(e)=>setToDate(e.target.value)}
-className="border rounded px-3 py-2"
-/>
+        <input
+          type="date"
+          value={toDate}
+          onChange={(e) =>
+            setToDate(
+              e.target.value
+            )
+          }
+          className="border rounded px-3 py-1"
+        />
 
-<div className="ml-auto text-sm text-gray-600">
-          Showing {stocks.length} / {symbols.length}
+        <div className="ml-auto text-sm text-gray-600">
+
+          Showing{" "}
+          {selectedStocks.length}
+          {" / "}
+          {symbols.length}
+
         </div>
 
       </div>
@@ -249,7 +689,14 @@ className="border rounded px-3 py-2"
           Loading...
         </div>
 
-      ) : dates.length === 0 ? (
+      ) : !search.trim() ? (
+
+        <div className="text-center py-20 text-gray-600">
+          Search a stock to view
+          Volume & Delivery history.
+        </div>
+
+      ) : rows.length === 0 ? (
 
         <div className="text-center py-20 text-red-600">
           No history data found.
@@ -259,30 +706,42 @@ className="border rounded px-3 py-2"
 
         <div className="overflow-auto border rounded">
 
-          <table className="min-w-max border-collapse">
+          <table className="w-full border-collapse">
 
             <thead>
 
               <tr className="bg-slate-800 text-white">
 
-                <th className="sticky left-0 bg-slate-800 border p-2">
-                  Stock
+                <th className="border px-2 py-[2px] text-left">
+                  Date
                 </th>
 
-                <th className="sticky left-[170px] bg-slate-800 border p-2">
-                  Type
+                <th className="border px-2 py-[2px] text-right">
+                  Volume
                 </th>
 
-                {dates.map((d) => (
+                <th className="border px-2 py-[2px] text-right">
+                  Delivery Qty
+                </th>
 
-                  <th
-                    key={d}
-                    className="border p-2 whitespace-nowrap"
-                  >
-                    {d}
-                  </th>
+                <th className="border px-2 py-[2px] text-right">
+                  Delivery %
+                </th>
+<th className="border px-2 py-[2px] text-right">
+  High
+</th>
 
-                ))}
+<th className="border px-2 py-[2px] text-right">
+  Low
+</th>
+
+                <th className="border px-2 py-[2px] text-right">
+                  Close
+                </th>
+
+                <th className="border px-2 py-[2px] text-left">
+                  State
+                </th>
 
               </tr>
 
@@ -290,76 +749,192 @@ className="border rounded px-3 py-2"
 
             <tbody>
 
-              {stocks.map((symbol) => (
+              {rows.map(
+                (row) => (
 
-                <Fragment key={symbol}>
+                  <tr
+                    key={`${row.symbol}_${row.time}`}
+                  >
 
-                  <tr>
-
-                    <td
-                      rowSpan={2}
-                      className="sticky left-0 bg-white border p-2 font-bold"
-                    >
-                      {symbol}
+                    <td className="border px-2 py-[2px]">
+                      {row.time}
                     </td>
 
-                    <td className="sticky left-[170px] bg-white border p-2">
-                      Volume
+                    <td className="border px-2 py-[2px] text-right">
+                      {formatVolume(
+                        row.volume
+                      )}
                     </td>
 
-                    {(data[symbol] ?? [])
-.filter(c=>{
+                    <td className="border px-2 py-[2px] text-right">
+                      {formatDelivery(
+                        row.deliveryQty
+                      )}
+                    </td>
 
-if(fromDate && c.time<fromDate) return false;
-if(toDate && c.time>toDate) return false;
+                    <td className="border px-2 py-[2px] text-right">
+                      {formatDeliveryPercent(
+                        row.deliveryQty,
+                        row.volume
+                      )}
+                    </td>
+<td className="border px-2 py-[2px] text-right">
+  {formatClose(
+    row.high
+  )}
+</td>
 
-return true;
+<td className="border px-2 py-[2px] text-right">
+  {formatClose(
+    row.low
+  )}
+</td>
+                    <td className="border px-2 py-[2px] text-right">
+                      {formatClose(
+                        row.close
+                      )}
+                    </td>
 
-})
-.map((c) => (
+                    <td className="border px-1 py-0.5">
+                      <select
+                        value={row.state}
+                        disabled={!row.id}
+                        onChange={async (e) => {
 
-                      <td
-                        key={c.time}
-                        className="border p-2 text-right"
+                          const state =
+                            e.target.value;
+
+                          
+
+                            setSavedState(
+                              (previous) => ({
+                                ...previous,
+[row.time]: false,
+                              })
+                            );try {
+
+                            const res =
+                              await fetch(
+                                "/api/delivery-history",
+                                {
+                                  method: "PUT",
+
+                                  headers: {
+                                    "Content-Type":
+                                      "application/json",
+                                  },
+
+                                  body:
+                                    JSON.stringify({
+                                      id:
+                                        row.id,
+
+                                      symbol:
+                                        row.symbol,
+
+                                      state,
+                                    }),
+                                }
+                              );
+
+                            const result =
+                              await res.json();
+
+                            if (!result.success) {
+                              throw new Error(
+                                result.error ??
+                                "Failed to save state"
+                              );
+                            }
+
+                            
+
+                            setSavedState(
+                              (previous) => ({
+                                ...previous,
+[row.time]: true,
+                              })
+                            );
+setData(
+                              (previous) => {
+
+                                const current =
+                                  previous[
+                                    row.symbol
+                                  ] ?? [];
+
+                                return {
+                                  ...previous,
+
+                                  [row.symbol]:
+                                    current.map(
+                                      (c) =>
+                                        c.time ===
+                                        row.time
+                                          ? {
+                                              ...c,
+                                              state,
+                                            }
+                                          : c
+                                    ),
+                                };
+
+                              }
+                            );
+
+                          } catch (error) {
+
+                            console.error(
+                              "State update failed:",
+                              error
+                            );
+
+                          }
+
+                        }}
+                        className="border rounded px-1 py-0.5 text-sm"
                       >
-                        {formatVolume(c.volume)}
-                      </td>
 
-                    ))}
+                        <option value="">
+                          Select
+                        </option>
+
+                        <option value="Accumulation">
+                          Accumulation
+                        </option>
+
+                        <option value="Markup">
+                          Markup
+                        </option>
+
+                        <option value="Expansion">
+                          Expansion
+                        </option>
+
+                        <option value="Distribution">
+                          Distribution
+                        </option>
+
+                        <option value="Markdown">
+                          Markdown
+                        </option>
+
+                        <option value="Reaccumulation">
+                          Reaccumulation
+                        </option>
+
+                      </select>
+{savedState[row.time] && (
+                        <span className="ml-2 text-xs font-semibold text-green-600">
+                          Saved
+                        </span>
+                      )}
+                    </td>
 
                   </tr>
 
-                  <tr>
-
-                    <td className="sticky left-[170px] bg-white border p-2">
-                      Delivery
-                    </td>
-
-                    {(data[symbol] ?? [])
-.filter(c=>{
-
-if(fromDate && c.time<fromDate) return false;
-if(toDate && c.time>toDate) return false;
-
-return true;
-
-})
-.map((c) => (
-
-                      <td
-                        key={c.time}
-                        className="border p-2 text-center"
-                      >
-                        {formatDelivery(c.deliveryQty)}
-                      </td>
-
-                    ))}
-
-                  </tr>
-
-                </Fragment>
-
-              ))}
+                )
+              )}
 
             </tbody>
 
@@ -374,6 +949,10 @@ return true;
   );
 
 }
+
+
+
+
 
 
 

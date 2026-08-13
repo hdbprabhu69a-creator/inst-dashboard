@@ -1,11 +1,7 @@
-import { NextResponse } from "next/server";
-import { KiteConnect } from "kiteconnect";
-
+﻿import { NextResponse } from "next/server";
 import {
   collection,
   getDocs,
-  getDoc,
-  Timestamp,
   doc,
   query,
   orderBy,
@@ -13,11 +9,9 @@ import {
   writeBatch,
 } from "firebase/firestore";
 
-import { adminDb } from "@/lib/firebase-admin";
 import { db } from "@/lib/firebase";
 import { getCachedAccessToken } from "@/lib/kite/tokenCache";
 import { getHistoricalCandles } from "@/lib/kite/historical";
-
 
 type Candle = {
   date: string;
@@ -28,306 +22,376 @@ type Candle = {
   volume: number;
 };
 
-async function delay(ms: number) {
-  return new Promise(res => setTimeout(res, ms));
+const sleep = (ms: number) =>
+  new Promise(r => setTimeout(r, ms));
+
+function dateString(d: Date) {
+  return d.toLocaleDateString("en-CA", {
+    timeZone: "Asia/Kolkata",
+  });
 }
 
-async function getKite() {
-  const accessToken = await getCachedAccessToken();
+function completedTradingDate() {
 
-  const kite =
-    new KiteConnect({
-      api_key: process.env.KITE_API_KEY!,
-    });
+  const now = new Date();
 
-  kite.setAccessToken(accessToken);
+  const ist = new Date(
+    now.toLocaleString("en-US", {
+      timeZone: "Asia/Kolkata",
+    })
+  );
 
-  return kite;
+  let d = new Date(ist);
+
+  const day = d.getDay();
+  const closed =
+    d.getHours() > 15 ||
+    (d.getHours() === 15 && d.getMinutes() >= 30);
+
+  if (day === 6) {
+    d.setDate(d.getDate() - 1);
+  } else if (day === 0) {
+    d.setDate(d.getDate() - 2);
+  } else if (!closed) {
+    d.setDate(d.getDate() - 1);
+
+    if (d.getDay() === 0) {
+      d.setDate(d.getDate() - 2);
+    } else if (d.getDay() === 6) {
+      d.setDate(d.getDate() - 1);
+    }
+  }
+
+  return dateString(d);
 }
 
-function normalize(candles: any[]): Candle[] {
+function normalize(rows: any[]): Candle[] {
 
-  console.log("RAW DATE SAMPLE:", candles[0]?.date);
-
-  return candles.map(c => {
+  return rows.map(c => {
 
     const utc = new Date(c.date);
 
     const ist = new Date(
-      utc.getTime() + (5.5 * 60 * 60 * 1000)
+      utc.getTime() + 5.5 * 60 * 60 * 1000
     );
 
-    const yyyy = ist.getUTCFullYear();
-
-    const mm = String(
-      ist.getUTCMonth() + 1
-    ).padStart(2, "0");
-
-    const dd = String(
-      ist.getUTCDate()
-    ).padStart(2, "0");
-
     return {
-
-      date: `${yyyy}-${mm}-${dd}`,
+      date: [
+        ist.getUTCFullYear(),
+        String(ist.getUTCMonth() + 1).padStart(2, "0"),
+        String(ist.getUTCDate()).padStart(2, "0"),
+      ].join("-"),
 
       open: Number(c.open),
-
       high: Number(c.high),
-
       low: Number(c.low),
-
       close: Number(c.close),
-
-      volume: Number(
-        c.volume ?? 0
-      ),
-
+      volume: Number(c.volume ?? 0),
     };
-
   });
-
 }
 
 export async function GET() {
-  const startedAt = Date.now();
+
+  const started = Date.now();
+
   try {
 
-  const kite = await getKite();
+    const token = await getCachedAccessToken();
 
-  const snapshot = await getDocs(collection(db, "universe"));
-
-  let totalStocks = 0;
-  let skippedStocks = 0;
-  let downloadedStocks = 0;
-  let totalCandles = 0;
-  const failedStocks:{symbol:string;token:any;error:string}[] = [];
-
-  let index = 0;
-for (const stockDoc of snapshot.docs) {
-index++;
-console.log(`[${index}/${snapshot.docs.length}] ${stockDoc.data().symbol}`);
-
-    const stock = stockDoc.data();
-    console.log("DOC:", stockDoc.id);
-
-    if (!stock.instrumentToken) {
-      skippedStocks++;
-      continue;
+    if (!token) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "No Access Token",
+        },
+        { status: 401 }
+      );
     }
-    const to=new Date();
 
-to.setDate(
-to.getDate()-1
-);
+    const targetDate =
+      completedTradingDate();
 
-to.setHours(
-23,
-59,
-59,
-999
-);
+    console.log(
+      "[HISTORY] TARGET:",
+      targetDate
+    );
 
-const historyRef = collection(
-  db,
-  "universe",
-  stockDoc.id,
-  "history"
-);
-
-const latestSnap = await getDocs(
-  query(
-    historyRef,
-    orderBy("date","desc"),
-    limit(1)
-  )
-);
-
-let from: Date;
-
-if (latestSnap.empty) {
-
-  from = new Date();
-  from.setFullYear(from.getFullYear() - 2);
-
-} else {
-
-  const latest = latestSnap.docs[0].data().date;
-
-  from=new Date(latest);
-
-from.setDate(
-from.getDate()-5
-);
-
-}
-
-console.log("FROM:", from.toISOString());
-    console.log("TO:", to.toISOString());
-    let raw: any[] = [];
-    try {
-      console.log("TOKEN:", Number(stock.instrumentToken));
-      console.log("INTERVAL:", "day");
-      console.log("FROM:", from.toISOString());
-      console.log("TO:", to.toISOString());
-      raw = await getHistoricalCandles(
-        Number(stock.instrumentToken),
-        from,
-        to,
-        "day"
+    const stocks =
+      await getDocs(
+        collection(db, "universe")
       );
 
+    let updatedStocks = 0;
+    let currentStocks = 0;
+    let firstLoadStocks = 0;
+    let newCandles = 0;
+    let failed = 0;
 
- } catch(e:any){
+    for (const stockDoc of stocks.docs) {
 
-console.error("FAILED SYMBOL:", stock.symbol);
-console.error("FAILED TOKEN:", stock.instrumentToken);
-console.error("FAILED:", e.message);
+      const stock = stockDoc.data();
+      const symbol =
+        stock.symbol ?? stockDoc.id;
 
-failedStocks.push({
-  symbol: stock.symbol,
-  token: stock.instrumentToken,
-  error: e.message
-});
-
-skippedStocks++;
-
-continue;
-
-}
-    downloadedStocks++;
-    const candles = normalize(raw);
-let inserted = 0;
-let skipped = 0;
-let missingSequence = 0;
-
-const sortedCandles = [...candles].sort(
-  (a, b) => a.date.localeCompare(b.date)
-);
-
-
-
-    let batch = writeBatch(db);
-    let ops = 0;
-
-    for (const c of candles) {
-
-      const ref = doc(
-        db,
-        "universe",
-        stockDoc.id,
-        "history",
-        c.date
-      );
-inserted++;
-
-      batch.set(ref, {
-        ...c,
-        symbol: stock.symbol,
-        instrumentToken: stock.instrumentToken,
-        updatedAt: new Date().toISOString(),
-      }, { merge: true });
-
-      ops++;
-
-      // ?? SAFE LIMIT (Firestore batch max ~500)
-      if (ops >= 400) {
-
-        await batch.commit();
-
-        batch = writeBatch(db);
-
-        ops = 0;
+      if (!stock.instrumentToken) {
+        continue;
       }
+
+      const history =
+        collection(
+          db,
+          "universe",
+          stockDoc.id,
+          "history"
+        );
+
+      const latestSnap =
+        await getDocs(
+          query(
+            history,
+            orderBy("date", "desc"),
+            limit(1)
+          )
+        );
+
+      let from: Date;
+      let latestStoredDate: string | null = null;
+
+      if (latestSnap.empty) {
+
+        firstLoadStocks++;
+
+        from = new Date();
+        from.setFullYear(
+          from.getFullYear() - 2
+        );
+
+      } else {
+
+        latestStoredDate =
+          latestSnap.docs[0]
+            .data()
+            .date;
+
+        /*
+         * Already up to date.
+         */
+        if (
+          latestStoredDate &&
+          latestStoredDate >= targetDate
+        ) {
+
+          currentStocks++;
+          continue;
+        }
+
+        /*
+         * ONLY missing dates.
+         */
+        from = new Date(
+          `${latestStoredDate}T00:00:00`
+        );
+
+        from.setDate(
+          from.getDate() + 1
+        );
+      }
+
+      const to =
+        new Date(
+          `${targetDate}T23:59:59+05:30`
+        );
+
+      console.log(
+        "[HISTORY]",
+        symbol,
+        "FROM:",
+        dateString(from),
+        "TO:",
+        targetDate
+      );
+
+      let raw: any[];
+
+      try {
+
+        raw =
+          await getHistoricalCandles(
+            Number(stock.instrumentToken),
+            from,
+            to,
+            "day"
+          );
+
+      } catch (e: any) {
+
+        failed++;
+
+        console.error(
+          "[HISTORY] FAILED",
+          symbol,
+          e?.message
+        );
+
+        continue;
+      }
+
+      const candles =
+        normalize(raw);
+
+      /*
+       * Keep only dates that are
+       * actually missing.
+       */
+      const missing =
+        candles.filter(c =>
+          (!latestStoredDate ||
+            c.date > latestStoredDate) &&
+          c.date <= targetDate
+        );
+
+      if (!missing.length) {
+        continue;
+      }
+
+      let batch =
+        writeBatch(db);
+
+      let ops = 0;
+
+      for (const candle of missing) {
+
+        const ref =
+          doc(
+            db,
+            "universe",
+            stockDoc.id,
+            "history",
+            candle.date
+          );
+
+        batch.set(
+          ref,
+          {
+            ...candle,
+            symbol,
+            instrumentToken:
+              stock.instrumentToken,
+            updatedAt:
+              new Date().toISOString(),
+          },
+          { merge: true }
+        );
+
+        ops++;
+        newCandles++;
+
+        if (ops === 400) {
+
+          await batch.commit();
+
+          batch =
+            writeBatch(db);
+
+          ops = 0;
+        }
+      }
+
+      if (ops) {
+        await batch.commit();
+      }
+
+      updatedStocks++;
+
+      await sleep(250);
     }
 
-    if (ops > 0) {
-      await batch.commit();
-    }
+    console.log(
+      "================================"
+    );
 
-    totalStocks++;
-    totalCandles += inserted;
-// ?? THROTTLE (CRITICAL FIX)
-    await delay(250);
+    console.log(
+      "[HISTORY] COMPLETE"
+    );
 
-  }
+    console.log(
+      "TARGET:",
+      targetDate
+    );
 
-  console.log("================================");
-console.log(`IMPORT FINISHED IN ${((Date.now()-startedAt)/1000).toFixed(2)}s`);
-console.log(`Downloaded: ${downloadedStocks}`);
-console.log(`Skipped: ${skippedStocks}`);
-console.log(`Candles Written: ${totalCandles}`);
-console.log("================================");
-  return NextResponse.json({
-    success: true,
-    totalStocks,
-    totalCandles
-  });
+    console.log(
+      "UPDATED STOCKS:",
+      updatedStocks
+    );
 
+    console.log(
+      "ALREADY CURRENT:",
+      currentStocks
+    );
 
+    console.log(
+      "FIRST LOAD:",
+      firstLoadStocks
+    );
 
+    console.log(
+      "NEW CANDLES:",
+      newCandles
+    );
 
+    console.log(
+      "FAILED:",
+      failed
+    );
 
+    console.log(
+      "TIME:",
+      ((Date.now() - started) / 1000)
+        .toFixed(2),
+      "sec"
+    );
 
+    console.log(
+      "================================"
+    );
 
+    return NextResponse.json({
 
+      success: failed === 0,
+
+      targetDate,
+
+      totalStocks:
+        stocks.size,
+
+      updatedStocks,
+
+      currentStocks,
+
+      firstLoadStocks,
+
+      newCandles,
+
+      failed,
+
+    });
 
   } catch (error: any) {
-    console.error("POPULATE HISTORY ERROR");
-    console.error("MESSAGE:", error?.message);
-    console.error("STATUS:", error?.status);
-    console.error("CODE:", error?.code);
-    console.error("STACK:", error?.stack);
-    return NextResponse.json({ success:false, error:String(error?.message ?? error), stack:error?.stack }, { status:500 });
+
+    console.error(
+      "[HISTORY] ERROR:",
+      error?.message
+    );
+
+    return NextResponse.json(
+      {
+        success: false,
+        error:
+          error?.message ??
+          String(error),
+      },
+      { status: 500 }
+    );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

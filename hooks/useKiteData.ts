@@ -5,90 +5,62 @@ import { fetchMarketData } from "@/services/marketService";
 import { KiteApiResponse } from "@/types/market";
 
 export function useKiteData(symbol: string) {
+  const [data, setData] = useState<KiteApiResponse | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const [data,setData]=useState<KiteApiResponse|null>(null);
-  const [loading,setLoading]=useState(false);
-  const [error,setError]=useState("");
+  useEffect(() => {
+    const cleanSymbol = symbol?.trim();
 
-  useEffect(()=>{
-
-    const cleanSymbol=symbol?.trim();
-
-    if(
+    if (
       !cleanSymbol ||
-      cleanSymbol==="undefined" ||
-      cleanSymbol==="null"
-    ){
+      cleanSymbol === "undefined" ||
+      cleanSymbol === "null"
+    ) {
       setData(null);
       setError("");
       setLoading(false);
       return;
     }
 
-    let mounted=true;
+    let mounted = true;
 
-    const loadData=async()=>{
+    const loadData = async () => {
+      try {
+        setLoading(true);
 
-      try{
+        const result = await fetchMarketData(cleanSymbol);
 
-        const result=await fetchMarketData(cleanSymbol);
-
-        if(!mounted)return;
+        if (!mounted) return;
 
         setData(result);
         setError("");
+      } catch (err: any) {
+        if (!mounted) return;
 
-      }catch(err:any){
-
-        if(!mounted)return;
-
-        console.error("KITE HOOK ERROR:",err);
+        console.error("KITE HOOK ERROR:", err);
 
         setError(
           err?.message ||
           "Market data unavailable"
         );
-
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
       }
-
     };
 
-    setLoading(true);
+    loadData();
 
-    loadData().finally(()=>{
-
-      if(mounted){
-
-        setLoading(false);
-
-      }
-
-    });
-
-    const interval=setInterval(()=>{
-
-      loadData();
-
-    },1000);
-
-    return()=>{
-
-      mounted=false;
-
-      clearInterval(interval);
-
+    return () => {
+      mounted = false;
     };
+  }, [symbol]);
 
-  },[symbol]);
-
-  return{
-
+  return {
     data,
-
     loading,
-
     error,
-
   };
-
 }

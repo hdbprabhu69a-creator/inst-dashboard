@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import { Stock } from "./types";
@@ -21,6 +21,7 @@ interface Props {
   setSelectedSymbols: React.Dispatch<
     React.SetStateAction<string[]>
   >;
+  onAddToWatchlist: () => void;
 }
 
 export default function ValueBuyTable({
@@ -30,6 +31,7 @@ export default function ValueBuyTable({
   num,
   selectedSymbols,
   setSelectedSymbols,
+  onAddToWatchlist,
 }: Props) {
 
   const [symbol, setSymbol] = useState("");
@@ -257,6 +259,26 @@ export default function ValueBuyTable({
           "
         >
           Add Value Buy
+        </button>
+        <button
+          type="button"
+          onClick={onAddToWatchlist}
+          disabled={selectedSymbols.length === 0}
+          className="
+            rounded
+            border
+            border-cyan-700
+            bg-cyan-950
+            px-4
+            py-2
+            font-semibold
+            text-cyan-300
+            hover:bg-cyan-900
+            disabled:cursor-not-allowed
+            disabled:opacity-40
+          "
+        >
+          Add Selected to Watchlist
         </button>
 
       </div>

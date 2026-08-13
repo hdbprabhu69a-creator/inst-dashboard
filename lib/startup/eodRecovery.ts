@@ -7,121 +7,217 @@
 
 import { db } from "@/lib/firebase";
 
-import { KiteConnect } from "kiteconnect";
-
-import {
-  getCachedAccessToken,
-} from "@/lib/kite/tokenCache";
-
-import {
-  loadInstrumentMap,
-  getDailyCandles,
-} from "@/src/lib/kiteData";
-
 import {
   generateMarketStructure,
 } from "@/lib/market/generateMarketStructure";
-
 
 const EOD_STATUS_COLLECTION =
   "settings";
 
 const EOD_STATUS_DOCUMENT =
-  "eodStatus";
+  "eod";
 
+const BASE_URL =
+  "http://localhost:3000";
+
+const HISTORY_API =
+  `${BASE_URL}/api/kite/populate-history`;
+
+async function updateHistory() {
+
+  const maxAttempts = 5;
+
+  for (
+    let attempt = 1;
+    attempt <= maxAttempts;
+    attempt++
+  ) {
+
+    try {
+
+      console.log(
+        `[AUTO POWER] History update attempt ${attempt}/${maxAttempts}`
+      );
+
+      const response =
+        await fetch(
+          HISTORY_API,
+          {
+            cache: "no-store",
+          }
+        );
+
+      if (response.ok) {
+
+        const result =
+          await response.json();
+
+        if (!result?.success) {
+
+          throw new Error(
+            "History update failed"
+          );
+
+        }
+
+        console.log(
+          "[AUTO POWER] History update completed:",
+          result
+        );
+
+        return result;
+      }
+
+      console.log(
+        `[AUTO POWER] History API HTTP ${response.status}`
+      );
+
+    } catch (error: any) {
+
+      console.log(
+        `[AUTO POWER] History attempt ${attempt} failed:`,
+        error?.message ??
+          String(error)
+      );
+
+      if (
+        attempt === maxAttempts
+      ) {
+
+        throw error;
+
+      }
+
+    }
+
+    await new Promise(
+      resolve =>
+        setTimeout(
+          resolve,
+          3000
+        )
+    );
+
+  }
+
+  throw new Error(
+    "History update failed after startup retries."
+  );
+}
 
 async function getLatestTradingDate() {
 
   console.log(
-    "[AUTO POWER] Getting latest trading date from Kite..."
+    "[AUTO POWER] Determining latest completed trading date..."
   );
 
-  const accessToken =
-    await getCachedAccessToken();
+  const now =
+    new Date();
 
-  if (!accessToken) {
-
-    console.log(
-      "[AUTO POWER] Kite access token unavailable."
+  const istNow =
+    new Date(
+      now.toLocaleString(
+        "en-US",
+        {
+          timeZone:
+            "Asia/Kolkata",
+        }
+      )
     );
 
-    return null;
-  }
+  let target =
+    new Date(istNow);
 
-  const kite =
-    new KiteConnect({
-      api_key:
-        process.env.KITE_API_KEY!,
-    });
+  const hours =
+    target.getHours();
 
-  kite.setAccessToken(
-    accessToken
+  const minutes =
+    target.getMinutes();
+
+  const marketClosed =
+    hours > 15 ||
+    (
+      hours === 15 &&
+      minutes >= 30
+    );
+
+  console.log(
+    "[AUTO POWER] IST:",
+    istNow.toString()
   );
 
-  const instrumentMap =
-    await loadInstrumentMap();
+  console.log(
+    "[AUTO POWER] Market closed:",
+    marketClosed
+  );
 
-  const token =
-    instrumentMap.get(
-      "NSE:SBIN"
+  /*
+   * Before 3:30 PM:
+   * today's trading session is not completed.
+   */
+  if (!marketClosed) {
+
+    target.setDate(
+      target.getDate() - 1
     );
 
-  if (!token) {
-
-    console.log(
-      "[AUTO POWER] SBIN token not found."
-    );
-
-    return null;
   }
 
-  const candles =
-    await getDailyCandles(
-      kite,
-      Number(token)
-    );
-
+  /*
+   * Saturday -> Friday
+   */
   if (
-    !candles ||
-    candles.length === 0
+    target.getDay() === 6
   ) {
 
-    console.log(
-      "[AUTO POWER] No Kite daily candles."
+    target.setDate(
+      target.getDate() - 1
     );
 
-    return null;
   }
 
-  const latest =
-    candles[
-      candles.length - 1
-    ];
+  /*
+   * Sunday -> Friday
+   */
+  if (
+    target.getDay() === 0
+  ) {
 
-  if (!latest?.date) {
-
-    console.log(
-      "[AUTO POWER] Latest candle has no date."
+    target.setDate(
+      target.getDate() - 2
     );
 
-    return null;
   }
 
-  const latestDate =
-    new Date(
-      latest.date
-    )
-      .toISOString()
-      .split("T")[0];
+  const yyyy =
+    target.getFullYear();
+
+  const mm =
+    String(
+      target.getMonth() + 1
+    ).padStart(
+      2,
+      "0"
+    );
+
+  const dd =
+    String(
+      target.getDate()
+    ).padStart(
+      2,
+      "0"
+    );
+
+  const latestTradingDate =
+    `${yyyy}-${mm}-${dd}`;
 
   console.log(
     "[AUTO POWER] Latest completed trading date:",
-    latestDate
+    latestTradingDate
   );
 
-  return latestDate;
+  return latestTradingDate;
 }
-
 
 async function getLastRunDate() {
 
@@ -137,7 +233,9 @@ async function getLastRunDate() {
       statusRef
     );
 
-  if (!snapshot.exists()) {
+  if (
+    !snapshot.exists()
+  ) {
 
     console.log(
       "[AUTO POWER] No EOD checkpoint found."
@@ -147,21 +245,23 @@ async function getLastRunDate() {
   }
 
   const lastRunDate =
-    snapshot.data()
+    snapshot
+      .data()
       ?.lastRunDate;
 
   console.log(
     "[AUTO POWER] Last processed EOD date:",
-    lastRunDate ?? "NONE"
+    lastRunDate ??
+      "NONE"
   );
 
   return (
-    typeof lastRunDate === "string"
+    typeof lastRunDate ===
+    "string"
       ? lastRunDate
       : null
   );
 }
-
 
 export async function runPendingEODIfRequired() {
 
@@ -177,11 +277,16 @@ export async function runPendingEODIfRequired() {
     "============================================"
   );
 
-
+  /*
+   * Determine the actual completed
+   * trading session from IST.
+   */
   const latestTradingDate =
     await getLatestTradingDate();
 
-  if (!latestTradingDate) {
+  if (
+    !latestTradingDate
+  ) {
 
     console.log(
       "[AUTO POWER] Cannot determine trading date."
@@ -195,10 +300,11 @@ export async function runPendingEODIfRequired() {
     };
   }
 
-
+  /*
+   * Read EOD checkpoint.
+   */
   const lastRunDate =
     await getLastRunDate();
-
 
   console.log(
     "[AUTO POWER] DATE COMPARISON:",
@@ -208,9 +314,8 @@ export async function runPendingEODIfRequired() {
     }
   );
 
-
   /*
-   * Nothing missed.
+   * Nothing missing.
    */
   if (
     lastRunDate ===
@@ -229,7 +334,6 @@ export async function runPendingEODIfRequired() {
     };
   }
 
-
   /*
    * EOD is missing.
    */
@@ -237,31 +341,96 @@ export async function runPendingEODIfRequired() {
     "[AUTO POWER] MISSED EOD DETECTED."
   );
 
+  /*
+   * Update completed trading history.
+   */
+  console.log(
+    "[AUTO POWER] Updating completed trading history..."
+  );
+
+  let historyResult;
+
+  try {
+
+    historyResult =
+      await updateHistory();
+
+  } catch (error: any) {
+
+    console.error(
+      "[AUTO POWER] HISTORY UPDATE FAILED:",
+      error?.message ??
+        String(error)
+    );
+
+    return {
+      success: false,
+      skipped: false,
+      date:
+        latestTradingDate,
+      reason:
+        "HISTORY_UPDATE_FAILED",
+      error:
+        error?.message ??
+        String(error),
+    };
+  }
+
+  console.log(
+    "[AUTO POWER] History completed."
+  );
+
+  /*
+   * STOCK market structure.
+   */
   console.log(
     "[AUTO POWER] Starting STOCK market structure..."
   );
 
+  let stockResult;
 
-  const stockResult =
-    await generateMarketStructure({
+  try {
 
-      sourceCollection:
-        "universe",
+    stockResult =
+      await generateMarketStructure({
 
-      targetCollection:
-        "marketStructure",
+        sourceCollection:
+          "universe",
 
-      includeDelivery:
-        true,
+        targetCollection:
+          "marketStructure",
 
-    });
+        includeDelivery:
+          true,
 
+      });
+
+  } catch (error: any) {
+
+    console.error(
+      "[AUTO POWER] STOCK EOD FAILED:",
+      error?.message ??
+        String(error)
+    );
+
+    return {
+      success: false,
+      skipped: false,
+      date:
+        latestTradingDate,
+      historyResult,
+      reason:
+        "STOCK_STRUCTURE_FAILED",
+      error:
+        error?.message ??
+        String(error),
+    };
+  }
 
   console.log(
     "[AUTO POWER] STOCK RESULT:",
     stockResult
   );
-
 
   if (
     !stockResult?.success
@@ -276,40 +445,67 @@ export async function runPendingEODIfRequired() {
       skipped: false,
       date:
         latestTradingDate,
+      historyResult,
       stockResult,
     };
   }
-
 
   console.log(
     "[AUTO POWER] Stock structure completed."
   );
 
+  /*
+   * INDEX market structure.
+   */
   console.log(
     "[AUTO POWER] Starting INDEX market structure..."
   );
 
+  let indexResult;
 
-  const indexResult =
-    await generateMarketStructure({
+  try {
 
-      sourceCollection:
-        "universe_indices",
+    indexResult =
+      await generateMarketStructure({
 
-      targetCollection:
-        "index_market_structure",
+        sourceCollection:
+          "universe_indices",
 
-      includeDelivery:
-        false,
+        targetCollection:
+          "index_market_structure",
 
-    });
+        includeDelivery:
+          false,
 
+      });
+
+  } catch (error: any) {
+
+    console.error(
+      "[AUTO POWER] INDEX EOD FAILED:",
+      error?.message ??
+        String(error)
+    );
+
+    return {
+      success: false,
+      skipped: false,
+      date:
+        latestTradingDate,
+      historyResult,
+      stockResult,
+      reason:
+        "INDEX_STRUCTURE_FAILED",
+      error:
+        error?.message ??
+        String(error),
+    };
+  }
 
   console.log(
     "[AUTO POWER] INDEX RESULT:",
     indexResult
   );
-
 
   if (
     !indexResult?.success
@@ -320,32 +516,33 @@ export async function runPendingEODIfRequired() {
     );
 
     /*
-     * Do NOT update the checkpoint.
+     * Do NOT update checkpoint.
      *
-     * This allows the next startup / scheduler
-     * to retry the missed EOD.
+     * Next startup will retry.
      */
     return {
       success: false,
       skipped: false,
       date:
         latestTradingDate,
+      historyResult,
       stockResult,
       indexResult,
     };
   }
 
-
   console.log(
     "[AUTO POWER] Index structure completed."
   );
 
-
   /*
-   * IMPORTANT:
+   * Checkpoint is written ONLY after:
    *
-   * Checkpoint is written ONLY after both
-   * STOCK and INDEX processing succeeds.
+   * 1. History
+   * 2. Stock structure
+   * 3. Index structure
+   *
+   * all succeed.
    */
   const statusRef =
     doc(
@@ -353,7 +550,6 @@ export async function runPendingEODIfRequired() {
       EOD_STATUS_COLLECTION,
       EOD_STATUS_DOCUMENT
     );
-
 
   await setDoc(
     statusRef,
@@ -366,13 +562,11 @@ export async function runPendingEODIfRequired() {
 
       updatedAt:
         serverTimestamp(),
-
     },
     {
       merge: true,
     }
   );
-
 
   console.log(
     "============================================"
@@ -387,14 +581,18 @@ export async function runPendingEODIfRequired() {
     "============================================"
   );
 
-
   return {
     success: true,
+
     skipped: false,
+
     date:
       latestTradingDate,
+
+    historyResult,
+
     stockResult,
+
     indexResult,
   };
-
 }

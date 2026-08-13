@@ -201,38 +201,63 @@ const latestStructureDate =
     lastCandle.date
   );
 
-const latestDay =
-  latestStructureDate.getDay();
+const latestDate =
+  new Date(latestStructureDate);
 
-const daysFromMonday =
-  latestDay === 0
-    ? 6
-    : latestDay - 1;
-
-const weekStart =
-  new Date(
-    latestStructureDate
-  );
-
-weekStart.setDate(
-  latestStructureDate.getDate() -
-  daysFromMonday
-);
-
-weekStart.setHours(
+latestDate.setHours(
   0,
   0,
   0,
   0
 );
 
-const weekEnd =
-  new Date(
-    weekStart
-  );
+const latestDay =
+  latestDate.getDay();
+const daysFromMonday =
+  latestDay === 0
+    ? 6
+    : latestDay - 1;
 
-weekEnd.setDate(
-  weekEnd.getDate() + 7
+const currentWeekStart =
+  new Date(latestStructureDate);
+
+currentWeekStart.setDate(
+  latestStructureDate.getDate() -
+  daysFromMonday
+);
+
+currentWeekStart.setHours(
+  0,
+  0,
+  0,
+  0
+);
+
+const currentWeekEnd =
+  new Date(currentWeekStart);
+
+currentWeekEnd.setDate(
+  currentWeekEnd.getDate() + 7
+);
+
+/*
+ * WEEKLY PIVOT
+ *
+ * Always use the previous completed week.
+ */
+
+const weeklyStart =
+  new Date(currentWeekStart);
+
+const weeklyEnd =
+  new Date(currentWeekEnd);
+
+weeklyStart.setDate(
+  weeklyStart.getDate() - 7
+);
+
+weeklyEnd.setDate(
+  weeklyEnd.getDate() - 7
 );
 
 const weeklyCandlesForStructure =
@@ -242,25 +267,28 @@ const weeklyCandlesForStructure =
       const d =
         new Date(c.date);
 
+      d.setHours(
+        0,
+        0,
+        0,
+        0
+      );
+
       return (
-        d >= weekStart &&
-        d < weekEnd
+        d >= weeklyStart &&
+        d < weeklyEnd
       );
 
     }
   );
 
-if (
-  weeklyCandlesForStructure.length === 0
-) {
-
-  return {
-    status: "failed",
-    symbol,
-  };
-
-}
-
+console.log(
+  `[AUTO POWER WEEKLY SOURCE] ${symbol} | ` +
+  `FROM: ${weeklyStart.toISOString().split("T")[0]} | ` +
+  `TO: ${new Date(
+    weeklyEnd.getTime() - 86400000
+  ).toISOString().split("T")[0]}`
+);
 const weeklyHigh =
   Math.max(
     ...weeklyCandlesForStructure.map(
@@ -670,6 +698,9 @@ const swings=buildAllSwings(swingCandles); console.log(`[AUTO POWER SWING] ${sym
     };
   }
 }
+
+
+
 
 
 

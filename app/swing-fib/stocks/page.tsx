@@ -120,6 +120,7 @@ export default function SwingFibPage() {
   ] = useState<ValueBuyEntry[]>(
     []
   );
+      
 
   const [
     watchlistSymbols,
@@ -136,94 +137,84 @@ export default function SwingFibPage() {
 
   const cmpUpdatingRef =
     useRef(false);
+  const watchlistLoadedRef =
+    useRef(false);
 
 
 useEffect(() => {
-    try {
-      const saved =
-        localStorage.getItem(
-          VALUE_BUY_STORAGE
+    async function loadWatchlist() {
+      try {
+        const res = await fetch(
+          "/api/swing-fib/watchlist",
+          {
+            cache: "no-store",
+          }
         );
 
-      if (saved) {
-        const parsed =
-          JSON.parse(saved);
-
-        if (
-          Array.isArray(parsed)
-        ) {
-          setValueBuyEntries(
-            parsed
+        if (!res.ok) {
+          throw new Error(
+            "Watchlist load failed"
           );
         }
-      }
-    } catch (error) {
-      console.error(
-        "VALUE BUY LOAD ERROR:",
-        error
-      );
-    }
-  }, []);
 
-  useEffect(() => {
-    try {
-      localStorage.setItem(
-        VALUE_BUY_STORAGE,
-        JSON.stringify(
-          valueBuyEntries
-        )
-      );
-    } catch (error) {
-      console.error(
-        "VALUE BUY SAVE ERROR:",
-        error
-      );
-    }
-  }, [valueBuyEntries]);
+        const data =
+          await res.json();
 
-  useEffect(() => {
-    try {
-      const saved =
-        localStorage.getItem(
-          WATCHLIST_STORAGE
+        setWatchlistSymbols(
+          Array.isArray(data.symbols)
+            ? data.symbols
+            : []
         );
 
-      if (saved) {
-        const parsed =
-          JSON.parse(saved);
-
-        if (
-          Array.isArray(parsed)
-        ) {
-          setWatchlistSymbols(
-            parsed
-          );
-        }
+        setValueBuyEntries(
+          Array.isArray(
+            data.valueBuyEntries
+          )
+            ? data.valueBuyEntries
+            : []
+        );
+        watchlistLoadedRef.current = true;
+      } catch (error) {
+        console.error(
+          "WATCHLIST FIRESTORE LOAD ERROR:",
+          error
+        );
       }
-    } catch (error) {
-      console.error(
-        "WATCHLIST LOAD ERROR:",
-        error
-      );
     }
+
+    loadWatchlist();
   }, []);
 
-  useEffect(() => {
-    try {
-      localStorage.setItem(
-        WATCHLIST_STORAGE,
-        JSON.stringify(
-          watchlistSymbols
-        )
-      );
-    } catch (error) {
+ useEffect(() => {
+  if (!watchlistLoadedRef.current) {
+    return;
+  }
+    fetch(
+      "/api/swing-fib/watchlist",
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type":
+            "application/json",
+        },
+        body: JSON.stringify({
+          symbols:
+            watchlistSymbols,
+          valueBuyEntries:
+            valueBuyEntries,
+        }),
+      }
+    ).catch(error => {
       console.error(
-        "WATCHLIST SAVE ERROR:",
+        "WATCHLIST FIRESTORE SAVE ERROR:",
         error
       );
-    }
-  }, [watchlistSymbols]);
-  const loadStaticData =
+    });
+  }, [
+    watchlistSymbols,
+    valueBuyEntries,
+  ]);
+const loadStaticData =
     async () => {
       try {
         setLoading(true);
@@ -419,15 +410,6 @@ useEffect(() => {
       const marketClose =
         15 * 60 + 30;
 
-      if (
-        currentMinutes <
-          marketOpen ||
-        currentMinutes >
-          marketClose
-      ) {
-        return;
-      }
-
       try {
         const symbols =
           stocks.map(
@@ -531,6 +513,8 @@ useEffect(() => {
 
       updateCmp();
     };
+
+    updateCmp();
 
     updateDuringMarketHours();
 
@@ -688,24 +672,43 @@ useEffect(() => {
   const watchlistEntries =
     useMemo(
       () =>
-        valueBuyEntries.filter(
-          entry =>
-            watchlistSymbols.includes(
-              entry.symbol
-            ) &&
-            filteredStocks.some(
-              stock =>
-                stock.symbol ===
-                entry.symbol
-            )
-        ),
+        watchlistSymbols
+          .map(symbol => {
+            const stock =
+              filteredStocks.find(
+                s => s.symbol === symbol
+              );
+
+            if (!stock) {
+              return null;
+            }
+
+            const valueBuyEntry =
+              valueBuyEntries.find(
+                entry =>
+                  entry.symbol === symbol
+              );
+
+            return {
+              ...stock,
+              valueBuyPrice:
+                valueBuyEntry?.valueBuyPrice ??
+                null,
+            };
+          })
+          .filter(
+            (
+              stock
+            ): stock is Stock & {
+              valueBuyPrice: number | null;
+            } => stock !== null
+          ),
       [
-        valueBuyEntries,
         watchlistSymbols,
         filteredStocks,
+        valueBuyEntries,
       ]
     );
-
   /*
    * Add checked Value Buy stocks
    * to Watchlist.
@@ -853,11 +856,13 @@ useEffect(() => {
   <col style={{ width: "12%" }} />
   <col style={{ width: "12%" }} />
   <col style={{ width: "22%" }} />
-  <col style={{ width: "2%" }} />
+  <col style={{ width: "6%" }} />
 </colgroup>
 
+            <thead>
+              <tr>
 
-            <th
+                <th
                   className="
                     px-3
                     py-1
@@ -865,7 +870,9 @@ useEffect(() => {
                   "
                 >
                   SYM
-                </th><th
+                </th>
+
+                <th
                   className="
                     px-3
                     py-1
@@ -873,41 +880,66 @@ useEffect(() => {
                   "
                 >
                   CMP
-                </th><th
-                  className="px-3 py-1 text-right"
+                </th>
+
+                <th
+                  className="
+                    px-3
+                    py-1
+                    text-right
+                  "
                 >
                   VALUE BUY
-                </th><th
-                  className="px-3 py-1 text-right"
+                </th>
+
+                <th
+                  className="
+                    px-3
+                    py-1
+                    text-right
+                  "
                 >
                   D PVT
-                </th><th
-                  className="px-3 py-1 text-right"
+                </th>
+
+                <th
+                  className="
+                    px-3
+                    py-1
+                    text-right
+                  "
                 >
                   W PVT
-                </th><th
-                  className="px-3 py-1 text-right"
+                </th>
+
+                <th
+                  className="
+                    px-3
+                    py-1
+                    text-right
+                  "
                 >
                   M PVT
-                </th><th
-                  className="w-6 px-1"
+                </th>
+
+                <th
+                  className="
+                    w-6
+                    px-1
+                  "
                 />
+
+              </tr>
+            </thead>
 
             <tbody>
 
               {watchlistEntries.map(
-                entry => {
-
-                  const stock =
-                    stocks.find(
-                      s =>
-                        s.symbol ===
-                        entry.symbol
-                    );
+                stock => {
 
                   return (
                     <tr
-                      key={entry.symbol}
+                      key={stock.symbol}
                       className="
                         border-b
                         border-[#292e33]
@@ -924,7 +956,7 @@ useEffect(() => {
                           text-cyan-200
                         "
                       >
-                        {entry.symbol}
+                        {stock.symbol}
                       </td>
 
                       <td
@@ -949,7 +981,7 @@ useEffect(() => {
                         "
                       >
                         {num(
-                          entry.valueBuyPrice
+                          stock.valueBuyPrice
                         )}
                       </td>
 
@@ -978,7 +1010,7 @@ useEffect(() => {
                           type="button"
                           onClick={() =>
                             removeFromWatchlist(
-                              entry.symbol
+                              stock.symbol
                             )
                           }
                           className="
@@ -987,7 +1019,7 @@ useEffect(() => {
                           "
                           title="Remove from Watchlist"
                         >
-                          ×
+                          Ã—
                         </button>
                       </td>
 
@@ -1056,6 +1088,9 @@ useEffect(() => {
 
             setSelectedSymbols={
               setSelectedValueBuySymbols
+            }
+            onAddToWatchlist={
+              addSelectedToWatchlist
             }
 
           />
@@ -1143,6 +1178,9 @@ useEffect(() => {
     </div>
   );
 }
+
+
+
 
 
 

@@ -14,7 +14,13 @@ export async function ensureLiveServerStarted() {
     }
 
     started = true;
+ if (!schedulerStarted) {
 
+        schedulerStarted = true;
+
+        startEodScheduler();
+
+    }
     console.log(
         "[LiveServer] Initializing..."
     );
@@ -60,13 +66,7 @@ export async function ensureLiveServerStarted() {
 
     // BUILD-014 Disabled KiteLiveService
 
-    if (!schedulerStarted) {
-
-        schedulerStarted = true;
-
-        startEodScheduler();
-
-    }
+   
 
 }
 
