@@ -1,0 +1,1280 @@
+﻿"use client";
+
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+
+import Toolbar from "./components/Toolbar";
+import TableHeader from "./components/TableHeader";
+import TableRow from "./components/TableRow";
+
+import ValueBuyTable, {
+  ValueBuyEntry,
+} from "./components/ValueBuyTable";
+
+import { Stock } from "./components/types";
+
+const VALUE_BUY_STORAGE =
+  "swing-fib-value-buy";
+
+const WATCHLIST_STORAGE =
+  "swing-fib-watchlist";
+
+function num(value: any) {
+  return value == null || isNaN(value)
+    ? "-"
+    : Number(value).toFixed(2);
+}
+
+function dt(value: any) {
+  if (!value) {
+    return "-";
+  }
+
+  if (value.seconds) {
+    return new Date(
+      value.seconds * 1000
+    ).toLocaleDateString(
+      "en-GB",
+      {
+        day: "2-digit",
+        month: "short",
+      }
+    );
+  }
+
+  if (value.toDate) {
+    return value
+      .toDate()
+      .toLocaleDateString(
+        "en-GB",
+        {
+          day: "2-digit",
+          month: "short",
+        }
+      );
+  }
+
+  return new Date(value).toLocaleDateString(
+    "en-GB",
+    {
+      day: "2-digit",
+      month: "short",
+    }
+  );
+}
+
+export default function SwingFibPage() {
+  const [
+    stocks,
+    setStocks,
+  ] = useState<Stock[]>([]);
+
+  const [loading, setLoading] = useState(false);
+
+  const [
+    search,
+    setSearch,
+  ] = useState("");
+
+  const [
+    sectorFilter,
+    setSectorFilter,
+  ] = useState("ALL");
+
+  const [
+    swingFilter,
+    setSwingFilter,
+  ] = useState("");
+
+  const [
+    volPeriod,
+    setVolPeriod,
+  ] = useState("1W");
+
+  const [
+    historyMap,
+    setHistoryMap,
+  ] = useState<
+    Record<string, any[]>
+  >({});
+
+  const [
+    fullHistoryMap,
+    setFullHistoryMap,
+  ] = useState<
+    Record<string, any[]>
+  >({});
+
+  const [
+    headerDates,
+    setHeaderDates,
+  ] = useState<string[]>([]);
+
+  const [
+    valueBuyEntries,
+    setValueBuyEntries,
+  ] = useState<ValueBuyEntry[]>(
+    []
+  );
+      
+
+  const [
+    watchlistSymbols,
+    setWatchlistSymbols,
+  ] = useState<string[]>([]);
+
+  const [
+    selectedValueBuySymbols,
+    setSelectedValueBuySymbols,
+  ] = useState<string[]>([]);
+
+  const staticLoadedRef =
+    useRef(false);
+
+  const cmpUpdatingRef =
+    useRef(false);
+  const watchlistLoadedRef =
+    useRef(false);
+
+
+useEffect(() => {
+    async function loadWatchlist() {
+      try {
+        const res = await fetch(
+          "/api/swing-fib/watchlist",
+          {
+            cache: "no-store",
+          }
+        );
+
+        if (!res.ok) {
+          throw new Error(
+            "Watchlist load failed"
+          );
+        }
+
+        const data =
+          await res.json();
+
+        setWatchlistSymbols(
+          Array.isArray(data.symbols)
+            ? data.symbols
+            : []
+        );
+
+        setValueBuyEntries(
+          Array.isArray(
+            data.valueBuyEntries
+          )
+            ? data.valueBuyEntries
+            : []
+        );
+        watchlistLoadedRef.current = true;
+      } catch (error) {
+        console.error(
+          "WATCHLIST FIRESTORE LOAD ERROR:",
+          error
+        );
+      }
+    }
+
+    loadWatchlist();
+  }, []);
+
+ useEffect(() => {
+  if (!watchlistLoadedRef.current) {
+    return;
+  }
+    fetch(
+      "/api/swing-fib/watchlist",
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type":
+            "application/json",
+        },
+        body: JSON.stringify({
+          symbols:
+            watchlistSymbols,
+          valueBuyEntries:
+            valueBuyEntries,
+        }),
+      }
+    ).catch(error => {
+      console.error(
+        "WATCHLIST FIRESTORE SAVE ERROR:",
+        error
+      );
+    });
+  }, [
+    watchlistSymbols,
+    valueBuyEntries,
+  ]);
+const loadStaticData =
+    async () => {
+      try {
+        setLoading(true);
+
+        const res =
+          await fetch(
+            "/api/swing-fib/stocks",
+            {
+              cache: "no-store",
+            }
+          );
+
+        if (!res.ok) {
+          throw new Error(
+            `Static data request failed: ${res.status}`
+          );
+        }
+
+        const json =
+          await res.json();
+
+        const stockData =
+          json.stocks ??
+          json.data ??
+          [];
+
+        setStocks(
+          stockData
+        );
+
+        const deliveryRes =
+          await fetch(
+            "/api/delivery-history",
+            {
+              cache: "no-store",
+            }
+          );
+
+        if (!deliveryRes.ok) {
+          throw new Error(
+            `Delivery request failed: ${deliveryRes.status}`
+          );
+        }
+
+        const deliveryJson =
+          await deliveryRes.json();
+
+        const deliveryMap =
+          new Map<string, number>();
+
+        for (
+          const d of
+          (
+            deliveryJson.data ??
+            []
+          )
+        ) {
+          deliveryMap.set(
+            `${d.symbol}_${d.date}`,
+            Number(
+              d.deliveryQty ?? 0
+            )
+          );
+        }
+
+        const historyRes =
+          await fetch(
+            "/api/history-bulk",
+            {
+              cache: "no-store",
+            }
+          );
+
+        if (!historyRes.ok) {
+          throw new Error(
+            `History request failed: ${historyRes.status}`
+          );
+        }
+
+        const historyJson =
+          await historyRes.json();
+        const fullHistory:
+          Record<string, any[]> = {};
+
+        for (
+          const stock of stockData
+        ) {
+          const rows =
+            (
+              historyJson[
+                stock.symbol
+              ] ?? []
+            )
+              .map(
+                (c: any) => ({
+                  ...c,
+                  deliveryQty:
+                    deliveryMap.get(
+                      `${stock.symbol}_${c.time}`
+                    ) ?? 0,
+                })
+              );
+
+          fullHistory[
+            stock.symbol
+          ] = rows;
+        }
+
+        setFullHistoryMap(
+          fullHistory
+        );
+      } catch (error) {
+        console.error(
+          "SWING FIB STATIC LOAD ERROR:",
+          error
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+
+  useEffect(() => {
+    if (!swingFilter) {
+      return;
+    }
+
+    if (staticLoadedRef.current) {
+      return;
+    }
+
+    staticLoadedRef.current = true;
+
+    loadStaticData();
+  }, [
+    swingFilter,
+  ]);
+
+  const updateCmp =
+    async () => {
+      if (
+        stocks.length === 0
+      ) {
+        return;
+      }
+
+      if (cmpUpdatingRef.current) {
+        return;
+      }
+
+      cmpUpdatingRef.current = true;
+
+      const now =
+        new Date();
+
+      const parts =
+        new Intl.DateTimeFormat(
+          "en-GB",
+          {
+            timeZone:
+              "Asia/Kolkata",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+          }
+        ).formatToParts(now);
+
+      const hour =
+        Number(
+          parts.find(
+            x =>
+              x.type ===
+              "hour"
+          )?.value ?? 0
+        );
+
+      const minute =
+        Number(
+          parts.find(
+            x =>
+              x.type ===
+              "minute"
+          )?.value ?? 0
+        );
+
+      const currentMinutes =
+        hour * 60 +
+        minute;
+
+      const marketOpen =
+        9 * 60 + 15;
+
+      const marketClose =
+        15 * 60 + 30;
+
+      try {
+        const symbols =
+          stocks.map(
+            stock =>
+              stock.symbol
+          );
+
+        const res =
+          await fetch(
+            `/api/swing-fib/cmp?symbols=${encodeURIComponent(
+              symbols.join(",")
+            )}`,
+            {
+              cache:
+                "no-store",
+            }
+          );
+
+        if (!res.ok) {
+          return;
+        }
+
+        const json =
+          await res.json();
+
+        const prices =
+          json.prices ?? {};
+
+        setStocks(
+          current =>
+            current.map(
+              stock => ({
+                ...stock,
+                liveCmp:
+                  prices[
+                    stock.symbol
+                  ] ??
+                  stock.liveCmp ??
+                  stock.cmp ??
+                  0,
+              })
+            )
+        );
+      } catch (error) {
+        console.error(
+          "CMP UPDATE ERROR:",
+          error
+        );
+      }
+      finally {
+        cmpUpdatingRef.current =
+          false;
+      }
+    };
+  useEffect(() => {
+    if (stocks.length === 0) {
+      return;
+    }
+
+    const updateDuringMarketHours = () => {
+      const now = new Date();
+
+      const hour =
+        Number(
+          new Intl.DateTimeFormat(
+            "en-US",
+            {
+              timeZone: "Asia/Kolkata",
+              hour: "2-digit",
+              hour12: false,
+            }
+          ).format(now)
+        );
+
+      const minute =
+        Number(
+          new Intl.DateTimeFormat(
+            "en-US",
+            {
+              timeZone: "Asia/Kolkata",
+              minute: "2-digit",
+            }
+          ).format(now)
+        );
+
+      const currentMinutes =
+        hour * 60 + minute;
+
+      const marketOpen =
+        9 * 60 + 15;
+
+      const marketClose =
+        15 * 60 + 30;
+
+      if (
+        currentMinutes < marketOpen ||
+        currentMinutes > marketClose
+      ) {
+        return;
+      }
+
+      updateCmp();
+    };
+
+    updateCmp();
+
+    updateDuringMarketHours();
+
+    const timer =
+      setInterval(
+        updateDuringMarketHours,
+        5000
+      );
+
+    return () =>
+      clearInterval(timer);
+  }, [
+    stocks.length,
+  ]);
+
+  useEffect(() => {
+    if (
+      Object.keys(
+        fullHistoryMap
+      ).length === 0
+    ) {
+      setHistoryMap({});
+      setHeaderDates([]);
+      return;
+    }
+
+    const history:
+      Record<string, any[]> = {};
+
+    Object.entries(
+      fullHistoryMap
+    ).forEach(
+      ([symbol, rows]) => {
+        history[symbol] =
+          rows
+            .slice(
+              volPeriod === "1W"
+                ? -5
+                : volPeriod === "2W"
+                  ? -10
+                  : -22
+            )
+            .reverse();
+      }
+    );
+
+    setHistoryMap(
+      history
+    );
+
+    const first =
+      Object.values(
+        history
+      )[0] ?? [];
+
+    setHeaderDates(
+      first.map(
+        (x: any) =>
+          new Date(
+            x.time
+          ).toLocaleDateString(
+            "en-GB",
+            {
+              day: "2-digit",
+              month: "short",
+            }
+          )
+      )
+    );
+  }, [
+    fullHistoryMap,
+    volPeriod,
+  ]);
+
+
+
+  const sectorList =
+    useMemo(
+      () => [
+        "ALL",
+
+        ...Array.from(
+          new Set(
+            stocks
+              .map(
+                x =>
+                  x.sector
+              )
+              .filter(Boolean)
+          )
+        ).sort(),
+      ],
+      [stocks]
+    );
+
+  const filteredStocks =
+    useMemo(
+      () => {
+        return stocks.filter(
+          stock => {
+            if (
+              !stock.symbol
+                .toLowerCase()
+                .includes(
+                  search.toLowerCase()
+                )
+            ) {
+              return false;
+            }
+
+            if (
+              sectorFilter !==
+                "ALL" &&
+              stock.sector !==
+                sectorFilter
+            ) {
+              return false;
+            }
+
+            return true;
+          }
+        );
+      },
+      [
+        stocks,
+        search,
+        sectorFilter,
+      ]
+    );
+
+  /*
+   * Current Value Buy entries after
+   * applying the current filters.
+   */
+  const filteredValueBuyEntries =
+    useMemo(
+      () =>
+        valueBuyEntries.filter(
+          entry =>
+            filteredStocks.some(
+              stock =>
+                stock.symbol ===
+                entry.symbol
+            )
+        ),
+      [
+        valueBuyEntries,
+        filteredStocks,
+      ]
+    );
+
+  /*
+   * Stocks currently inside Watchlist.
+   */
+  const watchlistEntries =
+    useMemo(
+      () =>
+        watchlistSymbols
+          .map(symbol => {
+            const stock =
+              filteredStocks.find(
+                s => s.symbol === symbol
+              );
+
+            if (!stock) {
+              return null;
+            }
+
+            const valueBuyEntry =
+              valueBuyEntries.find(
+                entry =>
+                  entry.symbol === symbol
+              );
+
+            return {
+              ...stock,
+              valueBuyPrice:
+                valueBuyEntry?.valueBuyPrice ??
+                null,
+            };
+          })
+          .filter(
+            (
+              stock
+            ): stock is Stock & {
+              valueBuyPrice: number | null;
+            } => stock !== null
+          ),
+      [
+        watchlistSymbols,
+        filteredStocks,
+        valueBuyEntries,
+      ]
+    );
+  /*
+   * Add checked Value Buy stocks
+   * to Watchlist.
+   *
+   * Existing Watchlist stocks remain.
+   */
+  function addSelectedToWatchlist() {
+    if (
+      selectedValueBuySymbols.length ===
+      0
+    ) {
+      return;
+    }
+
+    setWatchlistSymbols(
+      current => {
+        const merged =
+          new Set([
+            ...current,
+            ...selectedValueBuySymbols,
+          ]);
+
+        return Array.from(
+          merged
+        );
+      }
+    );
+
+    setSelectedValueBuySymbols([]);
+  }
+
+  /*
+   * Remove one stock from Watchlist.
+   */
+  function removeFromWatchlist(
+    symbol: string
+  ) {
+    setWatchlistSymbols(
+      current =>
+        current.filter(
+          x => x !== symbol
+        )
+    );
+  }
+  
+
+  if (
+    loading &&
+    stocks.length === 0
+  ) {
+    return (
+
+      <div className="swing-technical-theme w-full min-h-screen bg-[#fee7b5] text-slate-900">
+      <style jsx>{`
+        .swing-technical-theme {
+          background: #fee7b5 !important;
+          color: #111827 !important;
+          min-height: 100vh;
+        }
+
+        .swing-technical-theme table {
+          background: #fee7b5 !important;
+          color: #111827 !important;
+          border-collapse: collapse !important;
+        }
+
+        .swing-technical-theme th {
+          background: #1f2933 !important;
+          color: #fff !important;
+          border: 1px solid #9ca3af !important;
+          font-weight: 700 !important;
+          white-space: nowrap;
+        }
+
+        .swing-technical-theme td {
+          background: #fee7b5 !important;
+          color: #111827 !important;
+          border: 1px solid #9ca3af !important;
+          white-space: nowrap;
+        }
+
+        .swing-technical-theme tr:hover td {
+          background: #f9dfaa !important;
+        }
+
+        .swing-technical-theme input,
+        .swing-technical-theme select {
+          background: #fee7b5 !important;
+          color: #111827 !important;
+          border: 1px solid #1f2937 !important;
+        }
+      `}</style>
+        <Toolbar
+          search={search}
+          setSearch={setSearch}
+          sectorFilter={sectorFilter}
+          setSectorFilter={setSectorFilter}
+          sectorList={sectorList}
+          swingFilter={swingFilter}
+          setSwingFilter={setSwingFilter}
+          volPeriod={volPeriod}
+          setVolPeriod={setVolPeriod}
+          filtered={0}
+          total={0}
+        />
+
+        <div className="px-3 py-2 text-[11px] text-gray-500">
+          Loading {swingFilter}...
+        </div>
+      </div>
+    );
+  }
+
+  return (
+
+    <div className="swing-technical-theme w-full min-h-screen bg-[#fee7b5] text-slate-900">
+      <style jsx>{`
+        .swing-technical-theme {
+          background: #fee7b5 !important;
+          color: #111827 !important;
+          min-height: 100vh;
+        }
+
+        .swing-technical-theme table {
+          background: #fee7b5 !important;
+          color: #111827 !important;
+          border-collapse: collapse !important;
+        }
+
+        .swing-technical-theme th {
+          background: #1f2933 !important;
+          color: #fff !important;
+          border: 1px solid #9ca3af !important;
+          font-weight: 700 !important;
+          white-space: nowrap;
+        }
+
+        .swing-technical-theme td {
+          background: #fee7b5 !important;
+          color: #111827 !important;
+          border: 1px solid #9ca3af !important;
+          white-space: nowrap;
+        }
+
+        .swing-technical-theme tr:hover td {
+          background: #f9dfaa !important;
+        }
+
+        .swing-technical-theme input,
+        .swing-technical-theme select {
+          background: #fee7b5 !important;
+          color: #111827 !important;
+          border: 1px solid #1f2937 !important;
+        }
+      `}</style>
+
+      <Toolbar
+        search={search}
+        setSearch={setSearch}
+
+        sectorFilter={sectorFilter}
+        setSectorFilter={
+          setSectorFilter
+        }
+
+        sectorList={sectorList}
+
+        swingFilter={swingFilter}
+        setSwingFilter={
+          setSwingFilter
+        }
+
+        volPeriod={volPeriod}
+        setVolPeriod={
+          setVolPeriod
+        }
+
+        filtered={
+          swingFilter === "WATCHLIST"
+            ? watchlistEntries.length
+            : filteredStocks.length
+        }
+
+        total={
+          stocks.length
+        }
+      />
+
+      {/* =====================================================
+          WATCHLIST VIEW
+         ===================================================== */}
+
+      {swingFilter === "WATCHLIST" ? (
+
+        <div className="w-full overflow-x-auto bg-[#111315]">
+
+          <div
+            className="
+              flex
+              justify-end
+              border-b
+              border-[#2a2f34]
+              bg-[#111315]
+              px-3
+              py-1
+              text-[11px]
+              font-semibold
+              text-cyan-300
+            "
+          >
+            {watchlistEntries.length} stocks
+          </div>
+
+          <table
+            className="
+              w-full table-fixed
+              border-collapse
+              text-[11px]
+              bg-[#111315]
+            "
+          ><colgroup>
+  <col style={{ width: "30%" }} />
+  <col style={{ width: "10%" }} />
+  <col style={{ width: "12%" }} />
+  <col style={{ width: "12%" }} />
+  <col style={{ width: "12%" }} />
+  <col style={{ width: "22%" }} />
+  <col style={{ width: "6%" }} />
+</colgroup>
+
+            <thead>
+              <tr>
+
+                <th
+                  className="
+                    px-3
+                    py-1
+                    text-left
+                  "
+                >
+                  SYM
+                </th>
+
+                <th
+                  className="
+                    px-3
+                    py-1
+                    text-right
+                  "
+                >
+                  CMP
+                </th>
+
+                <th
+                  className="
+                    px-3
+                    py-1
+                    text-right
+                  "
+                >
+                  VALUE BUY
+                </th>
+
+                <th
+                  className="
+                    px-3
+                    py-1
+                    text-right
+                  "
+                >
+                  D PVT
+                </th>
+
+                <th
+                  className="
+                    px-3
+                    py-1
+                    text-right
+                  "
+                >
+                  W PVT
+                </th>
+
+                <th
+                  className="
+                    px-3
+                    py-1
+                    text-right
+                  "
+                >
+                  M PVT
+                </th>
+
+                <th
+                  className="
+                    w-6
+                    px-1
+                  "
+                />
+
+              </tr>
+            </thead>
+
+            <tbody>
+
+              {watchlistEntries.map(
+                stock => {
+
+                  return (
+                    <tr
+                      key={stock.symbol}
+                      className="
+                        border-b
+                        border-[#292e33]
+                        bg-[#111315]
+                        hover:bg-[#20252a]
+                      "
+                    >
+
+                      <td
+                        className="
+                          px-2
+                          py-1
+                          font-semibold
+                          text-cyan-200
+                        "
+                      >
+                        {stock.symbol}
+                      </td>
+
+                      <td
+                        className="
+                          px-2
+                          py-1
+                          text-right
+                          text-cyan-300
+                        "
+                      >
+                        {num(
+                          stock?.liveCmp ?? stock?.cmp
+                        )}
+                      </td>
+                      <td
+                        className="
+                          px-2
+                          py-1
+                          text-right
+                          font-semibold
+                          text-yellow-300
+                        "
+                      >
+                        {num(
+                          stock.valueBuyPrice
+                        )}
+                      </td>
+
+                      <td className="px-2 py-1 text-right font-semibold text-cyan-300">
+                        {num(stock?.dailyPivot?.pivot)}
+                      </td>
+
+                      <td className="px-2 py-1 text-right font-semibold text-cyan-300">
+                        {num(stock?.weeklyPivot?.pivot)}
+                      </td>
+
+                      <td className="px-2 py-1 text-right font-semibold text-cyan-300">
+                        {num(stock?.monthlyPivot?.pivot)}
+                      </td>
+
+
+                      <td
+                        className="
+                          w-6
+                          px-1
+                          py-1
+                          text-center
+                        "
+                      >
+                        <button
+                          type="button"
+                          onClick={() =>
+                            removeFromWatchlist(
+                              stock.symbol
+                            )
+                          }
+                          className="
+                            text-gray-600
+                            hover:text-red-400
+                          "
+                          title="Remove from Watchlist"
+                        >
+                          Ã—
+                        </button>
+                      </td>
+
+                    </tr>
+                  );
+                }
+              )}
+
+              {watchlistEntries.length === 0 && (
+
+                <tr>
+
+                  <td
+                    colSpan={7}
+                    className="
+                      py-4
+                      text-center
+                      text-[11px]
+                      text-gray-500
+                    "
+                  >
+                    No stocks in Watchlist.
+                  </td>
+
+                </tr>
+
+              )}
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      ) : (
+
+        /* =====================================================
+           VALUE BUY VIEW
+           ===================================================== */
+
+        swingFilter ===
+        "VALUE_BUY" ? (
+
+          <ValueBuyTable
+
+            stocks={
+              filteredStocks
+            }
+
+            entries={
+              filteredValueBuyEntries
+            }
+
+            setEntries={
+              setValueBuyEntries
+            }
+
+            num={num}
+
+            /*
+             * NEW WATCHLIST PROPS
+             */
+            selectedSymbols={
+              selectedValueBuySymbols
+            }
+
+            setSelectedSymbols={
+              setSelectedValueBuySymbols
+            }
+            onAddToWatchlist={
+              addSelectedToWatchlist
+            }
+
+          />
+
+        ) : (
+
+          <div
+            className="
+              w-full
+              overflow-x-auto
+            "
+          >
+
+            <table
+              className="
+                w-full
+                border-collapse
+                text-xs
+              "
+            >
+
+              <TableHeader
+                swingFilter={
+                  swingFilter
+                }
+                volPeriod={
+                  volPeriod
+                }
+                headerDates={
+                  headerDates
+                }
+              />
+
+              <tbody>
+
+                {filteredStocks.map(
+                  (
+                    row,
+                    index
+                  ) => (
+
+                    <TableRow
+                      key={
+                        row.symbol
+                      }
+
+                      row={row}
+
+                      index={
+                        index
+                      }
+
+                      swingFilter={
+                        swingFilter
+                      }
+
+                      volPeriod={
+                        volPeriod
+                      }
+
+                      history={
+                        historyMap[
+                          row.symbol
+                        ] ?? []
+                      }
+
+                      num={num}
+
+                      dt={dt}
+                    />
+
+                  )
+                )}
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+        )
+
+      )}
+
+    </div>
+  );
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
