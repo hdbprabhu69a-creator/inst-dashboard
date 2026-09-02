@@ -3,9 +3,13 @@
   getDoc,
   setDoc,
   serverTimestamp,
+  collection,
+  getDocs,
+  writeBatch,
 } from "firebase/firestore";
 
 import { db } from "@/lib/firebase";
+import { calculateTechnical } from "@/lib/technical/technicalEngine";
 
 import {
   generateMarketStructure,
@@ -263,6 +267,98 @@ async function getLastRunDate() {
   );
 }
 
+async function updateTechnicalAnalysisEOD() {
+
+  const stocks = await getDocs(
+    collection(db, "universe")
+  );
+
+  const batch = writeBatch(db);
+  let writes = 0;
+
+  for (const stock of stocks.docs) {
+
+    const symbol = stock.data()?.symbol;
+    if (!symbol) continue;
+
+    const history = await getDocs(
+      collection(
+        db,
+        "universe",
+        stock.id,
+        "history"
+      )
+    );
+
+    const candles = history.docs
+      .map(d => {
+        const x = d.data();
+
+        return {
+          time: String(x.date),
+          open: Number(x.open),
+          high: Number(x.high),
+          low: Number(x.low),
+          close: Number(x.close),
+          volume: Number(x.volume ?? 0),
+        };
+      })
+      .filter(x =>
+        x.time &&
+        Number.isFinite(x.open) &&
+        Number.isFinite(x.high) &&
+        Number.isFinite(x.low) &&
+        Number.isFinite(x.close)
+      )
+      .sort((a, b) =>
+        a.time.localeCompare(b.time)
+      );
+
+    if (!candles.length) continue;
+
+    for (const timeframe of ["D", "W", "M"] as const) {
+
+      const rows =
+        calculateTechnical(
+          candles,
+          timeframe
+        );
+
+      const row =
+        rows[rows.length - 1];
+
+      if (!row) continue;
+
+      batch.set(
+        doc(
+          db,
+          "technical_analysis",
+          `${symbol}_${timeframe}_${row.date}`
+        ),
+        {
+          ...row,
+          symbol,
+          timeframe,
+          source: "eod-auto-update",
+          updatedAt: serverTimestamp(),
+        },
+        { merge: true }
+      );
+
+      writes++;
+    }
+  }
+
+  if (writes) {
+    await batch.commit();
+  }
+
+  return {
+    success: true,
+    stocks: stocks.size,
+    writes,
+  };
+}
 export async function runPendingEODIfRequired() {
 
   console.log(
@@ -323,18 +419,40 @@ export async function runPendingEODIfRequired() {
   ) {
 
     console.log(
-      "[AUTO POWER] EOD already processed."
+      "[AUTO POWER] EOD already processed. Updating Technical Analysis..."
     );
+
+    let technicalResult;
+
+    try {
+
+      technicalResult =
+        await updateTechnicalAnalysisEOD();
+
+    } catch (error: any) {
+
+      return {
+        success: false,
+        skipped: true,
+        date:
+          latestTradingDate,
+        reason:
+          "TECHNICAL_ANALYSIS_FAILED",
+        error:
+          error?.message ??
+          String(error),
+      };
+    }
 
     return {
       success: true,
       skipped: true,
       date:
         latestTradingDate,
+      technicalResult,
     };
   }
-
-  /*
+/*
    * EOD is missing.
    */
   console.log(
@@ -536,6 +654,34 @@ export async function runPendingEODIfRequired() {
   );
 
   /*
+   * TECHNICAL ANALYSIS
+   */
+  let technicalResult;
+
+  try {
+
+    technicalResult =
+      await updateTechnicalAnalysisEOD();
+
+  } catch (error: any) {
+
+    console.error(
+      "[AUTO POWER] TECHNICAL ANALYSIS FAILED:",
+      error?.message ?? String(error)
+    );
+
+    return {
+      success: false,
+      skipped: false,
+      date: latestTradingDate,
+      historyResult,
+      stockResult,
+      indexResult,
+      reason: "TECHNICAL_ANALYSIS_FAILED",
+      error: error?.message ?? String(error),
+    };
+  }
+  /*
    * Checkpoint is written ONLY after:
    *
    * 1. History
@@ -596,3 +742,7 @@ export async function runPendingEODIfRequired() {
     indexResult,
   };
 }
+
+
+
+
