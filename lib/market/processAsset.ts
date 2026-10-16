@@ -1,4 +1,4 @@
-﻿import { Connect } from "kiteconnect";
+import { Connect } from "kiteconnect";
 
 import {
   buildDailyStructure,
@@ -8,8 +8,6 @@ import {
 } from "@/src/lib/marketStructureEngine";
 
 import { buildAllSwings } from "@/src/lib/swingEngine";
-
-import { getCompletedDailyCandle } from "@/src/lib/eodEngine";
 
 import { getDailyCandles } from "@/src/lib/kiteData";
 
@@ -52,6 +50,52 @@ export interface ProcessAssetResult {
   symbol: string;
 }
 
+
+function getPreviousCompletedDailyCandle(
+  candles: any[]
+) {
+  if (!candles?.length) {
+    return null;
+  }
+
+  const now = new Date();
+
+  const istNow = new Date(
+    now.toLocaleString("en-US", {
+      timeZone: "Asia/Kolkata",
+    })
+  );
+
+  const today = [
+    istNow.getFullYear(),
+    String(
+      istNow.getMonth() + 1
+    ).padStart(2, "0"),
+    String(
+      istNow.getDate()
+    ).padStart(2, "0"),
+  ].join("-");
+
+  const completedCandles =
+    candles
+      .filter(
+        (c: any) =>
+          String(c.date).slice(0, 10) < today
+      )
+      .sort(
+        (a: any, b: any) =>
+          new Date(a.date).getTime() -
+          new Date(b.date).getTime()
+      );
+
+  if (!completedCandles.length) {
+    return null;
+  }
+
+  return completedCandles[
+    completedCandles.length - 1
+  ];
+}
 export async function processAsset(
   stock: any,
   context: ProcessAssetContext
@@ -139,7 +183,7 @@ const structureCandles =
   swingCandles;
 
 const lastCandle =
-  getCompletedDailyCandle(
+  getPreviousCompletedDailyCandle(
     structureCandles
   );
 
@@ -197,98 +241,94 @@ console.log(
    ========================= */
 
 const latestStructureDate =
-  new Date(
-    lastCandle.date
-  );
-
-const latestDate =
-  new Date(latestStructureDate);
-
-latestDate.setHours(
-  0,
-  0,
-  0,
-  0
-);
-
-const latestDay =
-  latestDate.getDay();
-const daysFromMonday =
-  latestDay === 0
-    ? 6
-    : latestDay - 1;
-
-const currentWeekStart =
-  new Date(latestStructureDate);
-
-currentWeekStart.setDate(
-  latestStructureDate.getDate() -
-  daysFromMonday
-);
-
-currentWeekStart.setHours(
-  0,
-  0,
-  0,
-  0
-);
-
-const currentWeekEnd =
-  new Date(currentWeekStart);
-
-currentWeekEnd.setDate(
-  currentWeekEnd.getDate() + 7
-);
+  new Date(lastCandle.date);
 
 /*
  * WEEKLY PIVOT
- *
- * Always use the previous completed week.
+ * Previous completed calendar week, based on India date.
  */
+
+const indiaParts = new Intl.DateTimeFormat("en-CA", {
+  timeZone: "Asia/Kolkata",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+}).formatToParts(new Date());
+
+const getIndiaPart = (type: string) =>
+  indiaParts.find((part) => part.type === type)?.value ?? "";
+
+const indiaTodayKey =
+  `${getIndiaPart("year")}-${getIndiaPart("month")}-${getIndiaPart("day")}`;
+
+const currentWeekStart =
+  new Date(`${indiaTodayKey}T00:00:00.000Z`);
+
+const currentDay =
+  currentWeekStart.getUTCDay();
+
+const daysFromMonday =
+  currentDay === 0 ? 6 : currentDay - 1;
+
+currentWeekStart.setUTCDate(
+  currentWeekStart.getUTCDate() - daysFromMonday
+);
 
 const weeklyStart =
   new Date(currentWeekStart);
 
+weeklyStart.setUTCDate(
+  weeklyStart.getUTCDate() - 7
+);
+
 const weeklyEnd =
-  new Date(currentWeekEnd);
+  new Date(currentWeekStart);
 
-weeklyStart.setDate(
-  weeklyStart.getDate() - 7
-);
+const formatWeeklyDateKey = (date: Date) =>
+  `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}-${String(date.getUTCDate()).padStart(2, "0")}`;
 
-weeklyEnd.setDate(
-  weeklyEnd.getDate() - 7
-);
+const weeklyStartKey =
+  formatWeeklyDateKey(weeklyStart);
+
+const weeklyEndKey =
+  formatWeeklyDateKey(weeklyEnd);
 
 const weeklyCandlesForStructure =
-  structureCandles.filter(
-    (c: any) => {
+  structureCandles.filter((c: any) => {
+    const rawDate = String(c.date ?? "");
+    const match = rawDate.match(/^(\d{4}-\d{2}-\d{2})/);
 
-      const d =
-        new Date(c.date);
+    let dateKey: string;
 
-      d.setHours(
-        0,
-        0,
-        0,
-        0
-      );
+    if (match) {
+      dateKey = match[1];
+    } else {
+      const parsedDate = new Date(c.date);
 
-      return (
-        d >= weeklyStart &&
-        d < weeklyEnd
-      );
+      if (Number.isNaN(parsedDate.getTime())) {
+        return false;
+      }
 
+      dateKey = formatWeeklyDateKey(parsedDate);
     }
-  );
+
+    return (
+      dateKey >= weeklyStartKey &&
+      dateKey < weeklyEndKey
+    );
+  });
 
 console.log(
   `[AUTO POWER WEEKLY SOURCE] ${symbol} | ` +
-  `FROM: ${weeklyStart.toISOString().split("T")[0]} | ` +
-  `TO: ${new Date(
-    weeklyEnd.getTime() - 86400000
-  ).toISOString().split("T")[0]}`
+  `FROM: ${weeklyStartKey} | TO EXCLUSIVE: ${weeklyEndKey} | ` +
+  `CANDLES: ${weeklyCandlesForStructure.length}`
 );
+
+if (weeklyCandlesForStructure.length === 0) {
+  throw new Error(
+    `[WEEKLY PIVOT] No candles for ${weeklyStartKey} to ${weeklyEndKey}`
+  );
+}
 const weeklyHigh =
   Math.max(
     ...weeklyCandlesForStructure.map(
@@ -698,6 +738,7 @@ const swings=buildAllSwings(swingCandles); console.log(`[AUTO POWER SWING] ${sym
     };
   }
 }
+
 
 
 

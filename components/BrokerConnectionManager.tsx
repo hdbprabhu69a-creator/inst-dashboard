@@ -91,7 +91,7 @@ export default function BrokerConnectionManager({
     }
 
     window.location.href =
-      `https://kite.trade/connect/login?api_key=${apiKey}&v=3`;
+  `https://kite.zerodha.com/connect/login?v=3&api_key=${encodeURIComponent(apiKey)}`;
 
   };
 

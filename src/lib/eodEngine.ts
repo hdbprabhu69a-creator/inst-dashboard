@@ -124,7 +124,62 @@ export function getCompletedWeeklyCandles(
 export function getPreviousCompletedWeekCandles(
   candles: any[]
 ) {
-  return getDateWindow(candles, 7);
+  const data = validCandles(candles);
+
+  if (!data.length) return [];
+
+  const indiaParts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Kolkata",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date());
+
+  const part = (type: string) =>
+    indiaParts.find((item) => item.type === type)?.value ?? "";
+
+  const todayKey =
+    `${part("year")}-${part("month")}-${part("day")}`;
+
+  const currentWeekStart =
+    new Date(`${todayKey}T00:00:00.000Z`);
+
+  const day = currentWeekStart.getUTCDay();
+  const daysFromMonday = day === 0 ? 6 : day - 1;
+
+  currentWeekStart.setUTCDate(
+    currentWeekStart.getUTCDate() - daysFromMonday
+  );
+
+  const previousWeekStart = new Date(currentWeekStart);
+  previousWeekStart.setUTCDate(
+    previousWeekStart.getUTCDate() - 7
+  );
+
+  const formatDateKey = (date: Date) =>
+    `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}-${String(date.getUTCDate()).padStart(2, "0")}`;
+
+  const startKey = formatDateKey(previousWeekStart);
+  const endKey = formatDateKey(currentWeekStart);
+
+  return data.filter((c: any) => {
+    const rawDate = String(c.date ?? "");
+    const match = rawDate.match(/^(\d{4}-\d{2}-\d{2})/);
+
+    let dateKey: string;
+
+    if (match) {
+      dateKey = match[1];
+    } else {
+      const parsed = new Date(c.date);
+
+      if (Number.isNaN(parsed.getTime())) return false;
+
+      dateKey = formatDateKey(parsed);
+    }
+
+    return dateKey >= startKey && dateKey < endKey;
+  });
 }
 
 export function getPreviousTwoCompletedWeekCandles(
